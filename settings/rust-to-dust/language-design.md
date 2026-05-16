@@ -22,6 +22,8 @@ aesthetic virtue is central.
 - surface as evidence of inner order
 - decorated versus unpainted social status
 - violence as beautiful craft
+- chosen constraint as proof of mastery
+- overmatch as vulgar or tourist-coded
 - vulgar violence as failed form
 - commerce as curation
 - conquest as access and integration
@@ -72,6 +74,7 @@ Example:
 - Which human distinctions does it collapse?
 - How does scale decoration appear in metaphor, grammar, address, and insult?
 - How does unpaintedness split across shame, danger, contempt, and purity?
+- How does the language distinguish victory, mastery, spectacle, and vulgar
+  overmatch?
 - What alien terms leak into human English first?
 - How do subtitles balance player comprehension with imperial contamination?
-

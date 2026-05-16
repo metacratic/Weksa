@@ -7,6 +7,12 @@ human combat prowess. The aliens do not treat it as the real war for humanity's
 future. They treat it as spectacle, talent development, cultural tourism, and
 market research.
 
+Aliens who enter these events in mechs or heavy armor are tourists buying an
+experience, not respected warrior exemplars. Their culture reads that kind of
+overmatch as inelegant. The alien who arrives lightly equipped, even against
+human firepower, is more dangerous because they are actually pursuing honor
+through visible mastery.
+
 ## Broadcast
 
 An in-universe alien TV channel commentates on what players are doing. The
@@ -63,7 +69,8 @@ The broadcast surface should care about:
 - sincerity
 - marketability
 - tourist appeal
+- inelegant overmatch
+- chosen constraint
 - human authenticity
 - imperial amusement
 - whether resistance reads as threat, folk art, or breakout talent
-
