@@ -28,6 +28,10 @@ clipboard and delusions of nationhood.
 - `schemas/`: human-facing state contract receipts.
 - `docs/`: architecture, language model, and roadmap.
 
+Start with [Best Modern Approach](./docs/best-modern-approach.md) for the core
+design doctrine: ontology, roots, morphology, syntax, semantics, interlingua,
+diachrony, and model-assisted consistency.
+
 ## Implementation Status
 
 No runtime language has been selected yet. The first committed artifact is the

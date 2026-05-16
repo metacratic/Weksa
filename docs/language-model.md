@@ -2,6 +2,9 @@
 
 Weksa's linguistic model is concept-first.
 
+See [Best Modern Approach](./best-modern-approach.md) for the fuller design
+doctrine and examples.
+
 ## Translation Path
 
 1. Preserve the source utterance.

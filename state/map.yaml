@@ -129,6 +129,9 @@ accepted_design:
   - The first model is concept-first translation through an explicit
     interlingua, ontology, grammar, morphology, phonology, diachrony, and
     renderer pipeline.
+  - `docs/best-modern-approach.md` is the current doctrine for conceptual
+    ontology, root generation, morphology, syntax, lexical semantics,
+    interlingua, diachrony, and model-assisted consistency.
 
 open_questions:
   - Which implementation language best serves the first usable engine?
