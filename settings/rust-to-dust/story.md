@@ -98,3 +98,17 @@ around him. He becomes useful inside a distributed commons.
 The ending should teach praxis, permaculture, dialectics, and the unity of means
 and ends without naming them. Values survive when the way people resist already
 contains the world they are trying to preserve.
+
+## Ending Beat
+
+The story can close back at the pub.
+
+The TV is still playing alien brilliance. It is still seductive, and nobody
+pretends otherwise. The difference is that the room is no longer organized
+around it.
+
+People are teaching, repairing, arguing, remembering, and making plans. The
+father is present but not central. His son is there too, not purified of alien
+influence, but choosing consciously what to carry forward.
+
+Someone turns the TV down because another person is about to sing.
