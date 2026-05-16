@@ -24,8 +24,9 @@ He knows a guy.
 ## Resistance Cell
 
 That contact leads to a global resistance cell. The cell steals important human
-cultural artifacts before they can be sold off, licensed, collected, or otherwise
-absorbed by the aliens.
+cultural artifacts before they can be absorbed into imperial prestige systems,
+removed from human continuity, or reframed until their original meaning becomes
+secondary.
 
 The work involves a lot of fighting. The father gets into it and becomes good at
 it.
@@ -39,12 +40,12 @@ rejecting their imperialism, values, and culture.
 
 They love it.
 
-His rejection becomes a marketable performance. He becomes a meme. That is how
-his son finds out.
+His rejection becomes an admired performance. He becomes a meme. That is how his
+son finds out.
 
 ## Structural Irony
 
 The father thinks the fight is about refusing alien culture. The empire turns
-his refusal into content. His son encounters him not as a rebel, but as an
-imperial media object.
-
+his refusal into proof that humanity has passion and aesthetic potential. His son
+encounters him not as a rebel outside the empire, but as someone the empire
+understands better than he understands it.

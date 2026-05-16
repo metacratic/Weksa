@@ -72,7 +72,7 @@ The aliens tend to interpret action through aesthetic status:
 - Was it sincere?
 - Was it vulgar?
 - Was it memorable?
-- Was it marketable?
+- Did it reveal aesthetic promise?
 - Did it reveal mastery?
 - Did it collapse into mere function?
 

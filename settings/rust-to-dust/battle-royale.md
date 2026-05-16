@@ -5,7 +5,7 @@ The battle royale is one public view into Rust to Dust, not the whole setting.
 It is a controlled imperial event designed to discover, display, and promote
 human combat prowess. The aliens do not treat it as the real war for humanity's
 future. They treat it as spectacle, talent development, cultural tourism, and
-market research.
+proof that humans may be crude but are not empty.
 
 Aliens who enter these events in mechs or heavy armor are tourists buying an
 experience, not respected warrior exemplars. Their culture reads that kind of
@@ -67,7 +67,7 @@ The broadcast surface should care about:
 - combat elegance
 - vulgarity
 - sincerity
-- marketability
+- aesthetic promise
 - tourist appeal
 - inelegant overmatch
 - chosen constraint

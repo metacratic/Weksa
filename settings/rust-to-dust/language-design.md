@@ -1,7 +1,10 @@
 # Language Design Pressure
 
 Rust to Dust needs a language project whose speakers treat aesthetic devotion as
-moral honor and cultural absorption as refinement rather than conquest.
+moral honor and cultural absorption as refinement rather than conquest. The
+empire is not frightening because it is merely better at commodification. It is
+frightening because its culture is overwhelmingly beautiful and humans are
+capable of recognizing that beauty.
 
 The language is not named yet. The speakers are not named yet. Naming should
 preferably emerge from ontology, phonetics, and register rather than from an
@@ -25,11 +28,12 @@ aesthetic virtue is central.
 - chosen constraint as proof of mastery
 - overmatch as vulgar or tourist-coded
 - vulgar violence as failed form
-- commerce as curation
+- commerce as a delivery rail for cultural gravity
 - conquest as access and integration
 - resistance as both disobedience and potential performance
-- human authenticity as marketable rawness
-- cultural inheritance as asset, fashion, and collectible material
+- human passion as evidence of aesthetic compatibility
+- human refusal as admirable form
+- cultural inheritance as continuity under aesthetic pressure
 
 ## Registers
 
@@ -61,7 +65,7 @@ Example:
     "discipline": "improvised",
     "spectacle_value": "high",
     "honor_status": "ambiguous",
-    "marketability": "rising"
+    "aesthetic_promise": "rising"
   },
   "imperial_frame": "authentic_local_defiance"
 }
@@ -76,5 +80,8 @@ Example:
 - How does unpaintedness split across shame, danger, contempt, and purity?
 - How does the language distinguish victory, mastery, spectacle, and vulgar
   overmatch?
+- How does the language distinguish crude work from failed work?
+- How does it encode respect for resistance that the speaker still expects to
+  absorb?
 - What alien terms leak into human English first?
 - How do subtitles balance player comprehension with imperial contamination?

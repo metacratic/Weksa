@@ -62,9 +62,8 @@ setting's bones.
 
 Rust to Dust is Weksa's first proving ground. It needs a language project whose
 speakers treat aesthetic devotion as moral honor and whose empire absorbs human
-culture through commerce, prestige, and media rather than ordinary military
-conquest.
+culture through prestige, media, technological dependence, and overwhelming
+artistic gravity rather than ordinary military conquest.
 
 That pressure is useful because it forces Weksa to handle ontology before words.
 It is not a license to hard-code Rust to Dust into Weksa.
-
