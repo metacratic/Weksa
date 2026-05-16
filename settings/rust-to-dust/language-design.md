@@ -31,6 +31,8 @@ aesthetic virtue is central.
 - commerce as a delivery rail for cultural gravity
 - conquest as access and integration
 - resistance as both disobedience and potential performance
+- spectacle as a dangerous attractor for imperial interpretation
+- local practice as meaning embedded in relationships
 - human passion as evidence of aesthetic compatibility
 - human refusal as admirable form
 - cultural inheritance as continuity under aesthetic pressure
@@ -83,5 +85,8 @@ Example:
 - How does the language distinguish crude work from failed work?
 - How does it encode respect for resistance that the speaker still expects to
   absorb?
+- How does it distinguish public spectacle from living practice?
+- How does imperial speech misread distributed cooperation when no central
+  performer owns the act?
 - What alien terms leak into human English first?
 - How do subtitles balance player comprehension with imperial contamination?

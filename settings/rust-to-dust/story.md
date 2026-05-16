@@ -43,9 +43,58 @@ They love it.
 His rejection becomes an admired performance. He becomes a meme. That is how his
 son finds out.
 
+## Failed Spectacle
+
+After the panel, the father tries to leverage his notoriety and resistance
+cachet into the biggest artifact heist yet. The plan depends on spectacle:
+attention, symbolic force, and the hope that his fame can be turned against the
+empire.
+
+It fails because his fame is already a call to the wrong audience.
+
+The heist attracts the most dangerous alien warrior-poets, not armored tourists.
+They arrive for the chance to reach him, test themselves, and make art from the
+asymmetry. They carve through resistance ranks with beautiful, disciplined
+violence. They are not trying to crush the cell efficiently. They are trying to
+earn honor.
+
+The father survives and returns home defeated.
+
+His son delivers the turn: the empire likes him because he means it. They
+understand his refusal as form. Trying to win through notoriety only gives them a
+brighter stage.
+
 ## Structural Irony
 
 The father thinks the fight is about refusing alien culture. The empire turns
 his refusal into proof that humanity has passion and aesthetic potential. His son
 encounters him not as a rebel outside the empire, but as someone the empire
 understands better than he understands it.
+
+## Resolution Shape
+
+The resolution is not beating the empire at its own game.
+
+The father moves from individual heroic refusal toward distributed preservation.
+The resistance cannot stop the empire from taking the world, but it can build
+local forms of life whose incentives remain aligned toward care, memory,
+cooperation, and sanity.
+
+The final answer is not a bigger raid or a better broadcast. It is a network of
+small, durable practices:
+
+- people teaching each other
+- people feeding each other
+- people repairing things together
+- local histories kept alive by use
+- songs, games, jokes, rituals, and skills repeated in community
+- artifacts preserved because they remain part of living practice
+- resistance cells structured so no single celebrity, trophy, or spectacle owns
+  the meaning
+
+The father does not become the great leader. That would only rebuild the trap
+around him. He becomes useful inside a distributed commons.
+
+The ending should teach praxis, permaculture, dialectics, and the unity of means
+and ends without naming them. Values survive when the way people resist already
+contains the world they are trying to preserve.

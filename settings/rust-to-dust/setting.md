@@ -39,6 +39,10 @@ inside somebody else's civilization.
 - Most conquered species can be administered, entertained, or improved. Humans
   can answer. That makes them fascinating.
 - The empire loves that humans refuse to be conquered. It respects the attempt.
+- Spectacular resistance can become imperial material when it depends on
+  attention, celebrity, or symbolic centrality.
+- Distributed local practice is harder to absorb because its meaning lives in
+  relationships, not just performance.
 - The empire does not need humans to love it. It needs human life to route
   through imperial meanings.
 
