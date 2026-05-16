@@ -22,6 +22,11 @@ constraints:
     architecture earns it.
   - Neural models may decompose, suggest, generate, and critique; they do not
     own the canonical language state.
+  - Runtime should accept structured meaning and compiled project data; required
+    hot-path rendering must not depend on arbitrary English interpretation or
+    live LLM calls.
+  - Setting-specific projects may pressure the engine, but their ontology must
+    not become generic Weksa doctrine.
   - Explicit project state must distinguish durable decisions from scratch.
   - Avoid direct English-to-alien word replacement as the core design.
 
@@ -129,6 +134,12 @@ accepted_design:
   - The first model is concept-first translation through an explicit
     interlingua, ontology, grammar, morphology, phonology, diachrony, and
     renderer pipeline.
+  - Weksa is the engine. A language project owns one constructed language.
+    Setting docs own story, species, culture, and use cases.
+  - Rust to Dust is the first proving ground, not engine doctrine.
+  - Time-sensitive runtime paths should be deterministic and LLM-free.
+    Model-assisted decomposition, generation, and critique belong in authoring
+    or offline workflows.
   - `docs/best-modern-approach.md` is the current doctrine for conceptual
     ontology, root generation, morphology, syntax, lexical semantics,
     interlingua, diachrony, and model-assisted consistency.
@@ -137,12 +148,17 @@ open_questions:
   - Which implementation language best serves the first usable engine?
   - What format should language projects use for ontology, grammar, phonology,
     morphology, and diachrony definitions?
-  - Which model provider and embedding strategy should be used for semantic
-    decomposition and critique?
+  - What compiled runtime bundle format keeps game-time rendering fast and
+    inspectable?
+  - Which model provider and embedding strategy should be used for offline
+    semantic decomposition and critique?
   - How much deterministic validation belongs in v0?
+  - What is the minimal Rust to Dust language-project slice that proves the
+    engine without hard-coding the setting into it?
 
 landed_baseline:
   - Language-neutral state spine.
   - Canonical pipeline map.
   - Scratch surface.
   - Schema receipt docs.
+  - Rust to Dust setting documentation skeleton.

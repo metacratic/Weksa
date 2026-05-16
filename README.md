@@ -27,13 +27,21 @@ clipboard and delusions of nationhood.
 - `state/scratch.md`: disposable workbench.
 - `schemas/`: human-facing state contract receipts.
 - `docs/`: architecture, language model, and roadmap.
+- `settings/`: setting-specific proving grounds for language projects.
 
 Start with [Best Modern Approach](./docs/best-modern-approach.md) for the core
 design doctrine: ontology, roots, morphology, syntax, semantics, interlingua,
 diachrony, and model-assisted consistency.
+
+See [Project Model](./docs/project-model.md) for the engine / language project /
+setting split, and [Runtime and Authoring Split](./docs/runtime-authoring-split.md)
+for the LLM-free hot path.
 
 ## Implementation Status
 
 No runtime language has been selected yet. The first committed artifact is the
 persistent state spine: map, scratch, schemas, docs, and examples. The engine
 implementation should be chosen after the pipeline and data ownership are clear.
+
+[Rust to Dust](./settings/rust-to-dust/README.md) is the first proving ground,
+not engine doctrine.

@@ -30,7 +30,14 @@ inspectable machine. The first executable slice should probably read a tiny
 language project definition, render a handful of structured meaning packets, and
 produce traceable glossed output.
 
+Runtime should be fast and deterministic. Model-assisted English decomposition
+belongs in authoring tools or offline import flows, not in the required hot path.
+See [Runtime and Authoring Split](./runtime-authoring-split.md).
+
 ## Cut Line
 
 Do not add a runtime language, service, database, queue, plugin system, prompt
 framework, or adapter until the pipeline stage needing it is known.
+
+Do not hard-code Rust to Dust, its aliens, or its aesthetic-honor ontology into
+the generic engine.
