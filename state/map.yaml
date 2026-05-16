@@ -1,0 +1,145 @@
+project:
+  name: Weksa
+  status: scaffolded
+  phase: state_spine
+  premise: >
+    Build a procedural language engine that generates alien languages from
+    explicit concepts, cultural constraints, grammar, phonology, morphology,
+    and diachronic history instead of direct English word substitution.
+
+objective:
+  primary: >
+    Create a durable workspace where Weksa can develop from a persistent map
+    before runtime architecture decisions are made.
+  current: >
+    Establish the language-neutral state spine ported from the EpiphanyAgent
+    pattern: canonical map, scratch surface, schema receipts, and pipeline
+    documentation.
+
+constraints:
+  - Runtime implementation language is undecided.
+  - Do not add framework, package, build, CLI, or service scaffolding until the
+    architecture earns it.
+  - Neural models may decompose, suggest, generate, and critique; they do not
+    own the canonical language state.
+  - Explicit project state must distinguish durable decisions from scratch.
+  - Avoid direct English-to-alien word replacement as the core design.
+
+invariants:
+  - Ontology owns meaning.
+  - Grammar owns required expression.
+  - Phonology owns sound shape.
+  - Morphology owns derivation, inflection, compounding, and root families.
+  - Diachrony owns historical distortion, semantic drift, register split, loan
+    strata, and irregularity.
+  - Renderer owns surface text and glosses from already-structured meaning.
+  - Persistent state owns durable maps, accepted decisions, open questions,
+    evidence, and working memory.
+  - Scratch is disposable; the map is slow-changing.
+
+data_flow:
+  observe:
+    - source utterance
+    - translation context
+    - world model
+    - existing language project state
+  process:
+    - decompose source into structured interlingua
+    - apply alien ontology and cultural salience
+    - select grammatical commitments
+    - derive morphology and lexical families
+    - apply phonological constraints
+    - apply diachronic history
+    - render surface alien text, gloss, and explanation
+  cut:
+    - remove stages that do not own a clear invariant
+    - reject generic adapters until a real external boundary exists
+    - keep model prompts as replaceable tools, not hidden sources of truth
+
+pipeline:
+  stages:
+    - id: source-input
+      title: Source Input
+      owns: raw utterance and context
+      emits: source packet
+      invariant: input text remains recoverable as evidence
+    - id: interlingua
+      title: Meaning Interlingua
+      owns: structured semantic representation
+      emits: concept/event graph
+      invariant: meaning is explicit before alien rendering
+    - id: ontology
+      title: Alien Ontology
+      owns: concept splits, collapses, salience, and worldview pressure
+      emits: alien concept frame
+      invariant: alien worldview decides which distinctions matter
+    - id: grammar
+      title: Grammar
+      owns: required expression, syntax, agreement, and clause structure
+      emits: grammatical plan
+      invariant: surface output carries required commitments
+    - id: morphology
+      title: Morphology
+      owns: roots, derivation, inflection, compounds, and families
+      emits: morpheme plan
+      invariant: related forms remain related for a reason
+    - id: phonology
+      title: Phonology
+      owns: legal sounds, syllables, phonotactics, and prosody
+      emits: legal proto-forms
+      invariant: generated forms belong to one sound system
+    - id: diachrony
+      title: Diachrony
+      owns: historical sound change, semantic drift, registers, loans, scars
+      emits: attested forms
+      invariant: plausible irregularity comes from history, not decoration
+    - id: renderer
+      title: Renderer
+      owns: surface alien text, glosses, and analysis output
+      emits: final translation packet
+      invariant: rendering does not invent meaning
+  edges:
+    - source: source-input
+      target: interlingua
+      carries: source packet
+    - source: interlingua
+      target: ontology
+      carries: concept/event graph
+    - source: ontology
+      target: grammar
+      carries: alien concept frame
+    - source: grammar
+      target: morphology
+      carries: grammatical plan
+    - source: morphology
+      target: phonology
+      carries: morpheme plan
+    - source: phonology
+      target: diachrony
+      carries: legal proto-forms
+    - source: diachrony
+      target: renderer
+      carries: attested forms
+
+accepted_design:
+  - Weksa starts with a language-neutral persistent state spine rather than a
+    runtime scaffold.
+  - The EpiphanyAgent pattern is ported as architecture discipline, not as Rust
+    code or product-specific organs.
+  - The first model is concept-first translation through an explicit
+    interlingua, ontology, grammar, morphology, phonology, diachrony, and
+    renderer pipeline.
+
+open_questions:
+  - Which implementation language best serves the first usable engine?
+  - What format should language projects use for ontology, grammar, phonology,
+    morphology, and diachrony definitions?
+  - Which model provider and embedding strategy should be used for semantic
+    decomposition and critique?
+  - How much deterministic validation belongs in v0?
+
+landed_baseline:
+  - Language-neutral state spine.
+  - Canonical pipeline map.
+  - Scratch surface.
+  - Schema receipt docs.

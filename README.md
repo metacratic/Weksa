@@ -1,0 +1,35 @@
+# Weksa
+
+Weksa is a procedural language engine for alien grammars grounded in concept,
+culture, and constraint.
+
+The project starts from a blunt rule: English words are not the source of truth.
+Meaning is decomposed into an ontology, passed through a worldview, constrained
+by grammar, shaped by phonology, distorted by history, and only then rendered as
+surface text.
+
+## Ownership Model
+
+- Ontology owns meaning.
+- Grammar owns required expression.
+- Phonology owns sound shape.
+- Diachrony owns historical distortion.
+- Renderer owns surface text.
+- Persistent state owns durable maps, constraints, decisions, and evidence.
+
+If a future module cannot state what it owns and what invariant it protects, it
+does not get to exist. Harsh, but the alternative is a language generator with a
+clipboard and delusions of nationhood.
+
+## Scaffold
+
+- `state/map.yaml`: canonical working map.
+- `state/scratch.md`: disposable workbench.
+- `schemas/`: human-facing state contract receipts.
+- `docs/`: architecture, language model, and roadmap.
+
+## Implementation Status
+
+No runtime language has been selected yet. The first committed artifact is the
+persistent state spine: map, scratch, schemas, docs, and examples. The engine
+implementation should be chosen after the pipeline and data ownership are clear.

@@ -1,0 +1,15 @@
+*.tmp
+*.bak
+__pycache__/
+*.pyc
+state/*.msgpack
+state/*.msgpack.lock
+state/*.projection.json
+state/scratch-compaction-*.md
+.weksa-runs/
+.weksa-smoke/
+node_modules/
+dist/
+build/
+.venv/
+venv/
