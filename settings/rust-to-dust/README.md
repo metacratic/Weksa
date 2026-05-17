@@ -21,5 +21,3 @@ empire.
   surface.
 - [Language Design](./language-design.md): ontology, register, and renderer
   pressure for the first language project.
-- [Gameplay Notes](./gameplay.md): interactive delivery constraints and ending
-  shape.
