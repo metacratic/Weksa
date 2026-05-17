@@ -112,3 +112,6 @@ father is present but not central. His son is there too, not purified of alien
 influence, but choosing consciously what to carry forward.
 
 Someone turns the TV down because another person is about to sing.
+
+This beat does not need a button prompt. If it cannot be delivered as real
+gameplay with sustained agency, it should stay cinematic.
