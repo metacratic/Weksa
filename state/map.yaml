@@ -143,6 +143,10 @@ accepted_design:
   - `docs/best-modern-approach.md` is the current doctrine for conceptual
     ontology, root generation, morphology, syntax, lexical semantics,
     interlingua, diachrony, and model-assisted consistency.
+  - Eusocial Interbeing is a second setting collaboration surface. It needs
+    inhabitant-language names derived from speaker ontology, register,
+    phonology, morphology, diachrony, and setting context rather than direct
+    English label translation.
 
 open_questions:
   - Which implementation language best serves the first usable engine?
@@ -155,6 +159,9 @@ open_questions:
   - How much deterministic validation belongs in v0?
   - What is the minimal Rust to Dust language-project slice that proves the
     engine without hard-coding the setting into it?
+  - What minimal Eusocial Interbeing language-project slice can prove naming for
+    Airawa, Sa'auei'a, ecological partner, and imperial registers without
+    collapsing them into one universal language?
 
 landed_baseline:
   - Language-neutral state spine.
@@ -162,3 +169,4 @@ landed_baseline:
   - Scratch surface.
   - Schema receipt docs.
   - Rust to Dust setting documentation skeleton.
+  - Eusocial Interbeing naming surface at settings/eusocial-interbeing.

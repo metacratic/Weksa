@@ -14,4 +14,7 @@ rendering structured meaning through an alien ontology and language pipeline.
 - Decide the first artifact format for a language project.
 - Decide whether the first prototype should be notebook-like, CLI-first,
   library-first, or editor/tool-first.
+- Keep Eusocial Interbeing naming work as a setting surface until a real
+  language-project state format exists. Do not mint durable names by translating
+  English labels; decompose meaning and speaker ontology first.
 - Evaluate implementation language after the data model is clearer.
