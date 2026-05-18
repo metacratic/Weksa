@@ -1,8 +1,12 @@
-# Eusocial Interbeing Naming Surface
+# Eusocial Interbeing / Zyphos
+
+Eusocial Interbeing is the current higher-priority setting target for Weksa.
+Zyphos is the world that needs names and language surfaces earned from inside
+its inhabitants' ontologies.
 
 This setting surface connects Weksa to the Eusocial Interbeing vault at
-`E:\Projects\Eusocial Interbeing`. Its purpose is eventual naming support for
-objects, species, places, institutions, ecological contracts, and technologies in
+`E:\Projects\Eusocial Interbeing`. Its purpose is naming support for objects,
+species, places, institutions, ecological contracts, and technologies in
 languages spoken by the setting's inhabitants.
 
 Weksa should not mint durable names by translating English labels. It should
@@ -19,6 +23,26 @@ register, and history.
   register, pre-imperial Airawa registers, Sa'auei'a family-unit speech, ritual
   breeding-ground registers, and ecological-partner contact systems should not
   collapse into one universal naming soup.
+
+## Current Setting Baseline
+
+Zyphos is one planet in a close terrestrial binary. Its slightly smaller twin,
+Umbros, hangs as a fixed sky presence. The primary star is dim, the habitable
+zone is close, and light is scarce enough to shape biology and society.
+
+Zyphos life is founded on mutable memory endosymbiosis. Every cell carries a
+memory-bearing symbiont. Sentience gradients across cells, tissues, organisms,
+colonies, routes, forests, reefs, and landscapes.
+
+The immediate language-design pressure comes from two major civilizational
+surfaces:
+
+- Airawa continent: mother-tree memory networks, archival dependency,
+  disconnected networks, and the Airawa Empire's biological-memetic
+  infrastructure.
+- Sa'auei'a continent: advanced nomadic civilization, family-unit political
+  movement, sacred breeding-ground commons, remembered routes, and reciprocal
+  ecological relationships.
 
 ## Naming Rule
 
@@ -58,3 +82,6 @@ Until a real language-project state format exists, accepted naming work should
 be recorded as explicit design notes here and referenced from the Eusocial vault.
 Scratch names may appear in working notes, but they are not canon until a
 language project can explain the ontology and form.
+
+See [Language Design Pressure](./language-design.md) for the first Weksa-facing
+ontology map.

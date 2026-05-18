@@ -43,5 +43,6 @@ No runtime language has been selected yet. The first committed artifact is the
 persistent state spine: map, scratch, schemas, docs, and examples. The engine
 implementation should be chosen after the pipeline and data ownership are clear.
 
-[Rust to Dust](./settings/rust-to-dust/README.md) is the first proving ground,
-not engine doctrine.
+[Eusocial Interbeing / Zyphos](./settings/eusocial-interbeing/README.md) is the
+current higher-priority setting target. [Rust to Dust](./settings/rust-to-dust/README.md)
+is preserved as an earlier proving ground, not engine doctrine.
