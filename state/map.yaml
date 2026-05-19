@@ -40,6 +40,8 @@ constraints:
   - Realtime neural voice output may be used as perceptual style/prosody
     reference data, but not as physical ground truth for AquaSynth vocal-tract
     tuning.
+  - First speech-lowering parity should target a simple open formant synth such
+    as eSpeak NG before realtime neural voice references.
 
 invariants:
   - Ontology owns meaning.
@@ -198,6 +200,8 @@ open_questions:
     AquaSynth after dialogue text exists?
   - What capture format should store realtime voice references, transcripts,
     prompt provenance, and rating notes for Nibu tuning?
+  - What minimal vocal intent DSL fields are needed to drive eSpeak NG parity
+    fixtures before AquaSynth `PhoneticIntent` parity?
 
 landed_baseline:
   - Language-neutral state spine.

@@ -82,3 +82,19 @@ extensions:
 
 The expected output is not a quote yet. The first deliverable is a lowering
 packet that can explain why the eventual line is Nibu rather than generic snark.
+
+## First Speech Fixture
+
+Nibu should not start with neural realtime voice parity. Start with a basic
+formant reference synth, preferably eSpeak NG.
+
+The first fixture should prove:
+
+- the English line preserves the interlingua warning
+- the line carries Nibu pressure without becoming generic abuse
+- Weksa can express emphasis, pace, and clipped sharpness in a vocal intent DSL
+- the reference synth can render a stable artifact for comparison
+- AquaSynth can later attempt the same intent through `PhoneticIntent`
+
+Reference quality can be ugly. It needs to be predictable. First the machine
+learns to speak through a tin can with paperwork. Beauty can wait its turn.

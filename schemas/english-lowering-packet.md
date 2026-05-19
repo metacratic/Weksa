@@ -73,6 +73,28 @@ It may include:
 
 This is a request to AquaSynth, not a rendered audio contract.
 
+## Reference Synth Artifacts
+
+Before AquaSynth parity, Weksa may emit reference-synth artifacts.
+
+Suggested fields:
+
+- `reference_synth.target`
+- `reference_synth.input_text`
+- `reference_synth.input_phonemes`
+- `reference_synth.voice`
+- `reference_synth.controls`
+- `reference_synth.audio_ref`
+- `reference_synth.diagnostics_ref`
+- `reference_synth.parity_notes`
+
+Initial `target` should be `espeak-ng` if available. Other Klatt/formant
+implementations may be added as fixture targets when they provide clearer
+parameter control.
+
+The reference synth artifact tests Weksa's expressive surface. It is not the
+source of truth for AquaSynth anatomy.
+
 ## Reference Audio Artifacts
 
 Realtime voice outputs may be attached as reference artifacts for tuning.

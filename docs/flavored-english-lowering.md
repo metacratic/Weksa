@@ -157,12 +157,70 @@ Weksa should produce or request:
 AquaSynth should decide how those become gestures, tract targets, Faust, and
 audio.
 
+## Reference Synth Parity
+
+The first speech-lowering target should be a simple open reference synth, not a
+neural realtime voice.
+
+This mirrors the AquaSynth reference-synth pattern: Weksa should develop its own
+DSL for vocal and dialogue intent, then test whether that DSL can express enough
+information to drive an existing synth target. The reference is an exercise
+machine. It is not the architecture we absorb.
+
+Recommended first target: eSpeak NG.
+
+Why eSpeak NG:
+
+- open source
+- command-line friendly
+- explicitly formant-based
+- supports many languages and accents
+- has mature phoneme and voice machinery
+- supports Klatt formant synthesis as part of its synthesis surface
+- is small and inspectable enough for parity fixtures
+
+Initial parity loop:
+
+```text
+interlingua packet
+  -> projected agent-local context
+  -> flavored English line
+  -> Weksa vocal intent DSL
+  -> eSpeak NG reference render
+  -> transcript/audio/parameter artifact
+  -> Weksa/AquaSynth comparison
+```
+
+The goal is not to copy eSpeak NG quirks. The goal is to prove that Weksa can
+state enough vocal intent to produce predictable speech through a boring
+formant-based target before asking AquaSynth to do harder articulatory work.
+
+Good first fixtures:
+
+- short declarative line
+- sharp warning
+- dry aside
+- fast correction
+- one line with emphasis shift
+- one line with irritation but no volume spike
+
+Candidate lower-level references:
+
+- eSpeak NG formant output for whole utterance parity
+- eSpeak NG phoneme output for phoneme-sequence sanity
+- Klatt-style open implementations for parameter-level formant fixture work
+- Praat/KlattGrid-style analysis as a diagnostic surface, not runtime authority
+
+This rung should produce reference artifacts, not permanent dependency doctrine.
+Once Weksa's vocal intent can drive a simple synth coherently, AquaSynth can
+replace the target with its own `PhoneticIntent` and tract model.
+
 ## Realtime Voice References
 
 Codex/OpenAI realtime voice output can be useful, but it must not become
 physical ground truth.
 
-Use projection-shaped prompts with realtime voice output as:
+Use projection-shaped prompts with realtime voice output later as:
 
 - perceptual reference
 - style and prosody target
