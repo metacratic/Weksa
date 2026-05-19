@@ -1,0 +1,75 @@
+interlingua_version: 0.1-draft
+packet_id: nibu-proof-001
+kind: dialogue_line
+provenance:
+  source_type: authored
+  source_ref: settings/aetheria/nibu.md
+  confidence: 0.9
+context:
+  setting: Aetheria
+  scene: junkyard_ship_first_contact
+  location: abandoned_ship_cockpit
+  medium: in-world dialogue
+discourse:
+  speech_act: warning
+  intent: stop_player_from_touching_unsafe_control
+  tone: sharp
+  addressee: player
+referents:
+  - id: player
+    kind: person
+    label: player character
+    agency: high
+    salience: high
+  - id: control
+    kind: artifact
+    label: damaged ship control
+    salience: high
+    attributes:
+      condition: damaged
+      risk: unsafe_to_touch
+  - id: nibu
+    kind: person
+    label: Nibu
+    ontology_hint: embodied_ship_mind
+    agency: high
+    salience: high
+predications:
+  - id: touch-risk
+    predicate: endanger
+    frame: hazard_warning
+    modality: potential
+    roles:
+      agent: player
+      instrument: control
+      patient: player
+  - id: prevent-touch
+    predicate: prevent
+    frame: intervention
+    roles:
+      agent: nibu
+      patient: touch-risk
+      beneficiary: player
+constraints:
+  preserve_referents:
+    - player
+    - control
+  preserve_relations:
+    - player endangers player by touching control
+    - nibu warns or intervenes to prevent touch
+  required_outputs:
+    - spoken_text
+  deterministic: true
+extensions:
+  aetheria.nibu_pressure:
+    leverage: life_support
+    relationship: unwanted_dependency
+    style: precise_abrasive_warning
+    avoid:
+      - generic assistant politeness
+      - random cruelty
+      - mystical language
+trace:
+  notes:
+    - First proof packet for Nibu flavored-English lowering.
+    - Meaning is simple on purpose: do not touch unsafe control.

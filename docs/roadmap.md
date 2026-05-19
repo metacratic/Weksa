@@ -16,6 +16,8 @@
 
 - Validate one minimal interlingua packet.
 - Lower one packet through Nibu's projected agent state into flavored English.
+- Preserve the first lowering proof as fixture data under
+  `examples/english-lowering/`.
 - Parse or load one language project definition.
 - Accept a Weksa interlingua packet.
 - Render glossed output through grammar, morphology, phonology, and diachrony.

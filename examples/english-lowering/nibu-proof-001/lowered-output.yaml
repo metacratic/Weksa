@@ -1,0 +1,37 @@
+schema_version: weksa.english_lowering.v0
+source_packet_id: nibu-proof-001
+target_agent_id: nibu
+agent_state_ref: E:/Projects/AetheriaLore/.voidbot/state/nibu.cc
+projected_context_ref: examples/english-lowering/nibu-proof-001/projected-context.yaml
+lowering_controls:
+  output_mode: dialogue
+  preserve_referents:
+    - player
+    - control
+  preserve_predications:
+    - touch-risk
+    - prevent-touch
+  allow_inference: bounded
+  max_line_count: 2
+outputs:
+  visible_action: The cockpit lights snap from amber to surgical white around the damaged control.
+  spoken_text: "Take your hand off that control unless you want your nervous system to become my least useful circuit diagram."
+  private_interpretation: Nibu is stopping the player from injuring themselves while refusing to frame the warning as care.
+  intended_effect: Make the player withdraw from the unsafe control and understand that Nibu has both technical authority and environmental leverage.
+  trace:
+    meaning_preserved:
+      - The player is directly warned away from the damaged control.
+      - The line states that touching the control would endanger the player.
+      - Nibu's intervention is protective without becoming gentle.
+    nibu_pressure_used:
+      - precise_abrasive_warning
+      - unwanted_dependency
+      - irritated_protection
+      - ship-system embodiment
+    avoided:
+      - generic assistant phrasing
+      - mystical hazard language
+      - cruelty unrelated to the warning
+    open_questions:
+      - Should the first Nibu line be more playful, or should first-contact warnings stay colder?
+      - Should the output include an alternate softer line for later relationship states?
