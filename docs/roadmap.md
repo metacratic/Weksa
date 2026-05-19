@@ -16,7 +16,6 @@
 
 - Validate one minimal interlingua packet.
 - Lower one packet through Nibu's projected agent state into flavored English.
-- Emit an AquaSynth `PhoneticIntent` request from that English output.
 - Parse or load one language project definition.
 - Accept a Weksa interlingua packet.
 - Render glossed output through grammar, morphology, phonology, and diachrony.

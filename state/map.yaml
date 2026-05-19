@@ -13,7 +13,7 @@ objective:
     before runtime architecture decisions are made.
   current: >
     Define the first lowering target: project interlingua through character
-    agent state into flavored English dialogue and AquaSynth speech intent.
+    agent state into flavored English dialogue.
 
 constraints:
   - Runtime implementation language is undecided.
@@ -37,11 +37,8 @@ constraints:
     until Weksa can preserve meaning through a character voice humans can judge.
   - Agent state is projected context, not prompt prose storage. Raw state
     internals must not leak into generated dialogue.
-  - Realtime neural voice output may be used as perceptual style/prosody
-    reference data, but not as physical ground truth for AquaSynth vocal-tract
-    tuning.
-  - First speech-lowering parity should target a simple open formant synth such
-    as eSpeak NG before realtime neural voice references.
+  - AquaSynth owns IPA, phoneme, reference-synth, vocal-tract, and speech parity
+    work. Weksa owns interlingua-to-English projection.
 
 invariants:
   - Ontology owns meaning.
@@ -66,7 +63,6 @@ data_flow:
     - accept or decompose source into a Weksa interlingua packet
     - optionally project the packet through an agent-local state context
     - lower projected meaning into flavored English dialogue
-    - emit AquaSynth phonetic intent request for speech synthesis
     - apply alien ontology and cultural salience
     - select grammatical commitments
     - derive morphology and lexical families
@@ -196,12 +192,8 @@ open_questions:
     the first real Zyphos and Rust to Dust packets?
   - What exact projected-context subset should Weksa accept from Ghostlight-style
     agent state for English lowering?
-  - How much phonetic intent should Weksa emit directly versus requesting from
-    AquaSynth after dialogue text exists?
-  - What capture format should store realtime voice references, transcripts,
-    prompt provenance, and rating notes for Nibu tuning?
-  - What minimal vocal intent DSL fields are needed to drive eSpeak NG parity
-    fixtures before AquaSynth `PhoneticIntent` parity?
+  - What exact pass/fail rubric proves a Nibu-flavored English line preserves
+    interlingua meaning instead of merely sounding sharp?
 
 landed_baseline:
   - Language-neutral state spine.

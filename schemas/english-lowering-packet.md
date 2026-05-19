@@ -18,7 +18,6 @@ It combines:
 - one projected agent-local context
 - lowering controls
 - English output
-- optional AquaSynth `PhoneticIntent` request metadata
 
 It does not replace the interlingua packet or the agent state.
 
@@ -57,64 +56,9 @@ Do not include:
 
 `spoken_text` may be empty only when the lowerer chooses a non-speech action.
 
-## Speech Bridge
+## Downstream Speech Boundary
 
-`phonetic_intent_request` is optional but should be present when the output is
-intended for AquaSynth.
+This packet may be handed to AquaSynth later, but it does not contain
+phoneme-parity, vocal-tract, reference-synth, or realtime voice artifacts.
 
-It may include:
-
-- `enabled`
-- `voice_profile`
-- `prosody_hint`
-- `ipa_policy`
-- `timing_hint`
-- `delivery_pressure`
-
-This is a request to AquaSynth, not a rendered audio contract.
-
-## Reference Synth Artifacts
-
-Before AquaSynth parity, Weksa may emit reference-synth artifacts.
-
-Suggested fields:
-
-- `reference_synth.target`
-- `reference_synth.input_text`
-- `reference_synth.input_phonemes`
-- `reference_synth.voice`
-- `reference_synth.controls`
-- `reference_synth.audio_ref`
-- `reference_synth.diagnostics_ref`
-- `reference_synth.parity_notes`
-
-Initial `target` should be `espeak-ng` if available. Other Klatt/formant
-implementations may be added as fixture targets when they provide clearer
-parameter control.
-
-The reference synth artifact tests Weksa's expressive surface. It is not the
-source of truth for AquaSynth anatomy.
-
-## Reference Audio Artifacts
-
-Realtime voice outputs may be attached as reference artifacts for tuning.
-
-Suggested fields:
-
-- `reference_audio.provider`
-- `reference_audio.voice`
-- `reference_audio.prompt_ref`
-- `reference_audio.transcript`
-- `reference_audio.audio_ref`
-- `reference_audio.rating_notes`
-- `reference_audio.allowed_use`
-
-Allowed use should distinguish:
-
-- `style_reference`
-- `prosody_reference`
-- `regression_reference`
-- `physical_ground_truth_forbidden`
-
-Reference audio must not replace `phonetic_intent_request` or AquaSynth's
-articulatory reports.
+Weksa owns the English projection. AquaSynth owns speech lowering.

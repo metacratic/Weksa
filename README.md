@@ -42,7 +42,7 @@ meaning-packet contract Weksa clients should target.
 
 See [Flavored English Lowering](./docs/flavored-english-lowering.md) for the
 first lowering target: interlingua projected through agent state into English
-dialogue and AquaSynth speech intent.
+dialogue.
 
 ## Implementation Status
 
