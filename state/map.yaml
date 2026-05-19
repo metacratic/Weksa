@@ -12,8 +12,8 @@ objective:
     Create a durable workspace where Weksa can develop from a persistent map
     before runtime architecture decisions are made.
   current: >
-    Define the Weksa interlingua standard as the shared meaning contract across
-    current and future setting clients.
+    Define the first lowering target: project interlingua through character
+    agent state into flavored English dialogue and AquaSynth speech intent.
 
 constraints:
   - Runtime implementation language is undecided.
@@ -33,6 +33,10 @@ constraints:
   - The interlingua must stay language-neutral. Setting-specific pressure starts
     in namespaced extensions and only becomes standard when multiple clients or
     language projects need it.
+  - Flavored English is the first lowering target. Alien-language lowering waits
+    until Weksa can preserve meaning through a character voice humans can judge.
+  - Agent state is projected context, not prompt prose storage. Raw state
+    internals must not leak into generated dialogue.
 
 invariants:
   - Ontology owns meaning.
@@ -55,6 +59,9 @@ data_flow:
     - existing language project state
   process:
     - accept or decompose source into a Weksa interlingua packet
+    - optionally project the packet through an agent-local state context
+    - lower projected meaning into flavored English dialogue
+    - emit AquaSynth phonetic intent request for speech synthesis
     - apply alien ontology and cultural salience
     - select grammatical commitments
     - derive morphology and lexical families
@@ -142,6 +149,10 @@ accepted_design:
   - The interlingua packet is the client-facing meaning contract. It owns
     referents, predications, relations, discourse, context, provenance,
     constraints, extensions, and trace data before ontology projection.
+  - English lowering through agent state is the first proof target before alien
+    language rendering.
+  - Nibu is the first target for flavored-English lowering, using her VoidBot
+    state and Aetheria lore note as source context.
   - Weksa is the engine. A language project owns one constructed language.
     Setting docs own story, species, culture, and use cases.
   - Rust to Dust is an earlier proving ground, not engine doctrine.
@@ -178,6 +189,10 @@ open_questions:
     ecological memory networks, and mobile family-unit civilizations?
   - Which interlingua fields should be promoted from namespaced extensions after
     the first real Zyphos and Rust to Dust packets?
+  - What exact projected-context subset should Weksa accept from Ghostlight-style
+    agent state for English lowering?
+  - How much phonetic intent should Weksa emit directly versus requesting from
+    AquaSynth after dialogue text exists?
 
 landed_baseline:
   - Language-neutral state spine.
@@ -188,3 +203,5 @@ landed_baseline:
   - Eusocial Interbeing naming surface at settings/eusocial-interbeing.
   - Zyphos language-design pressure note.
   - Draft Weksa interlingua standard and packet schema receipt.
+  - Draft flavored-English lowering contract.
+  - Nibu lowering target note.

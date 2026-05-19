@@ -40,6 +40,10 @@ for the LLM-free hot path.
 See [Interlingua Standard](./docs/interlingua-standard.md) for the shared
 meaning-packet contract Weksa clients should target.
 
+See [Flavored English Lowering](./docs/flavored-english-lowering.md) for the
+first lowering target: interlingua projected through agent state into English
+dialogue and AquaSynth speech intent.
+
 ## Implementation Status
 
 No runtime language has been selected yet. The first committed artifact is the

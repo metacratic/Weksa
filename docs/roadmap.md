@@ -4,6 +4,8 @@
 
 - Keep the persistent state spine small and readable.
 - Stabilize the interlingua packet standard before runtime code.
+- Prove interlingua lowering to flavored English before attempting alien-language
+  lowering.
 - Decide the first language-project state format after the interlingua boundary
   is clear.
 - Build a hand-authored toy language project before automating generation.
@@ -13,6 +15,8 @@
 ## First Prototype
 
 - Validate one minimal interlingua packet.
+- Lower one packet through Nibu's projected agent state into flavored English.
+- Emit an AquaSynth `PhoneticIntent` request from that English output.
 - Parse or load one language project definition.
 - Accept a Weksa interlingua packet.
 - Render glossed output through grammar, morphology, phonology, and diachrony.

@@ -16,6 +16,8 @@ steer the machine, describe its authority here.
   configuration.
 - [interlingua-packet.md](./interlingua-packet.md): shared meaning packet
   contract between clients, authoring tools, and language projects.
+- [english-lowering-packet.md](./english-lowering-packet.md): packet contract
+  for projecting interlingua through agent state into flavored English.
 
 ## Source Of Truth
 
