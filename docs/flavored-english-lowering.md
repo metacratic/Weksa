@@ -130,6 +130,15 @@ Weksa's first deliverable is the English line and traceable projection context.
 When speech work needs it, AquaSynth can consume `spoken_text` and decide how to
 lower it into its own phonetic and articulatory contracts.
 
+Weksa still owns the optional pronunciation plan for English output: tokenizing
+the line, choosing word pronunciations, preserving stress, and stringing broad
+IPA together. See [English Pronunciation Lowering](./english-pronunciation-lowering.md).
+
+Weksa should also emit a learned line-expression vector when training data and
+encoder support exist. That vector is the intended compact handoff for prosody,
+emphasis, and character delivery pressure. See
+[Line Expression Vector](./line-expression-vector.md).
+
 ## First Target: Nibu
 
 Nibu is the first practical target because her state is live, opinionated, and

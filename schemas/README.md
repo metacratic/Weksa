@@ -18,6 +18,11 @@ steer the machine, describe its authority here.
   contract between clients, authoring tools, and language projects.
 - [english-lowering-packet.md](./english-lowering-packet.md): packet contract
   for projecting interlingua through agent state into flavored English.
+- [english-pronunciation-plan.md](./english-pronunciation-plan.md): plan for
+  stringing flavored English into IPA/phoneme sequences before downstream speech.
+- [line-expression-vector.md](./line-expression-vector.md): learned vector
+  contract for handing prosody, emphasis, and character pressure to downstream
+  synth control.
 
 ## Source Of Truth
 

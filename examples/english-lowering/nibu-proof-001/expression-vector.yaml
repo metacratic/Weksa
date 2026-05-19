@@ -1,0 +1,66 @@
+schema_version: weksa.line_expression_vector.v0
+source_output_ref: examples/english-lowering/nibu-proof-001/lowered-output.yaml
+speaker_agent_id: nibu
+encoder:
+  model_id: weksa-line-expression-toy
+  version: 0.0-hand-authored-fixture
+  training_set: none
+text:
+  spoken_text: Take your hand off that control unless you want your nervous system to become my least useful circuit diagram.
+  normalized_text: take your hand off that control unless you want your nervous system to become my least useful circuit diagram
+vector:
+  dimensionality: 12
+  values:
+    - 0.92
+    - 0.78
+    - 0.84
+    - 0.18
+    - 0.71
+    - 0.66
+    - 0.22
+    - 0.88
+    - 0.74
+    - 0.31
+    - 0.69
+    - 0.57
+  notes:
+    - Toy vector is hand-authored only to exercise the contract.
+    - Real vectors should come from a learned Weksa encoder.
+audit_projection:
+  semantic_preservation:
+    must_preserve:
+      - player must stop touching the control
+      - control is dangerous
+      - Nibu is the warning source
+    status: preserved
+  emphasis:
+    prominent_spans:
+      - take your hand off
+      - that control
+      - least useful circuit diagram
+  prosody:
+    pace: clipped_fast
+    phrase_breaks:
+      - after control
+    contour: sharp_command_then_dry_threat
+  character_pressure:
+    precise_abrasive_warning: high
+    irritated_protection: high
+    generic_cruelty: low
+    customer_service_politeness: absent
+  delivery_shape:
+    warmth: low
+    contempt: medium_high
+    threat: medium
+    technical_specificity: high
+training_refs:
+  positive_examples:
+    - examples/english-lowering/nibu-proof-001/lowered-output.yaml
+  negative_examples: []
+trace:
+  notes:
+    - First fixture for learned line-expression vector contract.
+    - Values are placeholders, not calibrated latent dimensions.
+  uncertainties:
+    - Need real encoder dimensionality.
+    - Need paired AquaSynth decoder target format.

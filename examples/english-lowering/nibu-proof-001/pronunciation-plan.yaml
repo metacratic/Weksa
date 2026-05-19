@@ -1,0 +1,182 @@
+schema_version: weksa.english_pronunciation_plan.v0
+source_output_ref: examples/english-lowering/nibu-proof-001/lowered-output.yaml
+dialect: en-US-general
+orthographic_text: Take your hand off that control unless you want your nervous system to become my least useful circuit diagram.
+normalization:
+  text: take your hand off that control unless you want your nervous system to become my least useful circuit diagram
+  notes:
+    - Lowercased for lookup.
+    - Period removed from pronunciation token stream.
+    - First pass is hand-authored against CMUdict-style ARPABET expectations.
+tokens:
+  - id: t01
+    text: take
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [T, EY1, K]
+    ipa: teɪk
+    stress: primary
+  - id: t02
+    text: your
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [Y, UH1, R]
+    ipa: jʊɹ
+    stress: primary
+    notes: Chosen unreduced form for clipped warning clarity.
+  - id: t03
+    text: hand
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [HH, AE1, N, D]
+    ipa: hænd
+    stress: primary
+  - id: t04
+    text: off
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [AO1, F]
+    ipa: ɔf
+    stress: primary
+  - id: t05
+    text: that
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [DH, AE1, T]
+    ipa: ðæt
+    stress: primary
+  - id: t06
+    text: control
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [K, AH0, N, T, R, OW1, L]
+    ipa: kənˈtɹoʊl
+    stress: final_primary
+  - id: b01
+    text: ","
+    kind: boundary
+    pronunciation_source: authored_phrase_boundary
+    ipa: "|"
+    notes: Inserted after imperative phrase.
+  - id: t07
+    text: unless
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [AH0, N, L, EH1, S]
+    ipa: ənˈlɛs
+    stress: final_primary
+  - id: t08
+    text: you
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [Y, UW1]
+    ipa: ju
+    stress: primary
+  - id: t09
+    text: want
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [W, AA1, N, T]
+    ipa: wɑnt
+    stress: primary
+  - id: t10
+    text: your
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [Y, UH1, R]
+    ipa: jʊɹ
+    stress: primary
+  - id: t11
+    text: nervous
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [N, ER1, V, AH0, S]
+    ipa: ˈnɝvəs
+    stress: initial_primary
+  - id: t12
+    text: system
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [S, IH1, S, T, AH0, M]
+    ipa: ˈsɪstəm
+    stress: initial_primary
+  - id: t13
+    text: to
+    kind: word
+    pronunciation_source: reduced_function_word
+    arpabet: [T, AH0]
+    ipa: tə
+    stress: unstressed
+    notes: Reduced form fits fluent warning.
+  - id: t14
+    text: become
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [B, IH0, K, AH1, M]
+    ipa: bɪˈkʌm
+    stress: final_primary
+  - id: t15
+    text: my
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [M, AY1]
+    ipa: maɪ
+    stress: primary
+  - id: t16
+    text: least
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [L, IY1, S, T]
+    ipa: list
+    stress: primary
+  - id: t17
+    text: useful
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [Y, UW1, S, F, AH0, L]
+    ipa: ˈjusfəl
+    stress: initial_primary
+  - id: t18
+    text: circuit
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [S, ER1, K, AH0, T]
+    ipa: ˈsɝkət
+    stress: initial_primary
+  - id: t19
+    text: diagram
+    kind: word
+    pronunciation_source: cmudict_expected
+    arpabet: [D, AY1, AH0, G, R, AE2, M]
+    ipa: ˈdaɪəˌɡɹæm
+    stress: primary_secondary
+phrasing:
+  groups:
+    - id: imperative
+      token_ids: [t01, t02, t03, t04, t05, t06]
+      boundary_after: short_pause
+      prominence:
+        - t01
+        - t03
+        - t06
+    - id: threat_consequence
+      token_ids: [t07, t08, t09, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19]
+      boundary_after: final
+      prominence:
+        - t09
+        - t16
+        - t18
+        - t19
+ipa:
+  broad: teɪk jʊɹ hænd ɔf ðæt kənˈtɹoʊl ənˈlɛs ju wɑnt jʊɹ ˈnɝvəs ˈsɪstəm tə bɪˈkʌm maɪ list ˈjusfəl ˈsɝkət ˈdaɪəˌɡɹæm
+  with_boundaries: teɪk jʊɹ hænd ɔf ðæt kənˈtɹoʊl | ənˈlɛs ju wɑnt jʊɹ ˈnɝvəs ˈsɪstəm tə bɪˈkʌm maɪ list ˈjusfəl ˈsɝkət ˈdaɪəˌɡɹæm
+trace:
+  decisions:
+    - Used broad General American IPA.
+    - Kept first "your" unreduced for command clarity.
+    - Reduced "to" to schwa in the consequence clause.
+    - Inserted phrase boundary after "control" to match warning delivery.
+  uncertainties:
+    - "off" may be /ɑf/ for some General American speakers.
+    - "your" may reduce toward /jɚ/ depending on voice profile.
+    - "diagram" stress varies; this pass keeps CMUdict-style first primary stress with later secondary stress.

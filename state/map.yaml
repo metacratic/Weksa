@@ -39,6 +39,10 @@ constraints:
     internals must not leak into generated dialogue.
   - AquaSynth owns IPA, phoneme, reference-synth, vocal-tract, and speech parity
     work. Weksa owns interlingua-to-English projection.
+  - Weksa still owns English pronunciation planning: tokenization, word
+    pronunciations, phrase grouping, stress, and broad IPA stringing.
+  - Long-term speech handoff should use learned line-expression vectors from
+    Weksa and learned synth-control decoding in AquaSynth.
 
 invariants:
   - Ontology owns meaning.
@@ -63,6 +67,9 @@ data_flow:
     - accept or decompose source into a Weksa interlingua packet
     - optionally project the packet through an agent-local state context
     - lower projected meaning into flavored English dialogue
+    - optionally produce an English pronunciation plan for the lowered dialogue
+    - optionally encode the line as a learned expression vector for downstream
+      synth control
     - apply alien ontology and cultural salience
     - select grammatical commitments
     - derive morphology and lexical families
@@ -194,6 +201,11 @@ open_questions:
     agent state for English lowering?
   - What exact pass/fail rubric proves a Nibu-flavored English line preserves
     interlingua meaning instead of merely sounding sharp?
+  - What English G2P path should become executable first: CMUdict lookup plus
+    ARPABET-to-IPA conversion, eSpeak NG oracle comparison, or a trained OOV
+    model?
+  - What dimensionality and training corpus should the first Weksa
+    line-expression encoder use?
 
 landed_baseline:
   - Language-neutral state spine.
@@ -206,4 +218,6 @@ landed_baseline:
   - Draft Weksa interlingua standard and packet schema receipt.
   - Draft flavored-English lowering contract.
   - Nibu lowering target note.
+  - First English pronunciation plan fixture for Nibu proof output.
+  - First toy line-expression vector fixture for Nibu proof output.
   - First Nibu interlingua-to-English lowering fixture.
