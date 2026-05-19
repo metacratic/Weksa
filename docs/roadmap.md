@@ -3,15 +3,18 @@
 ## Now
 
 - Keep the persistent state spine small and readable.
-- Decide the first language-project state format.
+- Stabilize the interlingua packet standard before runtime code.
+- Decide the first language-project state format after the interlingua boundary
+  is clear.
 - Build a hand-authored toy language project before automating generation.
 - Use Rust to Dust as the first proving ground while keeping Weksa
   setting-neutral.
 
 ## First Prototype
 
+- Validate one minimal interlingua packet.
 - Parse or load one language project definition.
-- Accept a structured meaning packet.
+- Accept a Weksa interlingua packet.
 - Render glossed output through grammar, morphology, phonology, and diachrony.
 - Emit a trace explaining which stage made each decision.
 - Keep runtime LLM-free; model use belongs in authoring and critique.

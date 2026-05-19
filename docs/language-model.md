@@ -8,13 +8,16 @@ doctrine and examples.
 ## Translation Path
 
 1. Preserve the source utterance.
-2. Decompose it into structured meaning.
+2. Decompose it into a Weksa interlingua packet.
 3. Apply an alien ontology that may split, collapse, or reweight concepts.
 4. Select grammatical commitments required by the target language.
 5. Build morpheme plans from roots, derivation, inflection, and compounds.
 6. Apply phonological constraints.
 7. Apply diachronic history.
 8. Render surface text, glosses, and explanation.
+
+See [Interlingua Standard](./interlingua-standard.md) for the shared meaning
+contract.
 
 ## Model Use
 

@@ -14,6 +14,8 @@ steer the machine, describe its authority here.
 - [language-project-state.md](./language-project-state.md): future per-language
   state for ontology, grammar, morphology, phonology, diachrony, and renderer
   configuration.
+- [interlingua-packet.md](./interlingua-packet.md): shared meaning packet
+  contract between clients, authoring tools, and language projects.
 
 ## Source Of Truth
 

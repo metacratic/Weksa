@@ -18,7 +18,7 @@ Weksa engine
 
 The engine owns generic pipeline contracts:
 
-- structured meaning input
+- interlingua packet input
 - ontology projection
 - grammar planning
 - morphology

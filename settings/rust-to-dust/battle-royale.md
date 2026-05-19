@@ -19,9 +19,9 @@ An in-universe alien TV channel commentates on what players are doing. The
 player hears or sees the alien-language broadcast with English subtitles.
 
 The correct runtime model is not English-to-alien translation. The game should
-emit structured commentary intent. Weksa should render alien broadcast output,
-and a subtitle renderer should render English from the same structured intent or
-from the alien-projected meaning.
+emit a Weksa interlingua packet for commentary intent. Weksa should render alien
+broadcast output, and a subtitle renderer should render English from the same
+packet or from the alien-projected meaning.
 
 ```text
 game telemetry

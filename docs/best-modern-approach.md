@@ -204,7 +204,7 @@ This is how Weksa avoids making a dictionary of costumes.
 ## Interlingua
 
 Do not translate English directly into alien words. Translate English into a
-structured meaning representation first.
+Weksa interlingua packet first.
 
 Example source:
 
@@ -212,24 +212,36 @@ Example source:
 I saw the stranger steal water.
 ```
 
-Example interlingua:
+Example interlingua packet:
 
-```json
-{
-  "event": "steal",
-  "agent": {
-    "role": "stranger",
-    "social_status": "outside_oath"
-  },
-  "patient": {
-    "concept": "water",
-    "ecological_status": "shared_life_resource"
-  },
-  "witness": "speaker",
-  "evidence": "direct_visual",
-  "moral_frame": "obligation_to_report",
-  "tense_aspect": "completed"
-}
+```yaml
+interlingua_version: 0.1-draft
+packet_id: example-theft-001
+kind: utterance
+provenance:
+  source_type: authored
+referents:
+  - id: speaker
+    kind: person
+  - id: stranger
+    kind: person
+    attributes:
+      social_status: outside_oath
+  - id: water
+    kind: abstract
+    attributes:
+      ecological_status: shared_life_resource
+predications:
+  - id: theft
+    predicate: steal
+    aspect: completed
+    evidentiality: direct_visual
+    roles:
+      agent: stranger
+      patient: water
+      experiencer: speaker
+extensions:
+  example.moral_frame: obligation_to_report
 ```
 
 Then render that through the alien ontology and grammar. The interlingua is the

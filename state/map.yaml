@@ -12,8 +12,8 @@ objective:
     Create a durable workspace where Weksa can develop from a persistent map
     before runtime architecture decisions are made.
   current: >
-    Reorient the first active language-design target toward Zyphos / Eusocial
-    Interbeing while preserving Weksa's language-neutral engine boundaries.
+    Define the Weksa interlingua standard as the shared meaning contract across
+    current and future setting clients.
 
 constraints:
   - Runtime implementation language is undecided.
@@ -21,15 +21,18 @@ constraints:
     architecture earns it.
   - Neural models may decompose, suggest, generate, and critique; they do not
     own the canonical language state.
-  - Runtime should accept structured meaning and compiled project data; required
-    hot-path rendering must not depend on arbitrary English interpretation or
-    live LLM calls.
+  - Runtime should accept interlingua packets and compiled project data;
+    required hot-path rendering must not depend on arbitrary English
+    interpretation or live LLM calls.
   - Setting-specific projects may pressure the engine, but their ontology must
     not become generic Weksa doctrine.
   - Zyphos / Eusocial Interbeing canon belongs to the Eusocial Interbeing vault;
     Weksa should consume it through explicit naming and language-design briefs.
   - Explicit project state must distinguish durable decisions from scratch.
   - Avoid direct English-to-alien word replacement as the core design.
+  - The interlingua must stay language-neutral. Setting-specific pressure starts
+    in namespaced extensions and only becomes standard when multiple clients or
+    language projects need it.
 
 invariants:
   - Ontology owns meaning.
@@ -46,11 +49,12 @@ invariants:
 data_flow:
   observe:
     - source utterance
+    - interlingua packet
     - translation context
     - world model
     - existing language project state
   process:
-    - decompose source into structured interlingua
+    - accept or decompose source into a Weksa interlingua packet
     - apply alien ontology and cultural salience
     - select grammatical commitments
     - derive morphology and lexical families
@@ -135,6 +139,9 @@ accepted_design:
   - The first model is concept-first translation through an explicit
     interlingua, ontology, grammar, morphology, phonology, diachrony, and
     renderer pipeline.
+  - The interlingua packet is the client-facing meaning contract. It owns
+    referents, predications, relations, discourse, context, provenance,
+    constraints, extensions, and trace data before ontology projection.
   - Weksa is the engine. A language project owns one constructed language.
     Setting docs own story, species, culture, and use cases.
   - Rust to Dust is an earlier proving ground, not engine doctrine.
@@ -169,6 +176,8 @@ open_questions:
     Sa'auei'a, or a narrow naming-brief interlingua?
   - What Weksa naming brief schema best serves nation-scale interbeings,
     ecological memory networks, and mobile family-unit civilizations?
+  - Which interlingua fields should be promoted from namespaced extensions after
+    the first real Zyphos and Rust to Dust packets?
 
 landed_baseline:
   - Language-neutral state spine.
@@ -178,3 +187,4 @@ landed_baseline:
   - Rust to Dust setting documentation skeleton.
   - Eusocial Interbeing naming surface at settings/eusocial-interbeing.
   - Zyphos language-design pressure note.
+  - Draft Weksa interlingua standard and packet schema receipt.

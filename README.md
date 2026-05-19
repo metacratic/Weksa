@@ -37,6 +37,9 @@ See [Project Model](./docs/project-model.md) for the engine / language project /
 setting split, and [Runtime and Authoring Split](./docs/runtime-authoring-split.md)
 for the LLM-free hot path.
 
+See [Interlingua Standard](./docs/interlingua-standard.md) for the shared
+meaning-packet contract Weksa clients should target.
+
 ## Implementation Status
 
 No runtime language has been selected yet. The first committed artifact is the

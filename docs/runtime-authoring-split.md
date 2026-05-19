@@ -5,10 +5,10 @@ should be fast, deterministic, local, and free of required LLM calls.
 
 ## Runtime
 
-Runtime consumes structured meaning and compiled language-project data.
+Runtime consumes Weksa interlingua packets and compiled language-project data.
 
 ```text
-structured intent
+interlingua packet
   -> ontology projection
   -> grammar plan
   -> morphology
@@ -26,8 +26,9 @@ Runtime invariants:
 - renderer does not invent meaning
 - traces can explain which stage made each decision
 
-The game, tool, or host application should send structured intent, not prose
-that Weksa must guess at under pressure.
+The game, tool, or host application should send an interlingua packet, not prose
+that Weksa must guess at under pressure. See
+[Interlingua Standard](./interlingua-standard.md).
 
 ## Authoring
 
@@ -45,10 +46,10 @@ The model is a workshop tool, not a runtime authority.
 
 ## Parallel Renderers
 
-One structured intent may render into multiple surfaces:
+One interlingua packet may render into multiple surfaces:
 
 ```text
-structured intent
+interlingua packet
   -> projected meaning
   -> alien-language renderer
   -> subtitle or gloss renderer
@@ -58,4 +59,3 @@ structured intent
 For flavor-first settings, subtitles may render from projected meaning instead
 of neutral facts. The neutral facts still exist underneath for correctness and
 debugging.
-

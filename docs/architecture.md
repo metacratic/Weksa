@@ -13,6 +13,10 @@ There is no runtime mechanism yet. The repo contains persistent state surfaces
 that define the intended data flow and the ownership boundaries future code must
 respect.
 
+The first shared contract is the [Interlingua Standard](./interlingua-standard.md):
+clients submit interlingua packets before any language project projects them
+through its ontology.
+
 ## Invariants
 
 - Meaning precedes words.
@@ -26,9 +30,9 @@ respect.
 ## Intended Change
 
 Future implementation should turn the pipeline in `state/map.yaml` into a small,
-inspectable machine. The first executable slice should probably read a tiny
-language project definition, render a handful of structured meaning packets, and
-produce traceable glossed output.
+inspectable machine. The first executable slice should probably validate a tiny
+interlingua packet, read a tiny language project definition, render glossed
+output, and produce a trace explaining which stage made each decision.
 
 Runtime should be fast and deterministic. Model-assisted English decomposition
 belongs in authoring tools or offline import flows, not in the required hot path.
