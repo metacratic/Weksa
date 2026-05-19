@@ -43,6 +43,9 @@ constraints:
     pronunciations, phrase grouping, stress, and broad IPA stringing.
   - Long-term speech handoff should use learned line-expression vectors from
     Weksa and learned synth-control decoding in AquaSynth.
+  - Large offline text-embedding jobs should use the neighboring Ollama
+    inference box documented in `E:\Projects\gamecult-ops` rather than running
+    on the local Weksa workspace by default.
 
 invariants:
   - Ontology owns meaning.
@@ -183,8 +186,8 @@ open_questions:
     morphology, and diachrony definitions?
   - What compiled runtime bundle format keeps game-time rendering fast and
     inspectable?
-  - Which model provider and embedding strategy should be used for offline
-    semantic decomposition and critique?
+  - Which Ollama embedding model on `192.168.1.84` should be the default for
+    offline semantic decomposition and critique?
   - How much deterministic validation belongs in v0?
   - What is the minimal Rust to Dust language-project slice that proves the
     engine without hard-coding the setting into it?
