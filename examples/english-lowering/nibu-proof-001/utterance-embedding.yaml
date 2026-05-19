@@ -1,14 +1,38 @@
-schema_version: weksa.line_expression_vector.v0
+schema_version: weksa.utterance_embedding_handoff.v0
 source_output_ref: examples/english-lowering/nibu-proof-001/lowered-output.yaml
 speaker_agent_id: nibu
-encoder:
-  model_id: weksa-line-expression-toy
-  version: 0.0-hand-authored-fixture
-  training_set: none
 text:
   spoken_text: Take your hand off that control unless you want your nervous system to become my least useful circuit diagram.
   normalized_text: take your hand off that control unless you want your nervous system to become my least useful circuit diagram
-vector:
+inputs:
+  speech_text_embedding:
+    model_id: toy-text-embedding
+    dimensionality: 4
+    values:
+      - 0.91
+      - 0.22
+      - 0.68
+      - 0.44
+  prosody_emphasis_hints:
+    dimensionality: 4
+    values:
+      - 0.95
+      - 0.82
+      - 0.18
+      - 0.74
+  character_state_vector:
+    source: projected-nibu-proof-context
+    dimensionality: 4
+    values:
+      - 0.88
+      - 0.71
+      - 0.24
+      - 0.66
+utterance_embedding:
+  owner: AquaSynth
+  model_id: aquasynth-utterance-embedding-toy
+  version: 0.0-hand-authored-fixture
+  training_set: none
   dimensionality: 12
   values:
     - 0.92
@@ -25,7 +49,7 @@ vector:
     - 0.57
   notes:
     - Toy vector is hand-authored only to exercise the contract.
-    - Real vectors should come from a learned Weksa encoder.
+    - Real utterance embeddings should come from the learned AquaSynth encoder.
 audit_projection:
   semantic_preservation:
     must_preserve:
@@ -59,7 +83,7 @@ training_refs:
   negative_examples: []
 trace:
   notes:
-    - First fixture for learned line-expression vector contract.
+    - First fixture for learned utterance embedding handoff contract.
     - Values are placeholders, not calibrated latent dimensions.
   uncertainties:
     - Need real encoder dimensionality.

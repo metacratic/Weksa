@@ -20,7 +20,7 @@ steer the machine, describe its authority here.
   for projecting interlingua through agent state into flavored English.
 - [english-pronunciation-plan.md](./english-pronunciation-plan.md): plan for
   stringing flavored English into IPA/phoneme sequences before downstream speech.
-- [line-expression-vector.md](./line-expression-vector.md): learned vector
+- [utterance-embedding-handoff.md](./utterance-embedding-handoff.md): learned utterance embedding handoff
   contract for handing prosody, emphasis, and character pressure to downstream
   synth control.
 

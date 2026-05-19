@@ -134,10 +134,11 @@ Weksa still owns the optional pronunciation plan for English output: tokenizing
 the line, choosing word pronunciations, preserving stress, and stringing broad
 IPA together. See [English Pronunciation Lowering](./english-pronunciation-lowering.md).
 
-Weksa should also emit a learned line-expression vector when training data and
-encoder support exist. That vector is the intended compact handoff for prosody,
-emphasis, and character delivery pressure. See
-[Line Expression Vector](./line-expression-vector.md).
+Weksa should also emit the ingredients for an AquaSynth-owned utterance
+embedding: speech text embedding, prosody/emphasis hints, and a projected
+Ghostlight/Epiphany-shaped character-state vector. AquaSynth trains the tiny
+encoder and consumes the resulting embedding in its synth driver. See
+[Utterance Embedding Handoff](./utterance-embedding.md).
 
 ## First Target: Nibu
 

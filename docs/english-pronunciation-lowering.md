@@ -18,7 +18,7 @@ and dialogue layer: phrase grouping, emphasis, reduced forms, and word choice ar
 part of the utterance Weksa just created.
 
 The long-term primary handoff is the learned
-[Line Expression Vector](./line-expression-vector.md). This pronunciation plan is
+[Utterance Embedding Handoff](./utterance-embedding.md). This pronunciation plan is
 the inspectable audit/debug lane: useful for fixtures, phoneme strings, and
 review, but not the only representation of delivery.
 

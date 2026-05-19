@@ -18,8 +18,8 @@
 - Lower one packet through Nibu's projected agent state into flavored English.
 - Add one English pronunciation plan that strings the lowered line into broad
   IPA.
-- Add one toy line-expression vector fixture, then replace hand-authored values
-  with a learned encoder.
+- Add one toy utterance embedding handoff fixture, then replace hand-authored
+  values with the AquaSynth-owned learned encoder.
 - Preserve the first lowering proof as fixture data under
   `examples/english-lowering/`.
 - Parse or load one language project definition.
