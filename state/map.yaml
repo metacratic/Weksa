@@ -37,6 +37,9 @@ constraints:
     until Weksa can preserve meaning through a character voice humans can judge.
   - Agent state is projected context, not prompt prose storage. Raw state
     internals must not leak into generated dialogue.
+  - Realtime neural voice output may be used as perceptual style/prosody
+    reference data, but not as physical ground truth for AquaSynth vocal-tract
+    tuning.
 
 invariants:
   - Ontology owns meaning.
@@ -193,6 +196,8 @@ open_questions:
     agent state for English lowering?
   - How much phonetic intent should Weksa emit directly versus requesting from
     AquaSynth after dialogue text exists?
+  - What capture format should store realtime voice references, transcripts,
+    prompt provenance, and rating notes for Nibu tuning?
 
 landed_baseline:
   - Language-neutral state spine.

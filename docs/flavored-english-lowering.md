@@ -157,6 +157,55 @@ Weksa should produce or request:
 AquaSynth should decide how those become gestures, tract targets, Faust, and
 audio.
 
+## Realtime Voice References
+
+Codex/OpenAI realtime voice output can be useful, but it must not become
+physical ground truth.
+
+Use projection-shaped prompts with realtime voice output as:
+
+- perceptual reference
+- style and prosody target
+- dataset seed for "what this character should feel like"
+- regression artifact for whether Weksa's English lowering still sounds like
+  the target agent
+- comparison audio while AquaSynth's tract model is still learning to speak
+
+Do not use it as:
+
+- anatomical truth
+- tract-area target authority
+- proof that a phonetic gesture is physically possible
+- replacement for `PhoneticIntent`
+- hidden voice cloning objective
+
+The clean loop is:
+
+```text
+interlingua packet
+  -> projected agent-local prompt
+  -> realtime voice reference output
+  -> transcript + audio + prompt provenance + rating notes
+  -> Weksa/AquaSynth tuning artifact
+```
+
+Those artifacts can teach us what Nibu should sound like to a human listener:
+pace, bite, hesitation, emphasis, warmth or lack of it, and how her contempt
+lands when spoken aloud.
+
+AquaSynth still owns the physical path:
+
+```text
+spoken_text / IPA-like string
+  -> PhoneticIntent
+  -> ArticulatoryPlan
+  -> tract morphology and DSP
+  -> rendered audio
+```
+
+In other words: realtime voice output is a vocal acting reference, not the
+skeleton. Useful. Dangerous if worshipped. The usual.
+
 ## First Target: Nibu
 
 Nibu is the first practical target because her state is live, opinionated, and

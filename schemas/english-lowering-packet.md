@@ -72,3 +72,27 @@ It may include:
 - `delivery_pressure`
 
 This is a request to AquaSynth, not a rendered audio contract.
+
+## Reference Audio Artifacts
+
+Realtime voice outputs may be attached as reference artifacts for tuning.
+
+Suggested fields:
+
+- `reference_audio.provider`
+- `reference_audio.voice`
+- `reference_audio.prompt_ref`
+- `reference_audio.transcript`
+- `reference_audio.audio_ref`
+- `reference_audio.rating_notes`
+- `reference_audio.allowed_use`
+
+Allowed use should distinguish:
+
+- `style_reference`
+- `prosody_reference`
+- `regression_reference`
+- `physical_ground_truth_forbidden`
+
+Reference audio must not replace `phonetic_intent_request` or AquaSynth's
+articulatory reports.
