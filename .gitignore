@@ -6,6 +6,7 @@ state/*.msgpack
 state/*.msgpack.lock
 state/*.projection.json
 state/scratch-compaction-*.md
+state/scratch-runtime/
 .weksa-runs/
 .weksa-smoke/
 node_modules/
