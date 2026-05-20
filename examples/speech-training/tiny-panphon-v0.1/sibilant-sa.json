@@ -1,0 +1,249 @@
+{
+  "schema_version": "weksa.utterance_embedding_handoff.v0.1",
+  "packet_id": "tiny-panphon-v0.1/sibilant-sa",
+  "source_output_ref": "examples/speech-training/tiny-panphon-v0.1/README.md",
+  "speaker_agent_id": "neutral-human-baseline",
+  "text": {
+    "spoken_text": "sa",
+    "normalized_text": "sa",
+    "channel_note": "Pure IPA curriculum seed; semantic text embedding is intentionally zero."
+  },
+  "inputs": {
+    "speech_text_embedding": {
+      "model_id": "bge-m3:latest",
+      "dimensionality": 1024,
+      "values_ref": "vectors/zero-semantic-1024.json"
+    },
+    "panphon_sequence": {
+      "model_id": "panphon-style.v0.1.seed",
+      "source": "hand-authored seed phones for AquaSynth crawl-stage parity tests",
+      "ipa": "sa",
+      "feature_order": [
+        "syl",
+        "son",
+        "cons",
+        "cont",
+        "delrel",
+        "lat",
+        "nas",
+        "strid",
+        "voi",
+        "sg",
+        "cg",
+        "ant",
+        "cor",
+        "distr",
+        "lab",
+        "hi",
+        "lo",
+        "back",
+        "round",
+        "velaric",
+        "tense",
+        "long"
+      ],
+      "frames": [
+        {
+          "index": 0,
+          "phone": "s",
+          "features": [
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            -1.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "markers": {
+            "stress": 0.0,
+            "length": 0.0,
+            "tone": 0.0,
+            "boundary": 0.0,
+            "duration_ms": 95
+          }
+        },
+        {
+          "index": 1,
+          "phone": "a",
+          "features": [
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            -1.0,
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "markers": {
+            "stress": 1.0,
+            "length": 0.0,
+            "tone": 0.0,
+            "boundary": 1.0,
+            "duration_ms": 180
+          }
+        }
+      ]
+    },
+    "prosody_emphasis_hints": {
+      "dimensionality": 32,
+      "labels": [
+        "mean_pitch_pressure",
+        "pitch_rise",
+        "pitch_fall",
+        "pitch_range",
+        "loudness_pressure",
+        "loudness_attack",
+        "loudness_release",
+        "speaking_rate",
+        "articulation_precision",
+        "pause_pressure",
+        "phrase_final_lengthening",
+        "stress_contrast",
+        "clippedness",
+        "breathiness",
+        "creak_pressure",
+        "smoothness",
+        "warmth",
+        "threat",
+        "urgency",
+        "hesitation",
+        "irony_dryness",
+        "tenderness",
+        "contempt",
+        "command_force",
+        "question_contour",
+        "exclamation_pressure",
+        "secrecy_low_projection",
+        "ritual_formality_pressure",
+        "playful_pressure",
+        "fatigue",
+        "emotional_containment",
+        "reserved"
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.15,
+        0.35,
+        0.0,
+        0.0,
+        0.2,
+        0.0,
+        0.0,
+        0.0,
+        0.25,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "character_state_vector": {
+      "source": "epiphany.agent_utterance_state.v0 neutral baseline",
+      "schema_ref": "E:/Projects/EpiphanyAgent/schemas/agent-utterance-state-schema.md",
+      "dimensionality": 64,
+      "values_ref": "vectors/neutral-character-64.json"
+    }
+  },
+  "phonetic_realization_embedding": {
+    "owner": "AquaSynth",
+    "model_id": "aquasynth.panphon_sequence_encoder.v0.1",
+    "dimensionality": 256,
+    "status": "pending_aquasynth_training_or_encoding",
+    "values_ref": null
+  },
+  "utterance_embedding": {
+    "owner": "AquaSynth",
+    "model_id": "aquasynth.utterance_embedding_encoder.v0.1",
+    "version": null,
+    "training_set": "tiny-panphon-v0.1",
+    "dimensionality": 64,
+    "status": "pending_aquasynth_training_or_encoding",
+    "values_ref": null
+  },
+  "audit_projection": {
+    "semantic_preservation": "No lexical semantics; preserve the requested IPA sound shape.",
+    "emphasis": "Single syllable baseline stress where a vowel exists.",
+    "prosody": "Neutral, slow, precise, no expressive contour.",
+    "character_pressure": "Neutral speaker baseline.",
+    "delivery_shape": "voiceless alveolar sibilant into open vowel"
+  },
+  "training_refs": {
+    "positive_examples": [
+      {
+        "kind": "reference_synth_prompt",
+        "engine": "eSpeak NG or equivalent baseline speech oracle",
+        "text": "sa"
+      }
+    ],
+    "negative_examples": []
+  },
+  "trace": {
+    "pipeline_receipts": [
+      {
+        "stage": "weksa_emit_tiny_panphon_handoff",
+        "decided_at_utc": "2026-05-20T00:00:00Z",
+        "latency_budget_ms": 10,
+        "observed_latency_ms": 0,
+        "confidence": 0.72
+      }
+    ],
+    "notes": [
+      "This fixture is a crawl-stage training seed, not a full English lowering artifact.",
+      "PanPhon-style features are hand-authored for the six seed phones until Weksa wires a canonical PanPhon dependency.",
+      "AquaSynth owns the learned 256-float phonetic realization embedding and 64-float utterance embedding."
+    ],
+    "uncertainties": [
+      "Feature values should be regenerated from the canonical PanPhon library before broad phoneme coverage.",
+      "Durations are seed timing hints, not measured reference audio."
+    ]
+  }
+}

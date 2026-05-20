@@ -44,6 +44,12 @@ See [Flavored English Lowering](./docs/flavored-english-lowering.md) for the
 first lowering target: interlingua projected through agent state into English
 dialogue.
 
+For the first AquaSynth speech-training handoff, see
+[Tiny PanPhon v0.1 Speech Curriculum](./examples/speech-training/tiny-panphon-v0.1/README.md).
+Those packets are emitted by `tools/emit_tiny_panphon_handoffs.py` and provide
+the crawl-stage artifact for simple IPA sounds before Weksa grows broader
+pronunciation coverage.
+
 ## Implementation Status
 
 No runtime language has been selected yet. The first committed artifact is the

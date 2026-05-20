@@ -12,8 +12,9 @@ objective:
     Create a durable workspace where Weksa can develop from a persistent map
     before runtime architecture decisions are made.
   current: >
-    Define the first lowering target: project interlingua through character
-    agent state into flavored English dialogue.
+    Emit concrete v0.1 utterance handoff artifacts for AquaSynth's first
+    speech-training curriculum while keeping Weksa's ownership limited to
+    inspected inputs.
 
 constraints:
   - Runtime implementation language is undecided.
@@ -227,6 +228,11 @@ landed_baseline:
   - Nibu lowering target note.
   - First English pronunciation plan fixture for Nibu proof output.
   - First toy utterance embedding handoff fixture for Nibu proof output.
+  - First executable utterance handoff emitter at
+    `tools/emit_tiny_panphon_handoffs.py`.
+  - First machine-readable AquaSynth speech-training seed batch at
+    `examples/speech-training/tiny-panphon-v0.1/batch.json`, covering pure IPA
+    `a`, `pa`, `ta`, `ka`, `sa`, and `ma` with fixed v0.1 vector widths.
   - Weksa-to-AquaSynth utterance embedding handoff v0.1 fixes the training
     vector contract: 1024-float `bge-m3:latest` speech text embedding,
     variable-length PanPhon sequence evidence, a 256-float AquaSynth-owned

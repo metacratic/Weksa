@@ -1,0 +1,14 @@
+{
+  "schema_version": "weksa.utterance_handoff_batch.v0.1",
+  "batch_id": "tiny-panphon-v0.1",
+  "packet_schema_version": "weksa.utterance_embedding_handoff.v0.1",
+  "packet_refs": [
+    "open-vowel-a.json",
+    "bilabial-pa.json",
+    "alveolar-ta.json",
+    "velar-ka.json",
+    "sibilant-sa.json",
+    "nasal-ma.json"
+  ],
+  "purpose": "Initial AquaSynth parity curriculum for simple IPA sounds."
+}

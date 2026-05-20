@@ -81,6 +81,15 @@ semantics and phonetic realization are separate witnesses. For pure IPA or alien
 phonetic fixtures, the text embedding may be zero or point to the source
 meaning packet while `panphon_sequence` carries the sound-shape evidence.
 
+The first emitted training artifact is
+`examples/speech-training/tiny-panphon-v0.1/batch.json`. It contains six pure
+IPA seed packets (`a`, `pa`, `ta`, `ka`, `sa`, and `ma`) with zeroed semantic
+text embeddings, inline PanPhon-style feature frames, deterministic
+prosody/emphasis hints, and the Epiphany-compatible neutral 64-slot character
+state vector. The AquaSynth-owned learned fields are present but marked
+pending, so training can begin from a real Weksa artifact without pretending
+Weksa owns the optimizer.
+
 ```yaml
 schema_version: weksa.utterance_embedding_handoff.v0.1
 source_output_ref:
@@ -98,11 +107,6 @@ inputs:
     source:
     ipa:
     frames_ref:
-phonetic_realization_embedding:
-  owner: AquaSynth
-  model_id: aquasynth.panphon_sequence_encoder.v0.1
-  dimensionality: 256
-  values_ref:
   prosody_emphasis_hints:
     dimensionality: 32
     values:
@@ -110,6 +114,11 @@ phonetic_realization_embedding:
     source:
     dimensionality: 64
     values_ref:
+phonetic_realization_embedding:
+  owner: AquaSynth
+  model_id: aquasynth.panphon_sequence_encoder.v0.1
+  dimensionality: 256
+  values_ref:
 utterance_embedding:
   owner: AquaSynth
   model_id:
@@ -213,12 +222,15 @@ First loop:
 2. Project Ghostlight/Epiphany-shaped character context.
 3. Lower to English.
 4. Generate or attach a speech text embedding when the line has text semantics.
-5. Emit or attach a phonetic realization vector from pronunciation/IPA evidence.
+5. Emit PanPhon sequence evidence from pronunciation/IPA material.
 6. Emit prosody/emphasis hints and a projected character state vector.
-7. Human-review whether the line preserves meaning, pronunciation, and voice.
-8. AquaSynth trains the utterance embedding encoder.
-9. AquaSynth feeds the utterance embedding to the synth driver.
-10. Compare rendered speech against human notes and reference takes when present.
+7. AquaSynth trains or applies the phonetic sequence encoder to produce the
+   256-float phonetic realization embedding.
+8. Human-review whether the line preserves meaning, pronunciation, and voice.
+9. AquaSynth trains the utterance embedding encoder.
+10. AquaSynth feeds the utterance embedding to the synth driver.
+11. Compare rendered speech against human notes and reference takes when
+    present.
 
 The same fixture can carry accepted lines, rejected lines, audit projections,
 input vectors, downstream AquaSynth evaluation pointers, and notes about why a
