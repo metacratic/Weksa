@@ -1,4 +1,4 @@
-schema_version: weksa.utterance_embedding_handoff.v0
+schema_version: weksa.utterance_embedding_handoff.v0-toy
 source_output_ref: examples/english-lowering/nibu-proof-001/lowered-output.yaml
 speaker_agent_id: nibu
 text:
@@ -83,8 +83,9 @@ training_refs:
   negative_examples: []
 trace:
   notes:
-    - First fixture for learned utterance embedding handoff contract.
+    - First toy fixture for learned utterance embedding handoff contract.
     - Values are placeholders, not calibrated latent dimensions.
+    - This fixture predates the v0.1 fixed-size training contract and must not be used as an AquaSynth training packet.
   uncertainties:
     - Need real encoder dimensionality.
     - Need paired AquaSynth decoder target format.

@@ -210,8 +210,9 @@ open_questions:
   - What English G2P path should become executable first: CMUdict lookup plus
     ARPABET-to-IPA conversion, eSpeak NG oracle comparison, or a trained OOV
     model?
-  - What dimensionality and training corpus should the first AquaSynth-owned
-    utterance embedding encoder use?
+  - What training corpus should the first AquaSynth-owned utterance embedding
+    encoder use now that the v0.1 handoff fixes Weksa inputs at 1024 + 32 + 64
+    floats and AquaSynth output at 64 floats?
 
 landed_baseline:
   - Language-neutral state spine.
@@ -226,6 +227,17 @@ landed_baseline:
   - Nibu lowering target note.
   - First English pronunciation plan fixture for Nibu proof output.
   - First toy utterance embedding handoff fixture for Nibu proof output.
+  - Weksa-to-AquaSynth utterance embedding handoff v0.1 fixes the training
+    vector contract: 1024-float `bge-m3:latest` speech text embedding,
+    variable-length PanPhon sequence evidence, a 256-float AquaSynth-owned
+    phonetic realization embedding, 32-float prosody/emphasis hints, 64-float
+    projected character state, and 64-float AquaSynth-owned utterance embedding
+    output. Toy fixtures are marked non-training if they do not use those
+    dimensions.
+  - Speech text embedding and phonetic realization are separate channels.
+    English text semantics may use `bge-m3`; IPA strings and alien phonetic
+    material belong in PanPhon sequence evidence that AquaSynth compresses into
+    the phonetic realization embedding.
   - First Nibu interlingua-to-English lowering fixture.
   - `bge-m3:latest` installed on neighboring Ollama box `192.168.1.84` and
     verified through a 1024-dimensional utterance embedding.
