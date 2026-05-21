@@ -2,9 +2,9 @@
 """Emit tiny v0.1 utterance handoff fixtures for AquaSynth speech training.
 
 This is intentionally not a Weksa runtime. It is a deterministic artifact
-emitter for the first crawl-stage curriculum: simple IPA syllables with
-PanPhon-style feature frames, fixed-width Weksa/Epiphany input vectors, and
-pending AquaSynth-owned learned outputs.
+emitter for the first crawl-stage curriculum: simple IPA syllables with the
+PanPhon 22-feature basis, fixed-width Weksa/Epiphany input vectors, and pending
+AquaSynth-owned learned outputs.
 """
 
 from __future__ import annotations
@@ -265,7 +265,7 @@ def packet(packet_id: str, ipa: str, phones: list[str], note: str) -> dict:
                 "values_ref": "vectors/zero-semantic-1024.json",
             },
             "panphon_sequence": {
-                "model_id": "panphon-style.v0.1.seed",
+                "model_id": "panphon.v0.1.seed",
                 "source": "hand-authored seed phones for AquaSynth crawl-stage parity tests",
                 "ipa": ipa,
                 "feature_order": FEATURE_ORDER,
@@ -328,7 +328,7 @@ def packet(packet_id: str, ipa: str, phones: list[str], note: str) -> dict:
             ],
             "notes": [
                 "This fixture is a crawl-stage training seed, not a full English lowering artifact.",
-                "PanPhon-style features are hand-authored for the six seed phones until Weksa wires a canonical PanPhon dependency.",
+                "The schema uses PanPhon's 22-feature basis; these seed values are hand-authored for the six seed phones until Weksa wires a canonical PanPhon dependency.",
                 "AquaSynth owns the learned 256-float phonetic realization embedding and 64-float utterance embedding.",
             ],
             "uncertainties": [

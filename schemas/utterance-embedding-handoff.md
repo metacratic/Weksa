@@ -60,7 +60,7 @@ phonetic fixtures may zero `inputs.speech_text_embedding` or point it to a
 source meaning packet, but they must not smuggle phone strings through the
 semantic-text channel.
 
-The v0.1 phonetic channel uses PanPhon-style articulatory features as its
+The v0.1 phonetic channel uses PanPhon's 22 articulatory features as its
 per-phone base representation. Weksa supplies that sequence evidence. AquaSynth
 owns the learned compression from variable-length PanPhon sequence into the
 256-float `phonetic_realization_embedding`.
@@ -68,5 +68,5 @@ owns the learned compression from variable-length PanPhon sequence into the
 The first machine-readable seed batch lives at
 `examples/speech-training/tiny-panphon-v0.1/batch.json`. It is the minimal
 artifact AquaSynth should consume before broader English or alien pronunciation
-coverage: six pure IPA packets with fixed vector widths, inline PanPhon-style
-frames, and pending AquaSynth-owned learned outputs.
+coverage: six pure IPA packets with fixed vector widths, inline PanPhon
+22-feature frames, and pending AquaSynth-owned learned outputs.

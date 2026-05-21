@@ -232,7 +232,8 @@ landed_baseline:
     `tools/emit_tiny_panphon_handoffs.py`.
   - First machine-readable AquaSynth speech-training seed batch at
     `examples/speech-training/tiny-panphon-v0.1/batch.json`, covering pure IPA
-    `a`, `pa`, `ta`, `ka`, `sa`, and `ma` with fixed v0.1 vector widths.
+    `a`, `pa`, `ta`, `ka`, `sa`, and `ma` with fixed v0.1 vector widths and
+    PanPhon's 22-feature basis.
   - Weksa-to-AquaSynth utterance embedding handoff v0.1 fixes the training
     vector contract: 1024-float `bge-m3:latest` speech text embedding,
     variable-length PanPhon sequence evidence, a 256-float AquaSynth-owned

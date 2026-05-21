@@ -84,7 +84,7 @@ meaning packet while `panphon_sequence` carries the sound-shape evidence.
 The first emitted training artifact is
 `examples/speech-training/tiny-panphon-v0.1/batch.json`. It contains six pure
 IPA seed packets (`a`, `pa`, `ta`, `ka`, `sa`, and `ma`) with zeroed semantic
-text embeddings, inline PanPhon-style feature frames, deterministic
+text embeddings, inline PanPhon 22-feature frames, deterministic
 prosody/emphasis hints, and the Epiphany-compatible neutral 64-slot character
 state vector. The AquaSynth-owned learned fields are present but marked
 pending, so training can begin from a real Weksa artifact without pretending
@@ -151,9 +151,9 @@ The v0.1 vector names are review labels, not the true learned latent space.
 They stabilize Weksa output and help humans inspect what the training packet is
 trying to preserve.
 
-`panphon_sequence` is deterministic speech-surface evidence. Its first v0.1
-implementation should use PanPhon-style ternary articulatory features as the
-per-phone spine, then add stress, length, tone, boundary, and timing markers.
+`panphon_sequence` is deterministic speech-surface evidence. Its v0.1
+implementation uses PanPhon's 22 ternary articulatory features as the per-phone
+spine, then adds stress, length, tone, boundary, and timing markers.
 It is not a semantic embedding. AquaSynth trains
 `aquasynth.panphon_sequence_encoder.v0.1` to compress that variable-length
 sequence into the 256-float `phonetic_realization_embedding`.

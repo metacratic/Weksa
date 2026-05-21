@@ -9,7 +9,7 @@ It is intentionally small: six pure IPA packets for `a`, `pa`, `ta`, `ka`,
 
 - a 1024-float semantic text embedding reference, zeroed because these are pure
   IPA fixtures;
-- an inline variable-length PanPhon-style feature sequence;
+- an inline variable-length PanPhon 22-feature sequence;
 - 32 Weksa-owned prosody/emphasis hints;
 - a 64-float Epiphany-compatible neutral character-state vector reference;
 - pending AquaSynth-owned 256-float phonetic realization and 64-float
@@ -25,6 +25,7 @@ Run it from the Weksa repo root:
 ```
 
 `batch.json` is the training entrypoint for AquaSynth. The individual packet
-files are stable seed fixtures; the PanPhon feature values are hand-authored
-for this six-phone crawl stage and should be regenerated from the canonical
-PanPhon library before Weksa expands coverage.
+files are stable seed fixtures. The schema uses PanPhon's 22-feature basis from
+the start; the feature values in this six-phone crawl stage are hand-authored
+and should be regenerated from the canonical PanPhon library before Weksa
+expands coverage.

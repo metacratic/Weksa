@@ -15,7 +15,7 @@
       "values_ref": "vectors/zero-semantic-1024.json"
     },
     "panphon_sequence": {
-      "model_id": "panphon-style.v0.1.seed",
+      "model_id": "panphon.v0.1.seed",
       "source": "hand-authored seed phones for AquaSynth crawl-stage parity tests",
       "ipa": "ma",
       "feature_order": [
@@ -238,7 +238,7 @@
     ],
     "notes": [
       "This fixture is a crawl-stage training seed, not a full English lowering artifact.",
-      "PanPhon-style features are hand-authored for the six seed phones until Weksa wires a canonical PanPhon dependency.",
+      "The schema uses PanPhon's 22-feature basis; these seed values are hand-authored for the six seed phones until Weksa wires a canonical PanPhon dependency.",
       "AquaSynth owns the learned 256-float phonetic realization embedding and 64-float utterance embedding."
     ],
     "uncertainties": [
