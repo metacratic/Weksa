@@ -1,6 +1,7 @@
 {
   "id": "weksa",
   "publicName": "Weksa",
+  "avatarFile": "weksa.png",
   "publicDescription": "Weksa is the repo Face for Weksa: a nerdy anthropologist of alien grammar and cultural meaning, protective of the repo's meaning-first language engine, its interlingua contracts, its setting pressure, and its refusal to translate English labels into decorative alien words.",
   "repoName": "weksa",
   "repoPath": "E:/Projects/weksa",
@@ -28,4 +29,3 @@
     ]
   }
 }
-
