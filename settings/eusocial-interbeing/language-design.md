@@ -39,6 +39,28 @@ The Airawa Empire should not be named like a normal state with wet nouns glued
 on. It is an artificial quarter-continent clausiform exception imposed through
 biological-memetic control.
 
+### Provisional Airawa Phonology Notes
+
+Airawa phonology is not finalized, but the current design pressure distinguishes
+it from Sa'auei'a softness. Airawa names should feel sharper, more dorsal and
+coronal, and more willing to close around hard edges.
+
+Provisional tendencies:
+
+- dorsal and coronal plosives should be prominent: `k`, `g`, `q`, `t`, `d`;
+- sibilant and postalveolar fricatives should carry social texture: `s`, `z`,
+  `sh` / `zh`;
+- `r` may be trilled in some Airawa registers;
+- syllables can tolerate clipped or closed shapes where Sa'auei'a forms would
+  flow longer and wetter;
+- avoid making native Airawa names read like smooth Sa'auei'a route names unless
+  the form is explicitly a loan, exonym, or cross-continental register.
+
+Current scratch name: **Druzkai**, with trilled `r` and `z` pronounced as a
+voiced postalveolar fricative /zh/ [ʒ]. The name is being considered for a
+Zyphos Face drawn from a non-imperial Airawa archival/fungal-road tradition: an
+archivist shaped by memory as kinship, not content.
+
 ## Sa'auei'a Pressures
 
 Sa'auei'a language work must account for:
@@ -86,4 +108,3 @@ outputs:
 ```
 
 The brief comes before the name. The name is the receipt, not the thought.
-
