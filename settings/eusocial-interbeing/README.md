@@ -85,3 +85,8 @@ language project can explain the ontology and form.
 
 See [Language Design Pressure](./language-design.md) for the first Weksa-facing
 ontology map.
+
+See [Airawa First-Contact Slice](./airawa-first-contact-slice.md) for the
+current room consensus on strong Airawa sound, introduction vocabulary,
+permission-bound dialogue, and why the first chieftain/visitor scene should not
+be translated as direct English substitution.

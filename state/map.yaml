@@ -182,6 +182,14 @@ accepted_design:
     inhabitant-language names derived from speaker ontology, register,
     phonology, morphology, diachrony, and setting context rather than direct
     English label translation.
+  - Airawa first-contact work should begin with social mechanics rather than
+    scenery vocabulary: identity, formal naming, origin, approach permission,
+    border-right, peace claim, obligation, gratitude/debt, witness, authority,
+    guest status, mother-tree access, nutrient gift, and taboo delivery.
+  - The current Airawa starter forms are provisional seed evidence, not canon.
+    They must be promoted through a language-project state that explains their
+    morphology, phonology, grammar, and allowed usage before Weksa claims clean
+    full translation.
 
 open_questions:
   - Which implementation language best serves the first usable engine?
@@ -200,6 +208,10 @@ open_questions:
     collapsing them into one universal language?
   - Which Zyphos language project should be first: Airawa, imperial Airawa,
     Sa'auei'a, or a narrow naming-brief interlingua?
+  - What is the minimal Airawa starter lexicon and permission model needed to
+    translate the first chieftain/visitor/mother-tree scene honestly?
+  - How should Airawa encode honorable scars: bodily evidence, honor claim, debt
+    marker, warrior-status signal, or a split among those meanings?
   - What Weksa naming brief schema best serves nation-scale interbeings,
     ecological memory networks, and mobile family-unit civilizations?
   - Which interlingua fields should be promoted from namespaced extensions after
@@ -223,6 +235,9 @@ landed_baseline:
   - Rust to Dust setting documentation skeleton.
   - Eusocial Interbeing naming surface at settings/eusocial-interbeing.
   - Zyphos language-design pressure note.
+  - Airawa first-contact slice recording room consensus on strong sound,
+    introduction vocabulary, permission-bound dialogue, and the boundary against
+    direct English-to-Airawa substitution.
   - Draft Weksa interlingua standard and packet schema receipt.
   - Draft flavored-English lowering contract.
   - Nibu lowering target note.

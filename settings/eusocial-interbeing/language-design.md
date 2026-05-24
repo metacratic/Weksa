@@ -34,10 +34,17 @@ Airawa language work must account for:
 - disconnected tree networks that survived by severing themselves from saturated
   substrate
 - imperial labels versus native nation-scale interbeing names
+- first-contact speech as social mechanics: approach permission, host authority,
+  witness, obligation, gift delivery, taboo access, and accepted guest status
 
 The Airawa Empire should not be named like a normal state with wet nouns glued
 on. It is an artificial quarter-continent clausiform exception imposed through
 biological-memetic control.
+
+The first Airawa dialogue target is not a generic greeting. It is a
+chieftain/visitor exchange around mother-tree access, nutrient surplus, guest
+rights, witnessed warrior promise, and honorable scar evidence. See
+[Airawa First-Contact Slice](./airawa-first-contact-slice.md).
 
 ### Provisional Airawa Phonology Notes
 
@@ -55,6 +62,13 @@ Provisional tendencies:
   flow longer and wetter;
 - avoid making native Airawa names read like smooth Sa'auei'a route names unless
   the form is explicitly a loan, exonym, or cross-continental register.
+
+The current room consensus pushes this further for introductory speech: Airawa
+should sound strong and imposing through deliberate hard edges, clipped or
+closed syllables, prominent `k/g/q/t/d`, textured `s/z/sh/zh`, and heavy stress
+on socially important forms. The point is not harshness for its own sake. The
+point is that claims, permissions, borders, and obligations should land with
+weight.
 
 Current scratch name: **Druzkai**, with trilled `r` and `z` pronounced as a
 voiced postalveolar fricative /zh/ [ʒ]. The name is being considered for a

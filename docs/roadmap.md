@@ -8,9 +8,11 @@
   lowering.
 - Decide the first language-project state format after the interlingua boundary
   is clear.
-- Build a hand-authored toy language project before automating generation.
-- Use Rust to Dust as the first proving ground while keeping Weksa
-  setting-neutral.
+- Build a hand-authored toy language-project slice before automating
+  generation.
+- Use Zyphos / Eusocial Interbeing as the current higher-priority proving
+  ground while keeping Weksa setting-neutral. Rust to Dust remains an earlier
+  pressure surface, not the active default.
 
 ## First Prototype
 
@@ -22,6 +24,8 @@
   values with the AquaSynth-owned learned encoder.
 - Preserve the first lowering proof as fixture data under
   `examples/english-lowering/`.
+- Preserve the Airawa first-contact slice as a hand-authored language-project
+  pressure note before attempting full alien-language translation.
 - Parse or load one language project definition.
 - Accept a Weksa interlingua packet.
 - Render glossed output through grammar, morphology, phonology, and diachrony.
