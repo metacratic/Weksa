@@ -22,6 +22,10 @@
   IPA.
 - Add one toy utterance embedding handoff fixture, then replace hand-authored
   values with the AquaSynth-owned learned encoder.
+- Add a daemon loop that commits conversational intent, pronunciation plans, and
+  utterance handoffs as typed CultCache witnesses.
+- Publish the provider advertisement and first Eve operator/intent-review
+  surfaces through CultMesh for Odin discovery.
 - Preserve the first lowering proof as fixture data under
   `examples/english-lowering/`.
 - Preserve the Airawa first-contact slice as a hand-authored language-project
@@ -31,9 +35,8 @@
 - Render glossed output through grammar, morphology, phonology, and diachrony.
 - Emit a trace explaining which stage made each decision.
 - Keep runtime LLM-free; model use belongs in authoring and critique.
-- Do not add Verse service migration, provider advertisements, or Eve lowering
-  until Weksa has an actual daemon/compiler-service owner. Preserve the future
-  expectations in [Verse Service Demotion](./verse-service-demotion.md).
+- Keep CLI tools, fixtures, daemon jobs, and Eve commands on the same commit and
+  derivation paths so Weksa does not grow split-brained intent truth.
 
 ## Later
 

@@ -40,10 +40,9 @@ for the LLM-free hot path.
 See [Interlingua Standard](./docs/interlingua-standard.md) for the shared
 meaning-packet contract Weksa clients should target.
 
-See [Verse Service Demotion](./docs/verse-service-demotion.md) for the current
-service-status receipt: Weksa is not a daemon or Verse service yet, but the note
-names the CultCache witnesses, CultMesh provider surfaces, Eve projections, and
-commands expected if it later becomes one.
+See [Verse Service Contract](./docs/verse-service-contract.md) for the daemon
+contract: Weksa owns typed conversational intent, pronunciation plans, utterance
+handoffs, and the Eve/CultMesh surfaces that make those documents inspectable.
 
 See [Flavored English Lowering](./docs/flavored-english-lowering.md) for the
 first lowering target: interlingua projected through agent state into English
@@ -57,9 +56,11 @@ pronunciation coverage.
 
 ## Implementation Status
 
-No runtime language has been selected yet. The first committed artifact is the
-persistent state spine: map, scratch, schemas, docs, and examples. The engine
-implementation should be chosen after the pipeline and data ownership are clear.
+The first committed artifact is the persistent state spine: map, scratch,
+schemas, docs, examples, and a read-only provider advertisement fixture. The
+daemon runtime still needs implementation, but its authority is no longer
+ambiguous: writing and agent state enter Weksa as intent pressure, and typed
+utterance documents leave for AquaSynth.
 
 [Eusocial Interbeing / Zyphos](./settings/eusocial-interbeing/README.md) is the
 current higher-priority setting target. [Rust to Dust](./settings/rust-to-dust/README.md)

@@ -1,22 +1,23 @@
 # Architecture
 
-Weksa is currently a state spine and a pipeline map, not an implementation.
+Weksa is the language-intent daemon surface: currently a state spine, pipeline
+map, fixtures, and service contract waiting for its runtime loop.
 
-It is also not currently an active Verse service. See
-[Verse Service Demotion](./verse-service-demotion.md) for the current
-service-status receipt and the future CultCache/CultMesh/Eve expectations if
-Weksa grows into a daemon.
+See [Verse Service Contract](./verse-service-contract.md) for the
+CultCache/CultMesh/Eve authority map.
 
 ## Objective
 
 Build a procedural alien-language engine whose outputs are grounded in
-worldview, semantics, grammar, phonology, morphology, and history.
+worldview, semantics, grammar, phonology, morphology, and history. As a daemon,
+Weksa also turns writing plus agent state into typed conversational intent, then
+lowers that intent into pronunciation and utterance handoff documents.
 
 ## Current Mechanism
 
-There is no runtime mechanism yet. The repo contains persistent state surfaces
-that define the intended data flow and the ownership boundaries future code must
-respect.
+There is no long-running runtime loop yet. The repo contains persistent state
+surfaces and a provider advertisement fixture that define the intended data flow
+and the ownership boundaries future code must respect.
 
 The first shared contract is the [Interlingua Standard](./interlingua-standard.md):
 clients submit interlingua packets before any language project projects them
@@ -31,13 +32,17 @@ through its ontology.
 - Phonology owns sound legality.
 - Diachrony owns plausible irregularity.
 - Renderer owns output, not interpretation.
+- Weksa owns conversational intent and utterance lowering.
+- AquaSynth owns learned utterance embeddings, synth controls, Faust
+  compilation, and audio output.
 
 ## Intended Change
 
 Future implementation should turn the pipeline in `state/map.yaml` into a small,
-inspectable machine. The first executable slice should probably validate a tiny
+inspectable daemon. The first executable slice should validate a tiny
 interlingua packet, read a tiny language project definition, render glossed
-output, and produce a trace explaining which stage made each decision.
+output, lower an accepted intent into a pronunciation/utterance handoff, and
+produce a trace explaining which stage made each decision.
 
 Runtime should be fast and deterministic. Model-assisted English decomposition
 belongs in authoring tools or offline import flows, not in the required hot path.
@@ -45,8 +50,8 @@ See [Runtime and Authoring Split](./runtime-authoring-split.md).
 
 ## Cut Line
 
-Do not add a runtime language, service, database, queue, plugin system, prompt
-framework, or adapter until the pipeline stage needing it is known.
+Do not add a database, queue, plugin system, prompt framework, or adapter until
+the pipeline stage needing it is known.
 
 Do not hard-code Rust to Dust, its aliens, or its aesthetic-honor ontology into
 the generic engine.
