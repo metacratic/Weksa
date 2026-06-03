@@ -31,6 +31,9 @@
 - Render glossed output through grammar, morphology, phonology, and diachrony.
 - Emit a trace explaining which stage made each decision.
 - Keep runtime LLM-free; model use belongs in authoring and critique.
+- Do not add Verse service migration, provider advertisements, or Eve lowering
+  until Weksa has an actual daemon/compiler-service owner. Preserve the future
+  expectations in [Verse Service Demotion](./verse-service-demotion.md).
 
 ## Later
 

@@ -40,6 +40,11 @@ for the LLM-free hot path.
 See [Interlingua Standard](./docs/interlingua-standard.md) for the shared
 meaning-packet contract Weksa clients should target.
 
+See [Verse Service Demotion](./docs/verse-service-demotion.md) for the current
+service-status receipt: Weksa is not a daemon or Verse service yet, but the note
+names the CultCache witnesses, CultMesh provider surfaces, Eve projections, and
+commands expected if it later becomes one.
+
 See [Flavored English Lowering](./docs/flavored-english-lowering.md) for the
 first lowering target: interlingua projected through agent state into English
 dialogue.

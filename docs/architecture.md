@@ -2,6 +2,11 @@
 
 Weksa is currently a state spine and a pipeline map, not an implementation.
 
+It is also not currently an active Verse service. See
+[Verse Service Demotion](./verse-service-demotion.md) for the current
+service-status receipt and the future CultCache/CultMesh/Eve expectations if
+Weksa grows into a daemon.
+
 ## Objective
 
 Build a procedural alien-language engine whose outputs are grounded in
