@@ -17,11 +17,15 @@ It is intentionally small: six pure IPA packets for `a`, `pa`, `ta`, `ka`,
 
 The emitter is [tools/emit_tiny_panphon_handoffs.py](../../../tools/emit_tiny_panphon_handoffs.py).
 It uses only the Python standard library and does not define a Weksa runtime.
+The validator is [tools/validate_tiny_panphon_handoffs.py](../../../tools/validate_tiny_panphon_handoffs.py).
+It checks the generated batch, packet refs, vector dimensions, PanPhon frame
+shape, and pending AquaSynth-owned output lanes.
 
 Run it from the Weksa repo root:
 
 ```powershell
 & 'C:\Users\Meta\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' tools\emit_tiny_panphon_handoffs.py
+& 'C:\Users\Meta\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' tools\validate_tiny_panphon_handoffs.py
 ```
 
 `batch.json` is the training entrypoint for AquaSynth. The individual packet

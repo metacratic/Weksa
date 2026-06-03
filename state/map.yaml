@@ -245,6 +245,9 @@ landed_baseline:
   - First toy utterance embedding handoff fixture for Nibu proof output.
   - First executable utterance handoff emitter at
     `tools/emit_tiny_panphon_handoffs.py`.
+  - First executable utterance handoff fixture validator at
+    `tools/validate_tiny_panphon_handoffs.py`, scoped to the tiny PanPhon v0.1
+    batch rather than promoted as a general schema runtime.
   - First machine-readable AquaSynth speech-training seed batch at
     `examples/speech-training/tiny-panphon-v0.1/batch.json`, covering pure IPA
     `a`, `pa`, `ta`, `ka`, `sa`, and `ma` with fixed v0.1 vector widths and

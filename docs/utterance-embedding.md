@@ -90,6 +90,10 @@ state vector. The AquaSynth-owned learned fields are present but marked
 pending, so training can begin from a real Weksa artifact without pretending
 Weksa owns the optimizer.
 
+`tools/validate_tiny_panphon_handoffs.py` is the executable smoke for this
+fixture. It validates the checked-in batch against the fixed v0.1 dimensions and
+channel split without creating a general schema framework.
+
 ```yaml
 schema_version: weksa.utterance_embedding_handoff.v0.1
 source_output_ref:

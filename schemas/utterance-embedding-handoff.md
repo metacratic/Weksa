@@ -70,3 +70,8 @@ The first machine-readable seed batch lives at
 artifact AquaSynth should consume before broader English or alien pronunciation
 coverage: six pure IPA packets with fixed vector widths, inline PanPhon
 22-feature frames, and pending AquaSynth-owned learned outputs.
+
+Use `tools/validate_tiny_panphon_handoffs.py` as the v0.1 fixture smoke. It
+validates the batch refs, fixed vector dimensions, PanPhon frame shape, and
+pending AquaSynth-owned output lanes. It is deliberately not a general Weksa
+schema runtime.

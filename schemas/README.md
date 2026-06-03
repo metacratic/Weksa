@@ -2,10 +2,14 @@
 
 This folder records Weksa's persistent state contracts in human language.
 
-The repo deliberately starts without executable schema code. Runtime language,
-storage backend, and generated type targets are undecided. Until those decisions
-are made, this folder is the receipt surface: if a state shape matters enough to
-steer the machine, describe its authority here.
+The repo deliberately starts without general executable schema code. Runtime
+language, storage backend, and generated type targets are undecided. Until those
+decisions are made, this folder is the receipt surface: if a state shape matters
+enough to steer the machine, describe its authority here.
+
+Narrow fixture validators may exist when an external handoff needs an executable
+proof. They do not become the schema authority unless the map explicitly promotes
+them.
 
 ## Canonical Surfaces
 

@@ -51,8 +51,9 @@ dialogue.
 For the first AquaSynth speech-training handoff, see
 [Tiny PanPhon v0.1 Speech Curriculum](./examples/speech-training/tiny-panphon-v0.1/README.md).
 Those packets are emitted by `tools/emit_tiny_panphon_handoffs.py` and provide
-the crawl-stage artifact for simple IPA sounds before Weksa grows broader
-pronunciation coverage.
+the crawl-stage artifact for simple IPA sounds. Validate the checked contract
+with `tools/validate_tiny_panphon_handoffs.py` before handing the batch to
+AquaSynth or expanding pronunciation coverage.
 
 ## Implementation Status
 
