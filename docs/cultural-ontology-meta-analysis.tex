@@ -48,6 +48,9 @@ The immediate design targets are:
 \begin{itemize}[noitemsep]
   \item African American English / African American Language as a dialect or
   speech tradition with systematic grammar and cultural indexicality.
+  \item Regional and contact-influenced US English targets, including West
+  Coast, East Coast, Deep South, and New York/Yiddish-contact registers as
+  explicit overlays rather than one generic American flavor.
   \item Scottish targets that distinguish Scots, Scottish Standard English,
   Highland English, and Scottish Gaelic influence instead of collapsing them
   into a single ``Scottish'' costume.
@@ -153,6 +156,66 @@ misspelling, or accent. It needs a dialect profile with:
   authorial permission;
   \item anti-caricature constraints.
 \end{itemize}
+
+\subsection{US English Is a Regional, Social, and Contact-Language Field}
+
+``US English'' is not a single cultural ontology. It is a base locale with
+regional dialects, ethnic and racialized speech traditions, institutional
+registers, class-indexed styles, media norms, and contact-language repertoires.
+The Dictionary of American Regional English documents regional words, phrases,
+and pronunciations across the United States, while the Atlas of North American
+English provides a phonological map of North American regional sound change
+\cite{dare,dareReport,anae}. The Yale Grammatical Diversity Project documents
+syntactic variation in North American English, including features such as
+multiple modals in South Midland and Southern varieties
+\cite{ygdp,ygdpMapbook,ygdpMultipleModals}.
+
+For Weksa, US English should therefore be represented as a stack:
+
+\begin{itemize}[noitemsep]
+  \item \texttt{en-US.base}: broad American English defaults.
+  \item \texttt{en-US.west\_coast}: a regional family containing California,
+  Pacific Northwest, and urban/rural subprofiles.
+  \item \texttt{en-US.east\_coast}: a family containing New York City,
+  Boston, Philadelphia, Appalachian, Mid-Atlantic, and other local profiles.
+  \item \texttt{en-US.deep\_south}: Southern regional profiles with separate
+  gates for AAL, Appalachian, Gulf Coast, rural, urban, class, race, religion,
+  and formality.
+  \item \texttt{en-US.nyc.yiddish\_contact}: a New York and American Jewish
+  English contact overlay, not a generic comedy seasoning.
+\end{itemize}
+
+West Coast targets need internal separation. Pacific Northwest English is an
+active object of regional study, and Oregon data show that West Coast English
+cannot be reduced to California alone \cite{pnwEnglish,oregonWestCoast}.
+California-facing profiles should represent California Vowel Shift evidence and
+its social meanings as optional phonological and indexical pressure, not as a
+lexical stereotype \cite{sfCvs,villarreal2018}. A ``West Coast casual'' target
+may therefore activate low formality, regional lexical choices, and media/social
+stance, but it should not imply surfer speech, Valley Girl caricature, or a
+single Californian identity.
+
+Deep South targets need the same separation discipline. Multiple modals,
+second-person plural forms such as \emph{y'all}, Southern vowel systems, and
+regional discourse norms are real affordances, but ``Southern'' is not a class,
+race, education level, or joke \cite{ygdpMultipleModals,anae}. A Deep South
+stack must keep regional dialect, AAL/African American Language, Appalachian
+English, Gulf Coast varieties, rurality, religion, occupation, class, and
+persona as distinct axes. The machine should be able to say ``formal Black
+church register in coastal Georgia'' or ``white rural Alabama mechanic talking
+to a cousin'' without treating either as the whole South.
+
+New York English also requires contact-aware modeling. New York City English
+has been studied as a locally distinct variety with ethnic and neighborhood
+variation, while Jewish English and Yiddish influence form their own repertoire
+with lexical, prosodic, pragmatic, and identity-indexing resources
+\cite{newmanNycEnglish,becker2009nyc,burdin2018,benorJewishEnglish}.
+The requested ``strong New York slang with Yiddish mixed in'' should compile as
+\texttt{en-US.nyc.urban} plus an American Jewish English or Yiddish-contact
+overlay only when speaker, scene, community, or authoring metadata gives it
+standing. The forbidden flattening is obvious and load-bearing: do not conflate
+New York English, Jewish English, Yeshivish or Hasidic English, Italian
+American English, Puerto Rican English, AAL, or media gangster parody.
 
 \subsection{Scottish Targets Require Varietal Separation}
 
@@ -479,6 +542,132 @@ forbidden_flattenings:
   - Do not generate dense AAL without speaker/context authority.
 \end{lstlisting}
 
+\subsection{US English Regional and Contact Overlays}
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true]
+schema: weksa.cultural_ontology_profile.v0
+profile_id: weksa.cultural_ontology.en-US.west_coast.california_casual.v0
+kind: regional_register_overlay
+status: draft_guarded
+parent_profiles:
+  - weksa.target_cultural_ontology.en-US.v0
+retrieval:
+  qdrant_collection: weksa_cultural_ontology_sources
+  required_payload_filters:
+    language_code: en
+    locale: en-US
+    region: [California, West Coast]
+    source_type: [dialect_atlas, sociolinguistic_study, reviewed_example]
+activation:
+  allowed_when:
+    - speaker_or_scene_refs_california_or_west_coast
+    - authoring_metadata_requests_california_casual_register
+  forbidden_when:
+    - surfer_or_valley_girl_caricature
+    - generic_american_youth_flavor
+style_controls:
+  density:
+    min: light
+    max: reviewed_moderate
+  register:
+    options: [casual, media_casual, professional_informal]
+forbidden_flattenings:
+  - Do not treat California as the whole West Coast.
+  - Do not treat vowel-shift evidence as mandatory spelling distortion.
+  - Do not collapse region, age, ethnicity, and class into one style.
+\end{lstlisting}
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true]
+schema: weksa.cultural_ontology_profile.v0
+profile_id: weksa.cultural_ontology.en-US.deep_south.v0
+kind: regional_profile_stack_template
+status: draft_guarded
+parent_profiles:
+  - weksa.target_cultural_ontology.en-US.v0
+stack_axes:
+  region: Deep South
+  race_or_ethnolinguistic_tradition: explicit_or_unknown
+  rural_urban: explicit_or_unknown
+  class_or_occupation: explicit_or_unknown
+  religion_or_church_register: explicit_or_unknown
+  formality: explicit_or_unknown
+activation:
+  allowed_when:
+    - speaker_or_scene_refs_deep_south
+    - authoring_metadata_requests_specific_southern_region
+  forbidden_when:
+    - generic_redneck_caricature
+    - low_intelligence_indexing
+    - race_or_class_inferred_from_region_only
+salience_axes:
+  modality:
+    distinctions:
+      - multiple_modals_when_evidence_supports
+  address:
+    distinctions:
+      - second_person_plural
+      - politeness_and_kinship_terms
+forbidden_flattenings:
+  - Southern is not AAL, and AAL is not Southern by default.
+  - Southern is not one accent, class, politics, religion, or education level.
+  - Do not use eye spelling as a substitute for grammar or corpus evidence.
+\end{lstlisting}
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true]
+schema: weksa.cultural_ontology_profile.v0
+profile_id: weksa.cultural_ontology.en-US.east_coast.v0
+kind: regional_family_profile
+status: draft
+parent_profiles:
+  - weksa.target_cultural_ontology.en-US.v0
+child_profiles:
+  - weksa.cultural_ontology.en-US.nyc.urban.v0
+  - weksa.cultural_ontology.en-US.boston.v0
+  - weksa.cultural_ontology.en-US.philadelphia.v0
+  - weksa.cultural_ontology.en-US.appalachian.v0
+activation:
+  allowed_when:
+    - specific_east_coast_region_selected
+  forbidden_when:
+    - generic_east_coast_attitude
+forbidden_flattenings:
+  - East Coast is a routing family, not a dialect.
+  - Do not let New York stand in for all eastern US speech.
+\end{lstlisting}
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true]
+schema: weksa.cultural_ontology_profile.v0
+profile_id: weksa.cultural_ontology.en-US.nyc.yiddish_contact_slang.v0
+kind: contact_language_overlay
+status: draft_guarded
+parent_profiles:
+  - weksa.cultural_ontology.en-US.nyc.urban.v0
+contact_languages:
+  - yi
+speech_traditions:
+  - American Jewish English
+  - Yiddish contact in New York English
+activation:
+  allowed_when:
+    - speaker_profile_refs_jewish_english_or_yiddish_contact
+    - scene_context_refs_nyc_jewish_community_or_yiddish_contact
+    - authoring_metadata_requests_reviewed_contact_overlay
+  forbidden_when:
+    - generic_new_york_comedy
+    - yiddish_as_random_spice
+    - non_jewish_speaker_performance_without_context
+style_controls:
+  density:
+    min: light_lexical_color
+    max: reviewed_dense_contact_register
+  register:
+    options: [casual, comic_in_group, family_argument, public_nyc_slang]
+forbidden_flattenings:
+  - Do not conflate New York English with Jewish English.
+  - Do not conflate Jewish English, Yeshivish, Hasidic English, or Yiddish.
+  - Do not use Yiddish-origin forms to mark greed, neurosis, or cowardice.
+\end{lstlisting}
+
 \subsection{Highland English / Gaelic-Substrate Scottish English}
 
 \begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true]
@@ -737,6 +926,14 @@ Green 2002; Rickford 1999, 2016 & Establish AAVE/AAL as systematic grammar and
 socially meaningful language practice. \\
 CORAAL, ORAAL, Yale Grammatical Diversity Project & Provide corpus and pattern
 anchors for AAL features and reviewed examples. \\
+DARE, ANAE, YGDP & Anchor US English as regional lexical, phonological, and
+syntactic variation rather than a single American default. \\
+Pacific Northwest English Study; Becker et al.; Hall-Lew et al.; Villarreal &
+Anchor West Coast internal variation, including Oregon, Pacific Northwest, San
+Francisco, and California Vowel Shift social meanings. \\
+Newman; Becker; Burdin; Benor and Cohen & Anchor New York City English,
+ethnicity in NYC speech, Jewish English prosody, and Yiddish/American Jewish
+English contact as separate but intersecting resources. \\
 Scots Syntax Atlas, DSL, Aitken 1984 & Provide dialectological and
 lexicographic anchors for Scots and the Scots--English continuum. \\
 Highland English reference & Warns that Highland English is Gaelic-contact
@@ -770,6 +967,31 @@ Cambridge: Cambridge University Press.
 Available via the Scots Language Centre:
 \url{https://media.scotslanguage.com/library/document/aitken/Scots_and_English_in_Scotland.pdf}.
 
+\bibitem{anae}
+Labov, William, Sharon Ash, and Charles Boberg. 2006.
+\emph{The Atlas of North American English: Phonetics, Phonology and Sound
+Change}.
+Berlin: Mouton de Gruyter.
+\url{https://doi.org/10.1515/9783110206838}.
+
+\bibitem{becker2009nyc}
+Becker, Kara. 2009.
+``The Sociolinguistics of Ethnicity in New York City.''
+\emph{Language and Linguistics Compass} 3(3):751--766.
+\url{https://doi.org/10.1111/j.1749-818X.2009.00138.x}.
+
+\bibitem{benorJewishEnglish}
+Benor, Sarah Bunin, and Steven M. Cohen. 2009.
+``Talking Jewish: The `ethnic English' of American Jews.''
+In Lederhendler (ed.), \emph{Ethnicity and Beyond: Theories and Dilemmas of
+Jewish Group Demarcation}, 62--78.
+
+\bibitem{burdin2018}
+Burdin, Rachel Steindel. 2018.
+``The Perception of Macro-rhythm in Jewish English Intonation.''
+\emph{Penn Working Papers in Linguistics} 24(2).
+\url{https://scholars.unh.edu/faculty_pubs/1459/}.
+
 \bibitem{bucholtzhall2005}
 Bucholtz, Mary, and Kira Hall. 2005.
 ``Identity and interaction: A sociocultural linguistic approach.''
@@ -792,6 +1014,19 @@ National Institute for Japanese Language and Linguistics (NINJAL).
 \emph{Corpus of Japanese Dialects (COJADS)}.
 \url{https://www2.ninjal.ac.jp/cojads/index.html}.
 
+\bibitem{dare}
+Dictionary of American Regional English.
+``What is DARE?''
+University of Wisconsin--Madison.
+\url{https://dare.wisc.edu/about/what-is-dare/}.
+
+\bibitem{dareReport}
+von Schneidemesser, Luanne. 2006.
+``The Dictionary of American Regional English: A Report on its Present State
+and Plans.''
+In \emph{Proceedings of EURALEX 2006}.
+\url{https://euralex.org/elx_proceedings/Euralex2006/060_2006_V1_Luanne%20von%20SCHNEIDEMESSER_The%20Dictionary%20of%20American%20Regional%20English_a%20Report%20on%20its.pdf}.
+
 \bibitem{dsl}
 Dictionaries of the Scots Language.
 \emph{DSL Online}.
@@ -803,6 +1038,12 @@ Eckert, Penelope. 2012.
 variation.''
 \emph{Annual Review of Anthropology} 41:87--100.
 \url{https://doi.org/10.1146/annurev-anthro-092611-145828}.
+
+\bibitem{oregonWestCoast}
+Becker, Kara, et al.
+``Variation in West Coast English: The Case of Oregon.''
+\emph{Publication of the American Dialect Society}.
+\url{https://www.reed.edu/linguistics/becker/Becker_et_al_PADS_inpress.pdf}.
 
 \bibitem{green2002}
 Green, Lisa J. 2002.
@@ -870,6 +1111,13 @@ National Institute for Japanese Language and Linguistics (NINJAL). 2019.
 \emph{Proceedings of Language Technologies for All (LT4All)}, 371--374.
 \url{https://lt4all.elra.info/proceedings/lt4all2019/pdf/2019.lt4all-1.93.pdf}.
 
+\bibitem{newmanNycEnglish}
+Newman, Michael. 2020.
+``New York City English.''
+In \emph{The Handbook of World Englishes}, 2nd ed.
+Wiley.
+\url{https://doi.org/10.1002/9781119518297.eowe00153}.
+
 \bibitem{mineiroHistoria}
 Ribeiro, Silvana Soares Costa. 2016.
 ``A relacao entre dialetologia e historia: reflexoes teorico-metodologicas
@@ -899,6 +1147,12 @@ University of Oxford and NINJAL.
 Online Resources for African American Language.
 ``African American Language Linguistic Patterns.''
 \url{https://oraal.github.io/aal-linguistic-patterns}.
+
+\bibitem{pnwEnglish}
+Pacific Northwest English Study.
+``Project Description.''
+University of Washington.
+\url{https://zeos.ling.washington.edu/PNWEnglish/about/projectDescription.php}.
 
 \bibitem{qdrantFiltering}
 Qdrant.
@@ -943,6 +1197,13 @@ Silverstein, Michael. 2003.
 \emph{Language \& Communication} 23(3--4):193--229.
 \url{https://doi.org/10.1016/S0271-5309(03)00013-2}.
 
+\bibitem{sfCvs}
+Hall-Lew, Lauren, Amanda Cardoso, Yova Kemenchedjieva, Kieran Wilson, Ruaridh
+Purse, and Julie Saigusa. 2015.
+``San Francisco English and the California Vowel Shift.''
+Proceedings of ICPhS 2015.
+\url{https://www.pure.ed.ac.uk/ws/portalfiles/portal/21806704/Hall_Lew_etal_2015_ICPhS_paper.pdf}.
+
 \bibitem{slobin1996}
 Slobin, Dan I. 1996.
 ``From `thought and language' to `thinking for speaking'.''
@@ -956,10 +1217,34 @@ Wolff, Phillip, and Kevin J. Holmes. 2011.
 \emph{Wiley Interdisciplinary Reviews: Cognitive Science} 2(3):253--265.
 \url{https://doi.org/10.1002/wcs.104}.
 
+\bibitem{villarreal2018}
+Villarreal, Dan. 2018.
+``The construction of social meaning: A matched-guise investigation of the
+California Vowel Shift.''
+\emph{Journal of English Linguistics}.
+\url{https://doi.org/10.1177/0075424217753520}.
+
+\bibitem{ygdp}
+Yale Grammatical Diversity Project.
+``Project Description.''
+\url{https://ygdp.yale.edu/project-description}.
+
 \bibitem{yaleInvariantBe}
 Yale Grammatical Diversity Project.
 ``Invariant be.''
 \url{https://ygdp.yale.edu/phenomena/invariant-be}.
+
+\bibitem{ygdpMapbook}
+Wood, Jim, Kaija Gahm, Raffaella Zanuttini, Laurence R. Horn, and Jason
+Kandybowicz. 2019.
+\emph{The Yale Grammatical Diversity Project: A Mapbook of Syntactic Variation
+in American English}.
+\url{https://elischolar.library.yale.edu/ygdp/7/}.
+
+\bibitem{ygdpMultipleModals}
+Yale Grammatical Diversity Project.
+``Multiple modals.''
+\url{https://ygdp.yale.edu/phenomena/multiple-modals}.
 
 \end{thebibliography}
 

@@ -15,7 +15,9 @@ Files live under `docs/research/cultural-ontology/sources/pdfs/`.
 | --- | ---: | --- | --- | --- |
 | `aitken-1984-scots-and-english-in-scotland.pdf` | 1226119 | `91158235ce9bc5b7ab29860a6b280f4614220283630bca961f41aa9831fe9d2a` | https://media.scotslanguage.com/library/document/aitken/Scots_and_English_in_Scotland.pdf | Scots-English continuum. |
 | `alib-english-info.pdf` | 134303 | `841934af5c8e8126623348a1c728887bbf25d57fc33c2fba40f265671bd8ee1a` | https://alib.ufba.br/sites/alib.ufba.br/files/informacoes_em_ingles.pdf | Brazilian geolinguistic atlas anchor. |
+| `becker-etal-oregon-west-coast-english.pdf` | 1305891 | `aaf6de482d53a1174585acbd2d0c87b73e7212d21ba2787b7dd15317f183fcf6` | https://www.reed.edu/linguistics/becker/Becker_et_al_PADS_inpress.pdf | Oregon and West Coast English variation. |
 | `bucholtz-hall-2005-identity-interaction.pdf` | 188579 | `df3ad035c31084c9ab310e75edeea6617d2386da2a66fe7ba87d3974e512a25b` | https://bucholtz.linguistics.ucsb.edu/sites/secure.lsit.ucsb.edu.ling.d7_b/files/sitefiles/research/publications/BucholtzHall2005-DiscourseStudies.pdf | Identity/indexicality. |
+| `dare-report-2006.pdf` | 492040 | `f04fa881a200e8871ed5490f2e1aa79c54a1af086fba50f3a0df4fefe2991f82` | https://euralex.org/elx_proceedings/Euralex2006/060_2006_V1_Luanne%20von%20SCHNEIDEMESSER_The%20Dictionary%20of%20American%20Regional%20English_a%20Report%20on%20its.pdf | Dictionary of American Regional English status/report. |
 | `eckert-2012-three-waves.pdf` | 5615454 | `ebbef075a1f4796d1d9cea09f2e817e540433f9f4586061034d5bdc6a29ccf80` | https://cpb-us-w2.wpmucdn.com/u.osu.edu/dist/b/91619/files/2020/10/Eckert-2012.pdf | Third-wave sociolinguistic variation. |
 | `hofmann-2024-ai-dialect-prejudice-arxiv.pdf` | 8337888 | `9a9ecdf3e18fff118a2a17afbe9e57401f6a48579007744c7d338d0ba8a3dc12` | https://arxiv.org/pdf/2403.00742 | Preprint copy for Nature dialect-prejudice paper. |
 | `kendall-farrington-coraal-data-management.pdf` | 215666 | `11d790f4ee3c4531bf2ba773694152d12267a86bd00c95bfca8329e68e1ebd2c` | https://pages.uoregon.edu/tsk/pdfs/tf/KendallFarrington_DMUC_CORAAL.pdf | CORAAL data-management/corpus anchor. |
@@ -23,8 +25,11 @@ Files live under `docs/research/cultural-ontology/sources/pdfs/`.
 | `lt4all-2019-endangered-languages-japan-cojads.pdf` | 45921639 | `7aeff1e6a20fce2d0ab6cbeb62c14c65559de86952aafa71695857bcd7f8770a` | https://lt4all.elra.info/proceedings/lt4all2019/pdf/2019.lt4all-1.93.pdf | COJADS/endangered languages in Japan. |
 | `lucy-1997-linguistic-relativity.pdf` | 1465375 | `6faefd00a33ba48bc5d361c4e1c20497b8f4913e4b117fa2506d4a0c04e89352` | https://www.linguisticanthropology.org/wp-content/uploads/2010/08/1997-Lucy-LinguisticRelativity-s.pdf | Linguistic relativity review. |
 | `nurc-sp-digital-life-2022.pdf` | 1191465 | `a28a4656efe497931c1216f9c06bd0d0673d863a18741f7fcd70f4af26ca8c19` | https://arxiv.org/pdf/2210.07852 | NURC/SP corpus and ASR modernization. |
+| `pnw-english-study-description.pdf` | 447590 | `2f121d8bebab1866d9f527985f5482b682ea89e0e4fada02b5fbc9d3e62fb376` | https://openscholar.uga.edu/nanna/record/21788/files/WP2016_Stanley.pdf?registerDownload=1&version=1&withMetadata=0&withWatermark=0 | Pacific Northwest English regional variation source. |
+| `san-francisco-english-cvs-2015.pdf` | 1428531 | `d8d8fb0456b45d1d393430652964692ee2e8cb93634312998ffe635a5740ffe4` | https://www.pure.ed.ac.uk/ws/portalfiles/portal/21806704/Hall_Lew_etal_2015_ICPhS_paper.pdf | San Francisco English and California Vowel Shift. |
 | `silverstein-2003-indexical-order.pdf` | 564834 | `1c77d230c48dc2c6e8c390f89b5722d37dc131724b1baafa4621412f9ff9d2e4` | https://web.stanford.edu/~eckert/Courses/ParisPapers/Silverstein2003.pdf | Indexical order. |
 | `wolff-holmes-2011-linguistic-relativity.pdf` | 204993 | `7094adfdaf0a0878bac5e858640a133b12b1af437fb1c2e0d8017e78bb720b10` | https://www.reed.edu/psychology/thought-lab/assets/publications/Wolff%20_%20Holmes%202011%20-%20WIREs%20Cognitive%20Science.pdf | Contemporary linguistic relativity review. |
+| `ygdp-mapbook-2019.pdf` | 31664102 | `c9496103ced75f094f4851ee582f0573d0da10af24ea89baca2abf2b54c5812a` | https://elischolar.library.yale.edu/cgi/viewcontent.cgi?article=1006&context=ygdp | Yale Grammatical Diversity Project mapbook. |
 
 ## Live References Not Cached
 
@@ -46,6 +51,29 @@ Files live under `docs/research/cultural-ontology/sources/pdfs/`.
 - ORAAL African American Language patterns:
   https://oraal.github.io/aal-linguistic-patterns.
 - CORAAL corpus landing page: https://oraal.github.io/coraal.
+- Dictionary of American Regional English, `What is DARE?`:
+  https://dare.wisc.edu/about/what-is-dare/.
+- Labov, William; Ash, Sharon; Boberg, Charles. 2006.
+  `The Atlas of North American English: Phonetics, Phonology and Sound Change`.
+  DOI: https://doi.org/10.1515/9783110206838.
+- Yale Grammatical Diversity Project, project description:
+  https://ygdp.yale.edu/project-description.
+- Yale Grammatical Diversity Project, `Multiple modals`:
+  https://ygdp.yale.edu/phenomena/multiple-modals.
+- Pacific Northwest English Study project description:
+  https://zeos.ling.washington.edu/PNWEnglish/about/projectDescription.php.
+- Villarreal, Dan. 2018. `The construction of social meaning: A matched-guise
+  investigation of the California Vowel Shift`.
+  DOI: https://doi.org/10.1177/0075424217753520.
+- Newman, Michael. 2020. `New York City English`.
+  DOI: https://doi.org/10.1002/9781119518297.eowe00153.
+- Becker, Kara. 2009. `The Sociolinguistics of Ethnicity in New York City`.
+  DOI: https://doi.org/10.1111/j.1749-818X.2009.00138.x.
+- Burdin, Rachel Steindel. 2018. `The Perception of Macro-rhythm in Jewish
+  English Intonation`: https://scholars.unh.edu/faculty_pubs/1459/.
+- Benor, Sarah Bunin, and Steven M. Cohen. 2009. `Talking Jewish: The ethnic
+  English of American Jews`. Live/public record located through ResearchGate:
+  https://www.researchgate.net/publication/281096020_Talking_Jewish_The_%27ethnic_English%27_of_American_Jews.
 - Scots Syntax Atlas research context:
   https://scotssyntaxatlas.ac.uk/research-context/.
 - Scots Syntax Atlas data page:
@@ -80,3 +108,14 @@ Files live under `docs/research/cultural-ontology/sources/pdfs/`.
 - Cambridge `Lifespan changes from above...` PDF URL returned HTML, not a PDF.
 - ONCOJ manual URL attempted at `https://oncoj.ninjal.ac.jp/documents/ONCOJ_Manual.pdf`
   returned HTTP 404. The ONCOJ live site remains cited.
+- Penn repository `Y'all Means All: The Changing Indexicality of a Southernism`
+  content URL returned HTTP 404. Southern indexicality remains covered through
+  YGDP, DARE, ANAE, and future source-gathering should retry this paper by
+  repository record rather than the stale bitstream URL.
+- Canterbury repository PDF for Villarreal 2018 returned HTTP 403. The DOI and
+  journal landing page remain cited.
+- Campinas PDF attempted for `New York City English, 50 years after Labov`
+  returned HTTP 404. NYC English remains covered through Newman 2020 and Becker
+  2009.
+- UNH `cgi/viewcontent` PDF for Burdin 2018 returned HTML rather than a PDF.
+  The repository landing page remains cited.
