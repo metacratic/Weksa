@@ -34,12 +34,15 @@ constraints:
   - The interlingua must stay language-neutral. Setting-specific pressure starts
     in namespaced extensions and only becomes standard when multiple clients or
     language projects need it.
-  - Flavored English is the first lowering target. Alien-language lowering waits
-    until Weksa can preserve meaning through a character voice humans can judge.
+  - Human target-language utterance lowering is the first proof layer. English,
+    Brazilian Portuguese (`pt-BR`), and Japanese are the initial targets.
+    Alien-language lowering waits until Weksa can preserve meaning through
+    character voice, target cultural ontology, and realization choices humans
+    can judge.
   - Agent state is projected context, not prompt prose storage. Raw state
     internals must not leak into generated dialogue.
   - AquaSynth owns IPA, phoneme, reference-synth, vocal-tract, and speech parity
-    work. Weksa owns interlingua-to-English projection.
+    work. Weksa owns interlingua-to-utterance projection.
   - Weksa still owns English pronunciation planning: tokenization, word
     pronunciations, phrase grouping, stress, and broad IPA stringing.
   - Long-term speech handoff should use Weksa-provided speech text embeddings,
@@ -72,8 +75,10 @@ data_flow:
   process:
     - accept or decompose source into a Weksa interlingua packet
     - optionally project the packet through an agent-local state context
-    - lower projected meaning into flavored English dialogue
-    - optionally produce an English pronunciation plan for the lowered dialogue
+    - lower projected meaning into target-language utterance realizations
+      through explicit target-language cultural ontology profiles
+    - optionally produce pronunciation plans for lowered dialogue where Weksa
+      owns the target pronunciation layer
     - optionally encode the line as a learned expression vector for downstream
       synth control
     - apply alien ontology and cultural salience
@@ -163,10 +168,14 @@ accepted_design:
   - The interlingua packet is the client-facing meaning contract. It owns
     referents, predications, relations, discourse, context, provenance,
     constraints, extensions, and trace data before ontology projection.
-  - English lowering through agent state is the first proof target before alien
-    language rendering.
+  - Utterance lowering through projected agent state is the first proof target
+    before alien language rendering. English remains one target, not the hidden
+    source for other target languages.
   - Nibu is the first target for flavored-English lowering, using her VoidBot
     state and Aetheria lore note as source context.
+  - Target-language cultural ontology profiles own address, politeness,
+    register, idiom, metaphor, script, and forbidden-flattening distinctions for
+    human-language lowering. They do not own source meaning.
   - Weksa is the engine. A language project owns one constructed language.
     Setting docs own story, species, culture, and use cases.
   - Rust to Dust is an earlier proving ground, not engine doctrine.
@@ -264,5 +273,9 @@ landed_baseline:
     material belong in PanPhon sequence evidence that AquaSynth compresses into
     the phonetic realization embedding.
   - First Nibu interlingua-to-English lowering fixture.
+  - First Nibu multilingual utterance lowering fixture at
+    `examples/multilingual-lowering/nibu-proof-001/`, covering English,
+    Brazilian Portuguese (`pt-BR`), and Japanese from one shared interlingua
+    packet through explicit target-language cultural ontology profiles.
   - `bge-m3:latest` installed on neighboring Ollama box `192.168.1.84` and
     verified through a 1024-dimensional utterance embedding.

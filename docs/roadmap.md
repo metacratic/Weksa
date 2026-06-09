@@ -4,8 +4,9 @@
 
 - Keep the persistent state spine small and readable.
 - Stabilize the interlingua packet standard before runtime code.
-- Prove interlingua lowering to flavored English before attempting alien-language
-  lowering.
+- Prove interlingua lowering to human target-language realizations before
+  attempting alien-language lowering, starting with English, `pt-BR`, and
+  Japanese.
 - Decide the first language-project state format after the interlingua boundary
   is clear.
 - Build a hand-authored toy language-project slice before automating
@@ -17,7 +18,9 @@
 ## First Prototype
 
 - Validate one minimal interlingua packet.
-- Lower one packet through Nibu's projected agent state into flavored English.
+- Lower one packet through Nibu's projected agent state into English, Brazilian
+  Portuguese, and Japanese realizations, each through an explicit target-language
+  cultural ontology profile.
 - Add one English pronunciation plan that strings the lowered line into broad
   IPA.
 - Add one toy utterance embedding handoff fixture, then replace hand-authored
@@ -26,8 +29,9 @@
   utterance handoffs as typed CultCache witnesses.
 - Publish the provider advertisement and first Eve operator/intent-review
   surfaces through CultMesh for Odin discovery.
-- Preserve the first lowering proof as fixture data under
-  `examples/english-lowering/`.
+- Preserve the first English-only lowering proof under
+  `examples/english-lowering/`, and the shared multilingual proof under
+  `examples/multilingual-lowering/`.
 - Preserve the Airawa first-contact slice as a hand-authored language-project
   pressure note before attempting full alien-language translation.
 - Parse or load one language project definition.

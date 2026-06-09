@@ -44,9 +44,15 @@ See [Verse Service Contract](./docs/verse-service-contract.md) for the daemon
 contract: Weksa owns typed conversational intent, pronunciation plans, utterance
 handoffs, and the Eve/CultMesh surfaces that make those documents inspectable.
 
-See [Flavored English Lowering](./docs/flavored-english-lowering.md) for the
-first lowering target: interlingua projected through agent state into English
-dialogue.
+See [Multilingual Utterance Lowering](./docs/multilingual-utterance-lowering.md)
+for the shared lowering target: interlingua projected through speaker state into
+English, Brazilian Portuguese, Japanese, and later target-language dialogue.
+[Flavored English Lowering](./docs/flavored-english-lowering.md) remains the
+target-specific English receipt.
+
+See [Target-Language Cultural Ontology Profiles](./data/target-language-ontology/README.md)
+for the reviewable address, register, politeness, idiom, metaphor, and script
+distinctions that target lowerers must inspect before producing output.
 
 For the first AquaSynth speech-training handoff, see
 [Tiny PanPhon v0.1 Speech Curriculum](./examples/speech-training/tiny-panphon-v0.1/README.md).

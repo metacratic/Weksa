@@ -20,8 +20,14 @@ them.
   configuration.
 - [interlingua-packet.md](./interlingua-packet.md): shared meaning packet
   contract between clients, authoring tools, and language projects.
+- [utterance-lowering-packet.md](./utterance-lowering-packet.md): shared packet
+  contract for lowering interlingua and projected speaker context into one or
+  more target-language utterance realizations.
+- [target-language-cultural-ontology.md](./target-language-cultural-ontology.md):
+  contract for the address, politeness, register, idiom, metaphor, script, and
+  forbidden-flattening profiles consumed by target lowerers.
 - [english-lowering-packet.md](./english-lowering-packet.md): packet contract
-  for projecting interlingua through agent state into flavored English.
+  for the older English-specific realization lane.
 - [english-pronunciation-plan.md](./english-pronunciation-plan.md): plan for
   stringing flavored English into IPA/phoneme sequences before downstream speech.
 - [utterance-embedding-handoff.md](./utterance-embedding-handoff.md): learned utterance embedding handoff

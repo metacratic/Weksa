@@ -1,0 +1,47 @@
+profile_id: weksa.target_cultural_ontology.en-US.v0
+language:
+  code: en
+  locale: en-US
+  script: Latn
+scope: >
+  Bounded English dialogue lowering profile for current Weksa fixtures. This is
+  not a claim about all English-speaking cultures.
+authority:
+  owns:
+    - address directness choices
+    - casual versus formal register
+    - technical metaphor legibility
+    - understatement or sarcasm risk
+  does_not_own:
+    - source meaning
+    - speaker identity
+    - whole-culture description
+salience_axes:
+  address:
+    relevant_distinctions:
+      - direct second person is acceptable when scene context names the addressee
+      - imperative force can be softened or sharpened through wording
+    lowering_questions:
+      - Does direct address preserve the speech act?
+      - Does softening erase urgency?
+  register:
+    relevant_distinctions:
+      - casual
+      - technical
+      - formal
+      - intimate
+      - institutional
+    lowering_questions:
+      - Is technical language character pressure or exposition sludge?
+      - Does sarcasm obscure the actual warning?
+  agency:
+    relevant_distinctions:
+      - explicit agent responsibility is usually available
+      - passive phrasing can hide authority or blame
+    lowering_questions:
+      - Should the speaker own the intervention directly?
+      - Does the line preserve who is at risk?
+forbidden_flattenings:
+  - Do not treat English as the neutral source for other target languages.
+  - Do not use generic assistant politeness when a character voice is required.
+  - Do not let sarcasm replace the actual predicate being lowered.

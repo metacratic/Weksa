@@ -1,0 +1,121 @@
+schema_version: weksa.utterance_lowering.v0
+source_packet_id: nibu-proof-001
+source_packet_ref: examples/english-lowering/nibu-proof-001/interlingua.yaml
+target_agent_id: nibu
+agent_state_ref: E:/Projects/AetheriaLore/.voidbot/state/nibu.cc
+projected_context_ref: examples/english-lowering/nibu-proof-001/projected-context.yaml
+lowering_controls:
+  output_mode: dialogue
+  preserve_referents:
+    - player
+    - control
+  preserve_predications:
+    - touch-risk
+    - prevent-touch
+  allow_inference: bounded
+  max_line_count: 2
+realizations:
+  - realization_id: nibu-proof-001-en
+    target_language:
+      code: en
+      locale: en-US
+      script: Latn
+      register: sharp technical casual
+      cultural_ontology_refs:
+        - data/target-language-ontology/en-US.yaml
+    outputs:
+      visible_action: The cockpit lights snap from amber to surgical white around the damaged control.
+      spoken_text: "Take your hand off that control unless you want your nervous system to become my least useful circuit diagram."
+      literal_backgloss: "Remove your hand from that control, unless you want your nervous system to become my least useful circuit diagram."
+      natural_backtranslation: "Do not touch that control. It can hurt you, and I am warning you in my own abrasive way."
+      private_interpretation: Nibu is stopping the player from injuring themselves while refusing to frame the warning as care.
+      intended_effect: Make the player withdraw from the unsafe control and recognize Nibu's technical authority.
+      trace:
+        meaning_preserved:
+          - player is warned away from the damaged control
+          - touching the control may endanger the player
+          - Nibu intervenes protectively without sounding gentle
+        target_language_decisions:
+          - direct imperative preserves warning force
+          - circuit-diagram image preserves ship-system embodiment
+        cultural_ontology_axes:
+          - address.direct_second_person
+          - register.technical_casual
+          - agency.explicit_risk_to_addressee
+        projected_context_used:
+          - precise_abrasive_warning
+          - unwanted_dependency
+          - ship-system embodiment
+  - realization_id: nibu-proof-001-pt-BR
+    target_language:
+      code: pt
+      locale: pt-BR
+      script: Latn
+      register: direct technical casual
+      cultural_ontology_refs:
+        - data/target-language-ontology/pt-BR.yaml
+    outputs:
+      visible_action: As luzes do cockpit passam de âmbar para branco cirúrgico ao redor do controle danificado.
+      spoken_text: "Tira a mão desse controle, a não ser que você queira transformar o seu sistema nervoso no meu diagrama de circuitos menos útil."
+      literal_backgloss: "Take the hand from that control, unless you want to transform your nervous system into my least useful circuit diagram."
+      natural_backtranslation: "Take your hand off that control unless you want your nervous system turned into my least useful circuit diagram."
+      private_interpretation: Nibu is blocking a self-inflicted injury while making the warning sound like technical irritation.
+      intended_effect: Make the player stop touching the unsafe control and accept that Nibu knows the ship's damage better than they do.
+      trace:
+        meaning_preserved:
+          - player is directly ordered to remove their hand
+          - the control remains the dangerous instrument
+          - the risk is bodily harm to the player
+        target_language_decisions:
+          - pt-BR locale is explicit; no generic Portuguese target is used
+          - "controle" preserves Brazilian Portuguese usage for the ship control
+          - broad Brazilian "você" is used instead of regionally marked "tu"
+        cultural_ontology_axes:
+          - treatment.voce
+          - directness.bare_imperative
+          - lexical_locale.brazilian_portuguese
+          - regional_and_cultural_overlay.broad_brazilian_default
+          - metaphor.technical_character_pressure
+        projected_context_used:
+          - precise_abrasive_warning
+          - technical authority
+          - protective refusal to sound caring
+        open_questions:
+          - Should a regional overlay choose "tu" or other local address behavior for a specific Brazilian setting?
+          - Should an Umbanda overlay ever be active here? Current answer is no; the source scene has no Umbanda context.
+  - realization_id: nibu-proof-001-ja
+    target_language:
+      code: ja
+      locale: ja-JP
+      script: Jpan
+      register: sharp technical plain
+      cultural_ontology_refs:
+        - data/target-language-ontology/ja-JP.yaml
+    outputs:
+      visible_action: 損傷した制御盤の周囲で、操縦室の灯りが琥珀色から外科灯のような白へ切り替わる。
+      spoken_text: "その制御盤から手を離して。神経系を、私のいちばん役に立たない回路図にしたくないなら。"
+      literal_backgloss: "From that control panel, release your hand. If you do not want to make your nervous system my least useful circuit diagram."
+      natural_backtranslation: "Take your hand off that control panel unless you want your nervous system to become my least useful circuit diagram."
+      private_interpretation: Nibu is issuing a technically precise warning while treating concern as an inconvenient side effect.
+      intended_effect: Make the player pull away from the damaged control before harm occurs.
+      trace:
+        meaning_preserved:
+          - the unsafe control is named as the thing to stop touching
+          - the player's nervous system is threatened as the harmed patient
+          - Nibu's intervention prevents the touch-risk event
+        target_language_decisions:
+          - plain imperative-like "手を離して" keeps the warning direct without formal politeness
+          - "制御盤" keeps the control as technical ship hardware rather than a vague button
+          - subject omission is allowed because the immediate addressee is clear
+        cultural_ontology_axes:
+          - politeness.plain
+          - social_position.emergency_override
+          - ellipsis.addressee_recoverable
+          - script_and_register.kanji_technical_compound
+          - sentence_final_force.warning_consequence
+        projected_context_used:
+          - precise_abrasive_warning
+          - ship-system embodiment
+          - contempt for gentle assistant framing
+        open_questions:
+          - A rougher final particle could increase bite, but may push the line toward anime-coded aggression instead of technical irritation.
