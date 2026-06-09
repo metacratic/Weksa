@@ -1,0 +1,966 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{listings}
+\geometry{margin=1in}
+
+\title{Cultural Ontology for Utterance Lowering:\\
+A Qualitative Meta-Analysis for Weksa}
+\author{Weksa Research Notes}
+\date{2026-06-09}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This paper synthesizes contemporary work on linguistic relativity,
+sociolinguistic indexicality, language ideology, dialect grammar, and automated
+language-system bias in order to define a typed cultural-ontology state shape
+for Weksa. The synthesis rejects strong linguistic determinism and instead
+adopts a weaker but operationally useful position: language varieties and
+culture-bearing speech communities do not determine thought, but they do make
+some distinctions grammatically obligatory, pragmatically salient, socially
+indexed, or interactionally dangerous. For a generation system, those pressures
+must be represented explicitly before interlingua is lowered into plausible
+utterances. The proposed schema treats cultural ontology as a realization lens:
+it does not own source meaning, speaker identity, or final wording; it owns
+salience axes, social-indexical meanings, dialect affordances, activation gates,
+evidence, and forbidden flattenings.
+\end{abstract}
+
+\section{Status and Scope}
+
+This is a qualitative meta-analysis rather than a numerical meta-analysis. The
+source literature spans cognitive linguistics, linguistic anthropology,
+sociolinguistics, dialectology, corpus documentation, and AI fairness research.
+The evidence is therefore not commensurable as effect sizes. The useful output
+for Weksa is a design synthesis: a schema that can preserve cultural and
+dialectal pressure without turning culture into stereotypes or dialects into
+surface accent filters.
+
+The immediate design targets are:
+
+\begin{itemize}[noitemsep]
+  \item African American English / African American Language as a dialect or
+  speech tradition with systematic grammar and cultural indexicality.
+  \item Scottish targets that distinguish Scots, Scottish Standard English,
+  Highland English, and Scottish Gaelic influence instead of collapsing them
+  into a single ``Scottish'' costume.
+  \item Regional Brazilian Portuguese targets such as urban Rio slang, a Sao
+  Paulo television-reporter register, and a Minas Gerais worker persona, all as
+  explicit profile stacks rather than one generic Brazilian flavor.
+  \item Japanese regional and historical targets, including contemporary
+  dialects and historical stages represented through NINJAL and related corpus
+  resources.
+  \item A general cultural-ontology profile format suitable for CultCache
+  storage, Qdrant evidence retrieval, and later utterance lowering.
+\end{itemize}
+
+\section{Method}
+
+Sources were selected by relevance to four questions:
+
+\begin{enumerate}[noitemsep]
+  \item What remains useful in contemporary interpretations of Sapir--Whorf or
+  linguistic relativity?
+  \item How do dialects, registers, and styles carry social meaning?
+  \item What must be represented to produce AAVE/AAL and Scottish dialectal
+  output without caricature?
+  \item What failures do automated language systems already exhibit around
+  dialects, especially African American English?
+\end{enumerate}
+
+The evidence was grouped into five families: relativity, indexicality and
+identity, language ideology, dialect documentation, and computational bias.
+Open PDFs were cached under
+\texttt{docs/research/cultural-ontology/sources/pdfs/} when the source exposed a
+stable, legally accessible copy. Sources that could not be cached are recorded
+in the source manifest.
+
+\section{Findings}
+
+\subsection{Relativity Is Best Treated as Realization Pressure}
+
+Strong linguistic determinism is not a sound engineering doctrine. Contemporary
+work is more modest and more useful: language influences cognition most
+reliably where speakers must package thought for expression. Slobin's
+``thinking for speaking'' reframes relativity as the routinized attention that
+speakers bring to events while preparing them for grammar and discourse
+\cite{slobin1996}. Lucy's reformulation also separates linguistic diversity
+from determinism and treats relativity as an empirical question about how
+language-specific categories guide interpretation \cite{lucy1992,lucy1997}.
+Wolff and Holmes summarize the modern resurgence as contested but productive:
+language can affect thought, but effects vary by domain, task, and mechanism
+\cite{wolffholmes2011}.
+
+For Weksa, this means the interlingua should continue to own source meaning,
+while cultural ontology owns the distinctions that become salient during
+utterance realization. A cultural profile should not claim that a speaker
+cannot think outside its categories. It should claim that a lowerer must inspect
+some categories before producing an honest utterance.
+
+\subsection{Culture Reaches Language Through Indexicality, Ideology, and Practice}
+
+Language forms do not merely encode propositions. They index social relations,
+stance, identity, authority, authenticity, and membership. Silverstein's
+indexical order explains how forms can presuppose and create social context at
+multiple orders of awareness \cite{silverstein2003}. Eckert's third-wave
+variationism treats variation as a resource for social meaning, not merely a
+statistical residue of demographic categories \cite{eckert2012}. Bucholtz and
+Hall frame identity as interactionally produced through linguistic and other
+semiotic practices, including labels, stances, styles, and structures
+\cite{bucholtzhall2005}.
+
+Language ideology adds a second warning. Irvine and Gal's mechanisms of
+iconization, fractal recursivity, and erasure show how communities and observers
+turn linguistic differences into social facts, often by hiding internal
+variation or projecting ideology back onto language \cite{irvinegal2000}.
+Therefore a Weksa schema must distinguish:
+
+\begin{itemize}[noitemsep]
+  \item a form's grammatical function;
+  \item its indexical meaning in a speech community;
+  \item the ideology outsiders attach to it;
+  \item whether the current speaker has standing to use it.
+\end{itemize}
+
+\subsection{AAVE/AAL Must Be Modeled as Grammar Plus Social Authority}
+
+African American English, also discussed as African American Language, is a
+systematic variety with its own grammatical, phonological, lexical, and
+discourse patterns. Rickford's work treats AAVE as structurally rich and
+educationally significant \cite{rickford1999,rickford2016}. Green's linguistic
+introduction provides a grammatical account of African American English
+\cite{green2002}. The Yale Grammatical Diversity Project documents features
+such as invariant or habitual \emph{be}, while ORAAL and CORAAL provide
+linguistic-pattern and corpus anchors for real data rather than stereotype
+\cite{yaleInvariantBe,oraalPatterns,coraal}.
+
+The schema implication is blunt: AAVE/AAL cannot be represented as slang,
+misspelling, or accent. It needs a dialect profile with:
+
+\begin{itemize}[noitemsep]
+  \item tense--modality--aspect affordances such as habitual \emph{be},
+  stressed \emph{BIN}, completive \emph{done}, and negative concord;
+  \item discourse and stance patterns grounded in source evidence;
+  \item regional and speaker variation;
+  \item activation gates based on speaker identity, scene, community, and
+  authorial permission;
+  \item anti-caricature constraints.
+\end{itemize}
+
+\subsection{Scottish Targets Require Varietal Separation}
+
+``Highland Scottish'' is not a clean linguistic target. A generation system must
+separate Scots, Scottish Standard English, Highland English, and Scottish
+Gaelic. The Scots Syntax Atlas documents syntactic variation across Scots
+varieties with data from hundreds of speakers and many locations
+\cite{scotsSyntaxAtlas}. Dictionaries of the Scots Language document Older and
+Modern Scots as a historical lexicographic resource \cite{dsl}. Aitken's
+Scots--English continuum remains an important conceptual anchor
+\cite{aitken1984}. Highland English, by contrast, is Scottish English used in
+areas shaped by Gaelic contact, especially the Highlands and Hebrides
+\cite{highlandEnglish}.
+
+For Weksa, the desired ``nigh-incomprehensible highland Scottish'' output should
+not be a generic eye-dialect. It should be a selected profile stack:
+
+\begin{itemize}[noitemsep]
+  \item \texttt{en-GB.scotland.highland\_english} for Gaelic-substrate Scottish
+  English;
+  \item \texttt{sco.broad\_scots} or a more specific Scots variety such as
+  Doric or Shetland Scots when Scots, not Highland English, is intended;
+  \item an intelligibility-density control that can increase local lexical,
+  syntactic, and orthographic density only when evidence supports it.
+\end{itemize}
+
+\subsection{AI Dialect Work Makes Guardrails Structural, Not Optional}
+
+Dialect lowering must be treated as a high-risk generation task. Koenecke et
+al. found racial disparities in automated speech recognition, with commercial
+systems producing higher error rates for Black speakers than white speakers
+\cite{koenecke2020}. Hofmann et al. show that language models can exhibit covert
+racism triggered by African American English features, even when overt race
+labels are absent \cite{hofmann2024}. This means Weksa must not simply ask a
+model to ``make it AAVE'' or ``make it Scots.'' The state document must carry
+authority, evidence, activation requirements, and forbidden uses into the
+lowering path.
+
+\subsection{Brazilian Portuguese Requires Profile Stacks, Not a Single Dialect}
+
+Brazilian Portuguese is too internally diverse to be represented by a single
+``pt-BR flavor.'' The Atlas Linguistico do Brasil (ALiB) is a national
+geolinguistic anchor for regional variation and frames Brazilian Portuguese as a
+multidimensional object of description \cite{alibInfo}. NURC and NURC/SP
+document the cultivated urban norm in major Brazilian capitals and provide a
+useful anchor for formal, media-facing, or educated urban registers
+\cite{nurcsp}. Projeto SP2010 supplies a sociolinguistic corpus of Sao Paulo
+speech with metadata filters for region, class, gender, age, family generation
+in the city, and income \cite{sp2010}. These are the variables a lowering
+system must preserve as retrieval filters rather than flattening into
+``Brazilian.''
+
+Therefore Weksa should model Brazilian targets as profile stacks:
+
+\begin{itemize}[noitemsep]
+  \item \texttt{pt-BR.base}: broad Brazilian Portuguese defaults.
+  \item \texttt{pt-BR.rio.urban\_slang}: an urban Rio/carioca slang overlay,
+  activated only by scene, speaker, or authoring context.
+  \item \texttt{pt-BR.sao\_paulo.broadcast\_reporter}: a media-facing Sao
+  Paulo register, anchored in cultivated urban norm and broadcast style rather
+  than street slang.
+  \item \texttt{pt-BR.minas.worker}: a Minas Gerais regional profile plus
+  occupational/class persona pressure. ``Worker'' is not a dialect; it is a
+  social and occupational register layered over a regional profile.
+\end{itemize}
+
+The Minas target is especially sensitive. Academic work on Mineiro speech
+describes phonological, morphosyntactic, lexical, pragmatic, and historical
+variation, but ``worker'' must not become shorthand for rurality, low
+education, comedy, or class contempt \cite{mineiroVariation,mineiroHistoria}.
+The schema must keep regional dialect, occupation, class, education, and persona
+as separate axes.
+
+\subsection{Japanese Requires Regional and Historical Axes}
+
+Japanese target profiles need both geography and period. COJADS, the Corpus of
+Japanese Dialects, is a NINJAL corpus of discourse audio from Japanese dialects
+and provides a major evidence source for contemporary regional speech
+\cite{cojads}. LT4All documentation describes the role of COJADS and related
+language-resource work for endangered languages and dialects in Japan
+\cite{lt4allJapan}. The Corpus of Historical Japanese (CHJ) provides diachronic
+materials from early historical periods through later eras, while ONCOJ focuses
+on Old Japanese with syntactic annotation \cite{chj,oncoj}. LAJaR adds a
+typological atlas perspective across Japanese and Ryukyuan varieties
+\cite{lajar2024}.
+
+For Weksa this implies at least four independent axes:
+
+\begin{itemize}[noitemsep]
+  \item region or dialect area, such as Kansai, Tohoku, Kagoshima, Hachijo, or
+  Tokyo;
+  \item relationship to Ryukyuan languages and Okinawan Japanese, without
+  collapsing Ryukyuan languages into Japanese dialect decoration;
+  \item historical period, such as Old Japanese, Early Middle Japanese, Edo, or
+  Meiji/Taisho;
+  \item register and social relation, including politeness, honorific pressure,
+  sentence-final particles, and stance.
+\end{itemize}
+
+Historical Japanese output should therefore use a period profile, not merely
+archaic vocabulary. A profile like
+\texttt{ja-JP.historical.early\_edo.commoner} would need period, region, genre,
+orthographic convention, evidence corpus, and reviewer status.
+
+\subsection{Qdrant Is Retrieval, CultCache Is Authority}
+
+The cultural database can live in Qdrant for semantic retrieval, but Qdrant must
+not own accepted language truth. Qdrant stores points with vectors and payloads;
+its filtering system allows semantic search to be constrained by structured
+metadata such as language, region, period, source type, and license
+\cite{qdrantFiltering,qdrantPayload}. This is useful during utterance lowering:
+the lowerer can retrieve candidate evidence for a requested dialect or cultural
+profile.
+
+The authority boundary should be:
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true]
+Qdrant:
+  owns: semantic retrieval over source chunks, examples, notes, and citations
+  does_not_own: accepted cultural ontology profiles
+
+CultCache:
+  owns: typed cultural ontology profile documents, reviewed overlays,
+        activation gates, evidence hashes, and lowering trace witnesses
+\end{lstlisting}
+
+During lowering, Weksa should assemble an evidence bundle from Qdrant, but only
+a reviewed or explicitly provisional CultCache profile may authorize a dialectal
+target. A Qdrant nearest neighbor is a witness candidate, not a cultural fact.
+
+\section{Design Principles for Weksa}
+
+\begin{enumerate}
+  \item \textbf{Meaning stays upstream.} Interlingua owns referents,
+  predications, relations, modality, and discourse intent.
+  \item \textbf{Culture owns salience and risk.} Cultural ontology owns which
+  distinctions must be inspected and which forms carry social meaning.
+  \item \textbf{Dialect owns affordances, not costume.} Dialect profiles expose
+  grammar, phonology, lexicon, discourse, and orthography as selectable,
+  evidence-backed affordances.
+  \item \textbf{Activation is gated.} A profile activates only when the speaker,
+  scene, community, or authoring metadata justifies it.
+  \item \textbf{Density is controlled.} Output may vary from light marking to
+  dense community-internal style, but density is an explicit control.
+  \item \textbf{Backtranslation is audit only.} Backtranslation helps review,
+  but it must not become the source for other targets.
+  \item \textbf{Forbidden flattenings are schema data.} Anti-caricature,
+  anti-erasure, and anti-appropriation constraints belong in the state document,
+  not in downstream apology prose.
+\end{enumerate}
+
+\section{Proposed CultCache State Shape}
+
+The following shape should become a typed CultCache document family:
+\texttt{weksa.cultural\_ontology\_profile.v0}. It can represent base languages,
+dialects, sociolects, regional overlays, ritual registers, and communities of
+practice.
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true]
+schema: weksa.cultural_ontology_profile.v0
+profile_id: weksa.cultural_ontology.en-US.aal.v0
+kind: base_language | dialect | sociolect | regional_overlay |
+      religious_overlay | community_of_practice
+status: draft | reviewed | deprecated
+
+language:
+  code: en
+  locale: en-US
+  script: Latn
+  variety_label:
+  endonyms: []
+  exonyms: []
+
+parent_profiles:
+  - weksa.target_cultural_ontology.en-US.v0
+
+retrieval:
+  qdrant_collection: weksa_cultural_ontology_sources
+  required_payload_filters:
+    language_code:
+    locale:
+    region:
+    dialect:
+    period:
+    register:
+    source_type:
+    license:
+  retrieval_policy:
+    min_sources:
+    require_human_review_for:
+      - marginalized_or_stigmatized_dialect
+      - sacred_or_ritual_register
+      - historical_reconstruction
+
+community:
+  regions: []
+  speech_community:
+  historical_context:
+  identity_authority:
+  consent_notes:
+
+activation:
+  allowed_when:
+    - speaker_profile_refs_profile
+    - scene_context_refs_profile
+    - authoring_metadata_requests_profile
+  forbidden_when:
+    - generic_flavor
+    - mockery
+    - outsider_performance_without_authority
+  required_confidence: reviewed | provisional | exploratory
+
+salience_axes:
+  temporality_aspect:
+    distinctions: []
+    lowering_questions: []
+  stance:
+    distinctions: []
+    lowering_questions: []
+  social_relation:
+    distinctions: []
+    lowering_questions: []
+  identity_indexing:
+    distinctions: []
+    lowering_questions: []
+  sacred_or_ritual_context:
+    distinctions: []
+    lowering_questions: []
+
+linguistic_affordances:
+  grammar_features: []
+  phonology_features: []
+  lexicon_features: []
+  discourse_patterns: []
+  orthography_features: []
+  code_switching:
+    allowed:
+    constraints: []
+
+style_controls:
+  density:
+    min:
+    max:
+    default:
+  intelligibility_target:
+    options: [broad_audience, local, opaque_to_outsider]
+  register:
+    options: []
+
+forbidden_flattenings: []
+
+evidence:
+  corpora: []
+  reference_works: []
+  reviewers: []
+  examples: []
+  cached_source_refs: []
+  qdrant_source_ids: []
+  source_hashes: []
+  uncertainty: []
+
+trace_requirements:
+  - activated_profile
+  - axes_used
+  - features_used
+  - features_rejected
+  - reviewer_required
+\end{lstlisting}
+
+Recommended CultCache paths:
+
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+.weksa/cultural-ontology/{profileId}.cc
+.weksa/cultural-ontology/{baseProfileId}/overlays/{overlayId}.cc
+.weksa/cultural-ontology/catalogs/{catalogId}.cc
+.weksa/cultural-ontology/evidence-bundles/{bundleId}.cc
+\end{lstlisting}
+
+\section{Dialect Profile Sketches}
+
+\subsection{AAVE/AAL}
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true]
+schema: weksa.cultural_ontology_profile.v0
+profile_id: weksa.cultural_ontology.en-US.aal.v0
+kind: dialect
+status: draft
+parent_profiles:
+  - weksa.target_cultural_ontology.en-US.v0
+activation:
+  allowed_when:
+    - speaker_profile_refs_aal
+    - scene_context_refs_aal_community
+    - authoring_metadata_requests_reviewed_aal
+  forbidden_when:
+    - generic_black_coding
+    - comedy_accent
+    - criminality_or_low_intelligence_indexing
+salience_axes:
+  temporality_aspect:
+    distinctions:
+      - habituality
+      - remote_past_or_remote_completion
+      - completive_result_state
+  identity_indexing:
+    distinctions:
+      - in_group_style
+      - out_group_performance_risk
+      - bidialectal_context_switching
+linguistic_affordances:
+  grammar_features:
+    - invariant_habitual_be
+    - stressed_BIN
+    - completive_done
+    - negative_concord
+  evidence_refs:
+    - Green2002
+    - Rickford1999
+    - CORAAL
+    - YaleInvariantBe
+forbidden_flattenings:
+  - Do not treat AAL as broken Standard English.
+  - Do not use AAL to imply criminality, ignorance, comedy, or informality.
+  - Do not generate dense AAL without speaker/context authority.
+\end{lstlisting}
+
+\subsection{Highland English / Gaelic-Substrate Scottish English}
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true]
+schema: weksa.cultural_ontology_profile.v0
+profile_id: weksa.cultural_ontology.en-GB.scotland.highland_english.v0
+kind: regional_overlay
+status: draft
+parent_profiles:
+  - weksa.target_cultural_ontology.en-GB.v0
+contact_substrate:
+  - Scottish Gaelic
+activation:
+  allowed_when:
+    - speaker_or_scene_refs_highlands_or_hebrides
+    - speaker_profile_refs_gaelic_substrate_english
+  forbidden_when:
+    - generic_scottish_flavor
+    - pretending_scots_and_gaelic_are_the_same
+style_controls:
+  density:
+    min: light
+    max: heavy_reviewed
+  intelligibility_target:
+    options: [broad_audience, local, opaque_to_outsider]
+forbidden_flattenings:
+  - Do not collapse Highland English into Scots.
+  - Do not collapse Scots into Scottish Gaelic.
+  - Do not use eye-dialect gibberish as authenticity.
+\end{lstlisting}
+
+\subsection{Broad Scots / Doric / Shetland as Separate Profiles}
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true]
+schema: weksa.cultural_ontology_profile.v0
+profile_id: weksa.cultural_ontology.sco.broad_scots.v0
+kind: dialect_or_language_profile
+status: draft
+language:
+  code: sco
+  locale: Scotland
+parent_profiles:
+  - weksa.cultural_ontology.en-GB.scotland.continuum.v0
+activation:
+  allowed_when:
+    - scene_or_speaker_refs_scots
+    - authoring_metadata_selects_scots_variety
+  forbidden_when:
+    - generic_highland_english
+    - generic_accent_joke
+style_controls:
+  density:
+    min: light_scots_lexis
+    max: broad_reviewed_scots
+  intelligibility_target:
+    options: [broad_audience, local, opaque_to_outsider]
+evidence:
+  corpora:
+    - ScotsSyntaxAtlas
+  reference_works:
+    - DictionariesOfTheScotsLanguage
+\end{lstlisting}
+
+\subsection{Brazilian Regional Targets}
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true]
+schema: weksa.cultural_ontology_profile.v0
+profile_id: weksa.cultural_ontology.pt-BR.rio.urban_slang.v0
+kind: regional_overlay
+status: draft_guarded
+parent_profiles:
+  - weksa.target_cultural_ontology.pt-BR.v0
+activation:
+  allowed_when:
+    - scene_or_speaker_refs_rio_urban_context
+    - authoring_metadata_requests_carioca_urban_register
+  forbidden_when:
+    - generic_brazilian_flavor
+    - comedy_crime_or_hypersexualized_indexing
+retrieval:
+  qdrant_collection: weksa_cultural_ontology_sources
+  required_payload_filters:
+    language_code: pt
+    locale: pt-BR
+    region: Rio de Janeiro
+    source_type: [corpus, sociolinguistic_study, reviewed_example]
+style_controls:
+  density:
+    min: light
+    max: reviewed_dense
+forbidden_flattenings:
+  - Do not treat Rio slang as all Brazilian Portuguese.
+  - Do not use slang density to imply criminality or unseriousness.
+\end{lstlisting}
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true]
+schema: weksa.cultural_ontology_profile.v0
+profile_id: weksa.cultural_ontology.pt-BR.sao_paulo.broadcast_reporter.v0
+kind: institutional_register_overlay
+status: draft
+parent_profiles:
+  - weksa.target_cultural_ontology.pt-BR.v0
+evidence:
+  corpora:
+    - NURC_SP
+    - Projeto_SP2010
+activation:
+  allowed_when:
+    - speaker_role_is_broadcast_reporter
+    - scene_medium_is_news_or_public_institutional_speech
+style_controls:
+  density:
+    default: low_regional_marking
+  register:
+    options: [broadcast_neutral, formal_live_report, conversational_anchor]
+forbidden_flattenings:
+  - Do not confuse Sao Paulo media register with all Sao Paulo speech.
+  - Do not erase intentional informalization when the scene calls for it.
+\end{lstlisting}
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true]
+schema: weksa.cultural_ontology_profile.v0
+profile_id: weksa.cultural_ontology.pt-BR.minas.worker.v0
+kind: profile_stack_template
+status: draft_guarded
+parent_profiles:
+  - weksa.target_cultural_ontology.pt-BR.v0
+stack_axes:
+  region: Minas Gerais
+  occupation_or_class_register: worker
+  education: explicit_or_unknown
+  rural_urban: explicit_or_unknown
+activation:
+  allowed_when:
+    - speaker_profile_refs_minas_region
+    - speaker_profile_refs_worker_or_occupation
+  forbidden_when:
+    - class_caricature
+    - rural_bumpkin_default
+    - low_intelligence_indexing
+forbidden_flattenings:
+  - Worker is not a dialect.
+  - Mineiro is not one uniform speech form.
+  - Do not use eye spelling as a substitute for phonology or grammar evidence.
+\end{lstlisting}
+
+\subsection{Japanese Regional and Historical Targets}
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true]
+schema: weksa.cultural_ontology_profile.v0
+profile_id: weksa.cultural_ontology.ja-JP.kansai.casual.v0
+kind: regional_overlay
+status: draft
+parent_profiles:
+  - weksa.target_cultural_ontology.ja-JP.v0
+retrieval:
+  qdrant_collection: weksa_cultural_ontology_sources
+  required_payload_filters:
+    language_code: ja
+    region: Kansai
+    period: contemporary
+    source_type: [corpus, dialect_reference, reviewed_example]
+salience_axes:
+  sentence_final_force:
+  politeness:
+  stance:
+  humor_or_informality_indexing:
+\end{lstlisting}
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true]
+schema: weksa.cultural_ontology_profile.v0
+profile_id: weksa.cultural_ontology.ja-JP.historical.early_edo.v0
+kind: historical_period_profile
+status: draft_guarded
+parent_profiles:
+  - weksa.target_cultural_ontology.ja-JP.v0
+retrieval:
+  qdrant_collection: weksa_cultural_ontology_sources
+  required_payload_filters:
+    language_code: ja
+    period: Edo
+    source_type: [historical_corpus, scholarly_reference]
+activation:
+  allowed_when:
+    - scene_period_refs_edo
+    - authoring_metadata_requests_historical_japanese
+  forbidden_when:
+    - generic_archaic_flavor
+    - anime_period_speech_without_source
+evidence:
+  corpora:
+    - Corpus_of_Historical_Japanese
+    - ONCOJ_when_old_japanese_not_edo
+forbidden_flattenings:
+  - Do not use modern dialect stereotypes as historical Japanese.
+  - Do not mix periods unless the source intentionally codes anachronism.
+\end{lstlisting}
+
+\section{Implementation Consequences}
+
+Weksa should not implement dialect lowering as a prompt modifier. The lowering
+path should compile a profile stack:
+
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+interlingua packet
+  -> projected speaker context
+  -> cultural ontology profile stack
+  -> dialect/register realization plan
+  -> target utterance
+  -> trace naming profile axes and features used
+\end{lstlisting}
+
+The cultural ontology profile should be inspectable as CultCache state before
+runtime lowering. A target utterance trace should name:
+
+\begin{itemize}[noitemsep]
+  \item which profile stack activated;
+  \item which salience axes mattered;
+  \item which grammatical or lexical affordances were used;
+  \item which affordances were rejected;
+  \item whether human review is required.
+\end{itemize}
+
+\section{Conclusion}
+
+The contemporary Sapir--Whorf lesson for Weksa is not that culture determines
+thought. It is that culture and speech-community practice shape what must be
+noticed, what can be said naturally, what indexes identity, and what becomes
+dangerous when imitated without authority. A useful cultural ontology schema
+therefore represents salience, indexicality, ideology, affordance, activation,
+evidence, and forbidden flattening. That schema is the missing bridge between
+language-neutral interlingua and plausible, reviewable dialectal utterance.
+
+\section*{Citation Ledger}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.28\linewidth}
+                  >{\raggedright\arraybackslash}p{0.66\linewidth}}
+\textbf{Source} & \textbf{Use in Weksa synthesis} \\
+\hline
+Slobin 1996 & Supports the ``thinking for speaking'' mechanism: language
+guides attention during utterance formulation, not total cognition. \\
+Lucy 1992, 1997 & Provides the careful reformulation of linguistic relativity
+as empirical comparison of language categories and interpretation. \\
+Gumperz and Levinson 1996 & Frames relativity as language, culture, and
+classification, with conversational inference as a key cultural site. \\
+Wolff and Holmes 2011 & Contemporary cognitive review: relativity is contested
+but supported in bounded mechanisms and domains. \\
+Silverstein 2003 & Supplies indexical order: forms presuppose and create
+social context at multiple levels. \\
+Eckert 2012 & Treats variation as social meaning, supporting dialect profiles
+as more than demographic labels. \\
+Bucholtz and Hall 2005 & Identity is interactionally produced and indexed by
+linguistic practice; supports activation gates and speaker authority. \\
+Irvine and Gal 2000 & Language ideology mechanisms warn against erasure,
+iconization, and flattening. \\
+Green 2002; Rickford 1999, 2016 & Establish AAVE/AAL as systematic grammar and
+socially meaningful language practice. \\
+CORAAL, ORAAL, Yale Grammatical Diversity Project & Provide corpus and pattern
+anchors for AAL features and reviewed examples. \\
+Scots Syntax Atlas, DSL, Aitken 1984 & Provide dialectological and
+lexicographic anchors for Scots and the Scots--English continuum. \\
+Highland English reference & Warns that Highland English is Gaelic-contact
+Scottish English, not simply Scots. \\
+ALiB, NURC/SP, Projeto SP2010 & Anchor Brazilian Portuguese variation,
+cultivated urban norms, and Sao Paulo sociolinguistic metadata. \\
+Mineiro studies & Warn that Minas Gerais speech must be represented as
+regional variation plus social/persona axes, not as class caricature. \\
+COJADS, CHJ, ONCOJ, LAJaR & Anchor contemporary Japanese dialect evidence,
+historical Japanese evidence, Old Japanese annotation, and Japanese/Ryukyuan
+typological coverage. \\
+Qdrant documentation & Supports the retrieval architecture: vectors plus
+payload filters for semantic evidence search. \\
+Koenecke et al. 2020; Hofmann et al. 2024 & Show automated systems fail and
+discriminate around dialects; justify structural guardrails. \\
+\end{longtable}
+
+\begin{thebibliography}{99}
+
+\bibitem{alibInfo}
+Projeto Atlas Linguistico do Brasil (ALiB).
+``The Linguistic Atlas of Brazil.''
+Universidade Federal da Bahia.
+\url{https://alib.ufba.br/sites/alib.ufba.br/files/informacoes_em_ingles.pdf}.
+
+\bibitem{aitken1984}
+Aitken, A. J. 1984.
+``Scots and English in Scotland.''
+In Peter Trudgill (ed.), \emph{Language in the British Isles}.
+Cambridge: Cambridge University Press.
+Available via the Scots Language Centre:
+\url{https://media.scotslanguage.com/library/document/aitken/Scots_and_English_in_Scotland.pdf}.
+
+\bibitem{bucholtzhall2005}
+Bucholtz, Mary, and Kira Hall. 2005.
+``Identity and interaction: A sociocultural linguistic approach.''
+\emph{Discourse Studies} 7(4--5):585--614.
+\url{https://doi.org/10.1177/1461445605054407}.
+
+\bibitem{coraal}
+Kendall, Tyler, and Charlie Farrington.
+\emph{Corpus of Regional African American Language (CORAAL)}.
+Online Resources for African American Language.
+\url{https://oraal.github.io/coraal}.
+
+\bibitem{chj}
+National Institute for Japanese Language and Linguistics (NINJAL).
+\emph{Corpus of Historical Japanese (CHJ): Overview}.
+\url{https://clrd.ninjal.ac.jp/chj/overview-en.html}.
+
+\bibitem{cojads}
+National Institute for Japanese Language and Linguistics (NINJAL).
+\emph{Corpus of Japanese Dialects (COJADS)}.
+\url{https://www2.ninjal.ac.jp/cojads/index.html}.
+
+\bibitem{dsl}
+Dictionaries of the Scots Language.
+\emph{DSL Online}.
+\url{https://dsl.ac.uk/our-publications/what-is-dsl/}.
+
+\bibitem{eckert2012}
+Eckert, Penelope. 2012.
+``Three waves of variation study: The emergence of meaning in the study of
+variation.''
+\emph{Annual Review of Anthropology} 41:87--100.
+\url{https://doi.org/10.1146/annurev-anthro-092611-145828}.
+
+\bibitem{green2002}
+Green, Lisa J. 2002.
+\emph{African American English: A Linguistic Introduction}.
+Cambridge: Cambridge University Press.
+\url{https://www.cambridge.org/core/books/african-american-english/4CE71E97BA60212C94A342CC7F912250}.
+
+\bibitem{gumperzlevinson1996}
+Gumperz, John J., and Stephen C. Levinson, eds. 1996.
+\emph{Rethinking Linguistic Relativity}.
+Cambridge: Cambridge University Press.
+\url{https://books.google.com/books/about/Rethinking_Linguistic_Relativity.html?id=o7U7PgAACAAJ}.
+
+\bibitem{highlandEnglish}
+McArthur, Tom, ed.
+``Highland English.''
+\emph{Concise Oxford Companion to the English Language}, entry reproduced at
+Encyclopedia.com.
+\url{https://www.encyclopedia.com/humanities/encyclopedias-almanacs-transcripts-and-maps/highland-english}.
+
+\bibitem{hofmann2024}
+Hofmann, Valentin, Pratyusha Ria Kalluri, Dan Jurafsky, and Sharese King. 2024.
+``AI generates covertly racist decisions about people based on their dialect.''
+\emph{Nature} 633:147--154.
+\url{https://doi.org/10.1038/s41586-024-07856-5}.
+
+\bibitem{irvinegal2000}
+Irvine, Judith T., and Susan Gal. 2000.
+``Language ideology and linguistic differentiation.''
+In Paul V. Kroskrity (ed.), \emph{Regimes of Language: Ideologies, Polities,
+and Identities}, 35--83.
+Santa Fe: School of American Research Press.
+
+\bibitem{koenecke2020}
+Koenecke, Allison, Andrew Nam, Emily Lake, Joe Nudell, Minnie Quartey, Zion
+Mengesha, Connor Toups, John R. Rickford, Dan Jurafsky, and Sharad Goel. 2020.
+``Racial disparities in automated speech recognition.''
+\emph{Proceedings of the National Academy of Sciences} 117(14):7684--7689.
+\url{https://doi.org/10.1073/pnas.1915768117}.
+
+\bibitem{lucy1992}
+Lucy, John A. 1992.
+\emph{Language Diversity and Thought: A Reformulation of the Linguistic
+Relativity Hypothesis}.
+Cambridge: Cambridge University Press.
+
+\bibitem{lucy1997}
+Lucy, John A. 1997.
+``Linguistic relativity.''
+\emph{Annual Review of Anthropology} 26:291--312.
+\url{https://www.linguisticanthropology.org/wp-content/uploads/2010/08/1997-Lucy-LinguisticRelativity-s.pdf}.
+
+\bibitem{lajar2024}
+Kato, Kanji, So Miyagawa, and Natsuko Nakagawa. 2024.
+``Language Atlas of Japanese and Ryukyuan (LAJaR): A Linguistic Typology
+Database for Endangered Japonic Languages.''
+In \emph{Proceedings of the 6th Workshop on Research in Computational
+Linguistic Typology and Multilingual NLP}, 55--57.
+Association for Computational Linguistics.
+\url{https://doi.org/10.18653/v1/2024.sigtyp-1.7}.
+
+\bibitem{lt4allJapan}
+National Institute for Japanese Language and Linguistics (NINJAL). 2019.
+``Language Resources for Endangered Languages and Dialects in Japan.''
+\emph{Proceedings of Language Technologies for All (LT4All)}, 371--374.
+\url{https://lt4all.elra.info/proceedings/lt4all2019/pdf/2019.lt4all-1.93.pdf}.
+
+\bibitem{mineiroHistoria}
+Ribeiro, Silvana Soares Costa. 2016.
+``A relacao entre dialetologia e historia: reflexoes teorico-metodologicas
+para o estudo do portugues usado em Minas Gerais.''
+\emph{Gragoata}.
+\url{https://periodicos.uff.br/gragoata/article/view/33374}.
+
+\bibitem{mineiroVariation}
+Oliveira, Gisele et al.
+``A variacao linguistica do `mineires': tracos fonetico-fonologicos,
+morfossintaticos, lexicais e pragmaticos em perspectiva sociolinguistica.''
+\emph{Sumarios.org record}.
+\url{https://sumarios.org/artigo/varia%C3%A7%C3%A3o-lingu%C3%ADstica-do-%E2%80%9Cmineir%C3%AAs%E2%80%9D-tra%C3%A7os-fon%C3%A9tico-fonol%C3%B3gicos-morfossint%C3%A1ticos-lexicais-e}.
+
+\bibitem{nurcsp}
+Pellegrino, Alexandre, Aline B. Mendes, and Marcelo Finger. 2022.
+``Bringing NURC/SP to Digital Life: the Role of Open-source Automatic Speech
+Recognition Models.''
+\url{https://arxiv.org/abs/2210.07852}.
+
+\bibitem{oncoj}
+University of Oxford and NINJAL.
+\emph{Oxford-NINJAL Corpus of Old Japanese (ONCOJ)}.
+\url{https://oncoj.ninjal.ac.jp/}.
+
+\bibitem{oraalPatterns}
+Online Resources for African American Language.
+``African American Language Linguistic Patterns.''
+\url{https://oraal.github.io/aal-linguistic-patterns}.
+
+\bibitem{qdrantFiltering}
+Qdrant.
+``Filtering.''
+\url{https://qdrant.tech/documentation/search/filtering/}.
+
+\bibitem{qdrantPayload}
+Qdrant.
+``A Complete Guide to Filtering in Vector Search.''
+\url{https://qdrant.tech/articles/vector-search-filtering/}.
+
+\bibitem{rickford1999}
+Rickford, John R. 1999.
+\emph{African American Vernacular English: Features, Evolution, Educational
+Implications}.
+Oxford: Blackwell.
+\url{https://www.wiley-vch.de/de/fachgebiete/geistes-und-sozialwissenschaften/african-american-vernacular-english-978-0-631-21245-4}.
+
+\bibitem{rickford2016}
+Rickford, John R. 2016.
+``Labov's contributions to the study of African American Vernacular English:
+Pursuing linguistic and social equity.''
+\emph{Journal of Sociolinguistics} 20(4):561--580.
+\url{https://doi.org/10.1111/josl.12198}.
+
+\bibitem{scotsSyntaxAtlas}
+Scots Syntax Atlas.
+``Research context'' and ``About the data.''
+University of Glasgow project.
+\url{https://scotssyntaxatlas.ac.uk/research-context/};
+\url{https://scotssyntaxatlas.ac.uk/about/about-the-data/}.
+
+\bibitem{sp2010}
+Projeto SP2010.
+``Corpus.''
+Universidade de Sao Paulo.
+\url{https://projetosp2010.fflch.usp.br/corpus}.
+
+\bibitem{silverstein2003}
+Silverstein, Michael. 2003.
+``Indexical order and the dialectics of sociolinguistic life.''
+\emph{Language \& Communication} 23(3--4):193--229.
+\url{https://doi.org/10.1016/S0271-5309(03)00013-2}.
+
+\bibitem{slobin1996}
+Slobin, Dan I. 1996.
+``From `thought and language' to `thinking for speaking'.''
+In John J. Gumperz and Stephen C. Levinson (eds.),
+\emph{Rethinking Linguistic Relativity}, 70--96.
+Cambridge: Cambridge University Press.
+
+\bibitem{wolffholmes2011}
+Wolff, Phillip, and Kevin J. Holmes. 2011.
+``Linguistic relativity.''
+\emph{Wiley Interdisciplinary Reviews: Cognitive Science} 2(3):253--265.
+\url{https://doi.org/10.1002/wcs.104}.
+
+\bibitem{yaleInvariantBe}
+Yale Grammatical Diversity Project.
+``Invariant be.''
+\url{https://ygdp.yale.edu/phenomena/invariant-be}.
+
+\end{thebibliography}
+
+\end{document}
