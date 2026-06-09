@@ -40,6 +40,8 @@ compilation, live instrument handles, and rendered audio.
 - `.weksa/traces/{traceId}.cc`: lowering traces naming the stage that made each
   decision.
 - `.weksa/projects/{projectId}.cc`: language-project and flavor-profile state.
+- `.weksa/cultural-ontology/{storeId}.cc`: reviewed or draft guarded cultural
+  ontology profile stores used by utterance lowering.
 
 Early exporters may publish fixtures before a daemon loop exists, but the
 witness names are not decorative. These are the state surfaces the daemon must
@@ -51,6 +53,8 @@ commit when the runtime lands.
 - `weksa.intent`: conversational intent documents and review queues.
 - `weksa.language_project`: language-project state, flavor profiles, and
   pronunciation rules.
+- `weksa.cultural_ontology`: cultural ontology catalogs, profile stacks,
+  salience axes, linguistic affordances, activation gates, and evidence refs.
 - `weksa.pronunciation`: phonetic plans, IPA spans, prosody, and trace
   evidence.
 - `weksa.utterance`: utterance handoff documents, packed embedding requests,

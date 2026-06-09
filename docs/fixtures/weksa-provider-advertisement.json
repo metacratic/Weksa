@@ -60,6 +60,16 @@
         "weksa.operator_state.v0",
         "gamecult.eve.surface.v1"
       ]
+    },
+    {
+      "id": "weksa.cultural_ontology",
+      "kind": "cultural_ontology",
+      "cultMeshKey": "weksa.cultural-ontology/catalogs",
+      "authority": "Weksa cultural ontology profile store",
+      "schemas": [
+        "weksa.cultural_ontology_profile.v0",
+        "weksa.cultural_ontology_catalog.v0"
+      ]
     }
   ],
   "schemaWitnessFamilies": [
@@ -95,6 +105,15 @@
         "weksa.lowering_trace.v0"
       ],
       "durableShape": ".weksa/traces/{traceId}.cc"
+    },
+    {
+      "family": "cultural_ontology",
+      "namespace": "weksa.cultural_ontology.*",
+      "witnesses": [
+        "weksa.cultural_ontology_profile.v0",
+        "weksa.cultural_ontology_catalog.v0"
+      ],
+      "durableShape": ".weksa/cultural-ontology/{storeId}.cc"
     },
     {
       "family": "eve",
