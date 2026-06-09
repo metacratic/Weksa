@@ -1,0 +1,56 @@
+schema_version: weksa.utterance_lowering.agent_run.v0
+source_packet_id: nibu-proof-001
+source_packet_ref: examples/english-lowering/nibu-proof-001/interlingua.yaml
+target_profile_ref: .weksa/cultural-ontology/starter-targets.cc
+target_profile_id: weksa.cultural_ontology.en.transatlantic.v0
+target_agent_id: nibu
+realization:
+  realization_id: nibu-proof-001.en-transatlantic.001
+  target_language:
+    code: en
+    locale: en-001
+    script: Latn
+    register: cultivated transatlantic English; cross-Atlantic intelligibility; measured technical warning
+    cultural_ontology_refs:
+      - .weksa/cultural-ontology/starter-targets.cc
+    cultural_ontology_profile_ids:
+      - weksa.cultural_ontology.en.transatlantic.v0
+  outputs:
+    visible_action: Cockpit lights snap white as Nibu locks the damaged control under local override.
+    spoken_text: "Do not touch that control. It is damaged; one touch may put you directly in harm's way. I am preventing an avoidable injury, not asking politely."
+    literal_backgloss: "Do not touch that damaged ship control. Touching it may endanger you. Nibu is stopping the action, not making a polite request."
+    natural_backtranslation: "Keep your hands off the damaged control. It could hurt you, and Nibu is blocking the mistake rather than asking nicely."
+    private_interpretation: "The player is about to touch an unsafe damaged control. Nibu needs them alive and useful, so she asserts technical authority with clipped irritation."
+    intended_effect: Stop the player from touching the damaged control while preserving Nibu's precise, abrasive, protective stance.
+    trace:
+      meaning_preserved:
+        - player is the addressee and potential patient of the hazard
+        - damaged ship control is the unsafe object
+        - touching the control may endanger the player
+        - Nibu intervenes to prevent the touch
+      activated_axes:
+        - axis_id: lexical_balance
+          reason: Uses internationally intelligible English without locking the line into American or British regional vocabulary.
+        - axis_id: prestige_distance
+          reason: Keeps a cultivated, controlled warning register without aristocratic parody or class contempt.
+      activated_affordances:
+        - profile_id: weksa.cultural_ontology.en.transatlantic.v0
+          layer: lexicon
+          feature_id: en_transatlantic_lexical_neutrality
+          reason: Chose neutral forms such as "control", "damaged", "harm's way", and "avoidable injury" rather than regionally marked slang.
+        - profile_id: weksa.cultural_ontology.en.transatlantic.v0
+          layer: discourse
+          feature_id: en_transatlantic_measured_directness
+          reason: Uses a direct prohibition followed by a concise technical consequence and a controlled refusal of politeness.
+      rejected_affordances: []
+      forbidden_flattenings_checked:
+        - fake old-film accent spelling was not used
+        - class contempt was not used
+        - British costume vocabulary was not used
+        - American default slang or idiom was not used
+      projected_context_used:
+        - Nibu is embodied in the damaged ship
+        - Nibu can lock or disable local controls if necessary
+        - Nibu needs the player alive and useful but resents sounding soft
+        - precision is preferable to generic assistant gentleness
+      open_questions: []

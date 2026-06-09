@@ -1,0 +1,69 @@
+schema_version: weksa.utterance_lowering.agent_run.v0
+source_packet_id: nibu-proof-001
+source_packet_ref: examples/english-lowering/nibu-proof-001/interlingua.yaml
+target_profile_ref: .weksa/cultural-ontology/starter-targets.cc
+target_profile_id: weksa.cultural_ontology.pt-BR.vanilla_brazilian.v0
+target_agent_id: nibu
+realization:
+  realization_id: nibu-proof-001.pt-BR.vanilla_brazilian.001
+  target_language:
+    code: pt
+    locale: pt-BR
+    script: Latn
+    register: casual_clear
+    cultural_ontology_refs:
+      - .weksa/cultural-ontology/starter-targets.cc
+    cultural_ontology_profile_ids:
+      - weksa.cultural_ontology.pt-BR.vanilla_brazilian.v0
+  outputs:
+    visible_action: As luzes do painel piscam e o controle danificado trava antes do toque.
+    spoken_text: Não encosta nesse controle danificado. Quer se colocar em risco por ignorância técnica?
+    literal_backgloss: Do not touch that damaged control. Do you want to put yourself at risk through technical ignorance?
+    natural_backtranslation: Do not touch that damaged control. Are you trying to put yourself in danger out of technical ignorance?
+    private_interpretation: Nibu interrupts the player's reach with a direct Brazilian Portuguese warning, using broad voce treatment implicitly and a clipped technical insult aimed only at stopping unsafe contact.
+    intended_effect: Stop the player from touching the damaged ship control while preserving Nibu's precise, abrasive, protective voice.
+    trace:
+      meaning_preserved:
+        - player is about to touch or may touch the damaged ship control
+        - the damaged control is unsafe
+        - touching the control may endanger the player
+        - Nibu intervenes to prevent the touch
+      activated_axes:
+        - axis_id: treatment
+          distinctions_used:
+            - broad_voce_default
+          reason: Vanilla Brazilian Portuguese uses broad neutral você treatment; the imperative "não encosta" is direct without European Portuguese morphology.
+        - axis_id: directness
+          distinctions_used:
+            - urgent_warning
+          reason: The cockpit hazard favors a short direct prohibition over softened politeness.
+      activated_affordances:
+        - profile_id: weksa.cultural_ontology.pt-BR.vanilla_brazilian.v0
+          layer: grammar
+          feature_id: pt_br_voce_treatment
+          reason: Used an implicit você-aligned spoken imperative and avoided tu/vós/European agreement.
+        - profile_id: weksa.cultural_ontology.pt-BR.vanilla_brazilian.v0
+          layer: lexicon
+          feature_id: pt_br_brazilian_lexical_default
+          reason: Chose broad Brazilian forms such as "controle", "danificado", "risco", and "técnica" for plain technical speech.
+      rejected_affordances:
+        - profile_id: weksa.cultural_ontology.pt-BR.vanilla_brazilian.v0
+          layer: grammar
+          feature_id: pt_br_voce_treatment
+          reason: Rejected explicit "você" because the clipped warning is more natural without an overt pronoun.
+      forbidden_flattenings_checked:
+        - Rio slang not used
+        - Minas regionalism not used
+        - Sao Paulo regional or broadcaster register not used
+        - Umbanda or religious register not used
+        - class, race, or subcultural markers not inferred
+        - European Portuguese treatment or lexical defaults not used
+        - warning not over-softened
+      projected_context_used:
+        - Nibu is embodied in the damaged ship.
+        - Nibu needs the player alive and useful without presenting concern as softness.
+        - Soft politeness would waste time and invite more touching.
+        - Precision is kinder than letting the player discover voltage through meat.
+        - Nibu can flicker cockpit lights and lock or disable local controls.
+      open_questions:
+        - Whether future pt-BR profiles should distinguish written subtitles from spoken cockpit audio for accent and punctuation rendering.

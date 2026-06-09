@@ -1,0 +1,75 @@
+schema_version: weksa.utterance_lowering.agent_run.v0
+source_packet_id: nibu-proof-001
+source_packet_ref: examples/english-lowering/nibu-proof-001/interlingua.yaml
+target_profile_ref: .weksa/cultural-ontology/starter-targets.cc
+target_profile_id: weksa.cultural_ontology.ja-JP.kanto.contemporary.v0
+target_agent_id: nibu
+realization:
+  realization_id: nibu-proof-001.ja-JP-kanto-contemporary.v0
+  target_language:
+    code: ja
+    locale: ja-JP
+    script: Jpan
+    register: contemporary Kanto metropolitan clipped hazard warning
+    cultural_ontology_refs:
+      - .weksa/cultural-ontology/starter-targets.cc
+    cultural_ontology_profile_ids:
+      - weksa.cultural_ontology.ja-JP.kanto.contemporary.v0
+  outputs:
+    visible_action: "The damaged control's indicator light snaps from amber to red as Nibu cuts into the cockpit audio."
+    spoken_text: "その損傷した制御盤、触るな。まだ通電してる。指を焼くぞ。"
+    literal_backgloss: "That damaged control panel, do not touch. It is still energized. It will burn fingers."
+    natural_backtranslation: "Don't touch that damaged control panel. It's still live. You'll burn your fingers."
+    private_interpretation: "Nibu blocks the player's reach with a clipped technical warning, omitting over-explicit pronouns and letting the hazard carry the protective force."
+    intended_effect: "Stop the player from touching the unsafe control while preserving Nibu's precise, abrasive, protective cockpit voice."
+    trace:
+      meaning_preserved:
+        - player is the addressee and would be endangered by touching the control
+        - the control is damaged and unsafe to touch
+        - Nibu intervenes verbally to prevent the touch
+        - the warning is protective without soft assistant politeness
+      activated_axes:
+        - axis_id: politeness
+          distinctions_used:
+            - plain directive
+          reason: "A tense cockpit warning from Nibu should be clipped and immediate, not polite or service-like."
+        - axis_id: ellipsis
+          distinctions_used:
+            - recoverable addressee omission
+            - recoverable patient possession omission
+          reason: "Japanese permits the addressee and possessive relation to be inferred from the warning context."
+      activated_affordances:
+        - profile_id: weksa.cultural_ontology.ja-JP.kanto.contemporary.v0
+          layer: grammar
+          feature_id: ja_kanto_plain_negative_imperative_warning
+          reason: "触るな directly prevents the unsafe action in a plain, urgent register."
+        - profile_id: weksa.cultural_ontology.ja-JP.kanto.contemporary.v0
+          layer: discourse
+          feature_id: ja_kanto_argument_ellipsis
+          reason: "The line omits English-style explicit 'you' while preserving the player as addressee."
+        - profile_id: weksa.cultural_ontology.ja-JP.kanto.contemporary.v0
+          layer: orthography
+          feature_id: ja_kanto_mixed_script_default
+          reason: "The realization uses normal mixed kanji-kana script for contemporary readable Japanese."
+      rejected_affordances:
+        - profile_id: weksa.cultural_ontology.ja-JP.kanto.contemporary.v0
+          layer: grammar
+          feature_id: polite_desu_masu_warning
+          reason: "Polite service register would flatten Nibu into generic assistant gentleness."
+        - profile_id: weksa.cultural_ontology.ja-JP.kanto.contemporary.v0
+          layer: discourse
+          feature_id: over_explicit_pronoun_address
+          reason: "Explicit second-person marking would import English-style pronoun structure against the target profile."
+      forbidden_flattenings_checked:
+        - "No Kansai particles or regionally marked Kansai morphology."
+        - "No historical archaism."
+        - "No anime-coded aggression or catchphrase posture."
+        - "No over-explicit English-style pronouns."
+        - "No mystical explanation for a technical hazard."
+      projected_context_used:
+        - "Nibu is embodied in the damaged ship and can speak through cockpit audio."
+        - "The player is near an unsafe damaged control."
+        - "Nibu needs the player alive and useful but refuses soft concern."
+        - "Precision and abrasive urgency are preferred over customer-support politeness."
+      open_questions:
+        - "The CultCache profile is draft guarded; reviewer confirmation would be needed before treating this as reviewed Japanese dialogue style."
