@@ -37,6 +37,9 @@ It does not own:
 - `scope`: bounded statement of what the profile is and is not.
 - `authority`: `owns` and `does_not_own` lists.
 - `salience_axes`: named axes the lowerer must inspect.
+- `linguistic_affordances`: optional nested typed feature records, following
+  `cultural-ontology-profile.md`, when the profile owns dialect, register,
+  phonological, lexical, discourse, orthographic, or code-switching pressure.
 - `forbidden_flattenings`: mistakes the target lowerer must avoid.
 
 ## Salience Axes
@@ -71,3 +74,8 @@ target_language:
 
 The realization trace should name the cultural ontology axes that shaped the
 line.
+
+For dialectal, regional, historical, ritual, and contact-language profiles, use
+the nested `weksa.cultural_ontology_profile.v0` contract in
+`cultural-ontology-profile.md`. Flat string lists are only summaries; typed
+feature records own accepted affordance detail.

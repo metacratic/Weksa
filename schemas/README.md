@@ -26,6 +26,10 @@ them.
 - [target-language-cultural-ontology.md](./target-language-cultural-ontology.md):
   contract for the address, politeness, register, idiom, metaphor, script, and
   forbidden-flattening profiles consumed by target lowerers.
+- [cultural-ontology-profile.md](./cultural-ontology-profile.md): nested
+  CultCache profile contract for cultural ontology, including typed salience
+  axes, linguistic affordance feature records, evidence, activation gates, and
+  lowering traces.
 - [english-lowering-packet.md](./english-lowering-packet.md): packet contract
   for the older English-specific realization lane.
 - [english-pronunciation-plan.md](./english-pronunciation-plan.md): plan for

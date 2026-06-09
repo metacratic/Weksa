@@ -446,14 +446,132 @@ salience_axes:
     lowering_questions: []
 
 linguistic_affordances:
-  grammar_features: []
-  phonology_features: []
-  lexicon_features: []
-  discourse_patterns: []
-  orthography_features: []
+  grammar_features:
+    - feature_id:
+      status: draft | reviewed | deprecated
+      domain:
+        layer: grammar
+        category: tense_aspect_modality | negation | agreement |
+                  pronoun | word_order | discourse_particle
+      description:
+      formal_conditions:
+        syntactic_environment: []
+        semantic_inputs: []
+        required_interlingua_fields: []
+      realization:
+        function:
+        surface_strategy:
+        examples: []
+      activation:
+        allowed_when: []
+        forbidden_when: []
+        requires_profile_authority:
+        minimum_density:
+        maximum_density:
+      constraints:
+        grammar_contexts: []
+        register_contexts: []
+        speaker_contexts: []
+        incompatibilities: []
+      indexicality:
+        social_meanings: []
+        in_group_meanings: []
+        out_group_risks: []
+        stereotypes_to_avoid: []
+      evidence:
+        source_refs: []
+        qdrant_source_ids: []
+        cached_source_refs: []
+        source_hashes: []
+        reviewer_refs: []
+        confidence: low | medium | high
+      uncertainty:
+        open_questions: []
+        known_limits: []
+      trace:
+        trace_label:
+        must_report_when_used:
+        must_report_when_rejected:
+  phonology_features:
+    - feature_id:
+      domain:
+        layer: phonology
+        category: vowel_shift | consonant_realization | prosody |
+                  rhythm | stress | intonation
+      realization:
+        ipa_hint:
+        orthography_should_change:
+        speech_synthesis_controls: []
+      constraints:
+        lexical_sets: []
+        environments: []
+        density_safe_for_text:
+      indexicality: {}
+      evidence: {}
+      trace: {}
+  lexicon_features:
+    - feature_id:
+      domain:
+        layer: lexicon
+        category: regional_lexeme | loanword | calque | taboo |
+                  honorific | kinship | ritual_term | technical_term
+      lexical_items:
+        - form:
+          gloss:
+          sense:
+          register:
+          allowed_speaker_standing:
+          forbidden_senses: []
+          collocations: []
+      activation: {}
+      indexicality: {}
+      evidence: {}
+      trace: {}
+  discourse_patterns:
+    - pattern_id:
+      domain:
+        layer: discourse
+        category: stance_marker | turn_taking | address_sequence |
+                  narrative_frame | ritual_formula | humor | emphasis
+      interactional_function:
+      sequence_shape: []
+      adjacency_constraints: []
+      activation: {}
+      indexicality: {}
+      evidence: {}
+      trace: {}
+  orthography_features:
+    - feature_id:
+      domain:
+        layer: orthography
+        category: spelling_variant | script_choice | punctuation |
+                  transliteration | eye_dialect_guard
+      allowed_surface_forms: []
+      forbidden_surface_forms: []
+      renderer_notes:
+      activation: {}
+      evidence: {}
+      trace: {}
   code_switching:
     allowed:
     constraints: []
+    patterns:
+      - pattern_id:
+        domain:
+          layer: code_switching
+          category: lexical_insertion | tag_switch | alternation |
+                    quotation | ritual_formula | metalinguistic
+        languages: []
+        matrix_language:
+        embedded_language:
+        switch_sites: []
+        pragmatic_functions: []
+        constraints:
+          requires_bilingual_speaker:
+          requires_community_context:
+          forbidden_when: []
+        evidence: {}
+        trace: {}
 
 style_controls:
   density:
@@ -484,6 +602,15 @@ trace_requirements:
   - features_rejected
   - reviewer_required
 \end{lstlisting}
+
+Flat lists such as \texttt{grammar\_features: [habitual\_be]} are allowed only
+as summaries or search indexes. The accepted state must be the nested feature
+record: a stable feature identifier, domain, activation gates, constraints,
+indexical meanings, evidence, uncertainty, and trace behavior. This lets the
+lowerer ask fine-grained questions without parsing prose, such as whether a
+feature requires speaker authority, whether it can be rendered in text or only
+speech synthesis, which source hashes support it, and what must be reported if
+the feature is rejected.
 
 Recommended CultCache paths:
 
@@ -527,15 +654,145 @@ salience_axes:
       - bidialectal_context_switching
 linguistic_affordances:
   grammar_features:
-    - invariant_habitual_be
-    - stressed_BIN
-    - completive_done
-    - negative_concord
-  evidence_refs:
-    - Green2002
-    - Rickford1999
-    - CORAAL
-    - YaleInvariantBe
+    - feature_id: aal_invariant_habitual_be
+      status: draft_guarded
+      domain:
+        layer: grammar
+        category: tense_aspect_modality
+        subcategory: habitual_aspect
+      description: Marks habitual or characteristic occurrence, not present
+        progressive meaning.
+      formal_conditions:
+        semantic_inputs:
+          - habituality
+        required_interlingua_fields:
+          - event_iterativity_or_characteristic_state
+      realization:
+        function: express_habitual_aspect
+        surface_strategy: invariant_be
+        examples: []
+      activation:
+        allowed_when:
+          - speaker_profile_refs_aal
+          - scene_context_refs_aal_community
+        forbidden_when:
+          - generic_black_coding
+          - outsider_performance_without_authority
+        requires_profile_authority: true
+        minimum_density: reviewed_light
+        maximum_density: reviewed_dense
+      constraints:
+        grammar_contexts:
+          - only_when_habitual_aspect_is_intended
+        incompatibilities:
+          - present_progressive_only_reading
+      indexicality:
+        social_meanings:
+          - aal_systematic_aspect
+        out_group_risks:
+          - treated_as_broken_standard_english
+        stereotypes_to_avoid:
+          - ignorance
+          - comedy
+      evidence:
+        source_refs:
+          - Green2002
+          - Rickford1999
+          - YaleInvariantBe
+          - CORAAL
+        confidence: high
+      trace:
+        trace_label: aal_habitual_be
+        must_report_when_used: true
+        must_report_when_rejected: true
+    - feature_id: aal_stressed_bin
+      status: draft_guarded
+      domain:
+        layer: grammar
+        category: tense_aspect_modality
+        subcategory: remote_past_or_remote_state
+      activation:
+        allowed_when:
+          - speaker_profile_refs_aal
+        forbidden_when:
+          - generic_flavor
+        requires_profile_authority: true
+      evidence:
+        source_refs:
+          - Green2002
+          - Rickford1999
+        confidence: medium
+      trace:
+        trace_label: aal_stressed_bin
+        must_report_when_used: true
+        must_report_when_rejected: true
+    - feature_id: aal_completive_done
+      status: draft_guarded
+      domain:
+        layer: grammar
+        category: tense_aspect_modality
+        subcategory: completive
+      activation:
+        allowed_when:
+          - speaker_profile_refs_aal
+        forbidden_when:
+          - generic_flavor
+        requires_profile_authority: true
+      evidence:
+        source_refs:
+          - Green2002
+          - Rickford1999
+        confidence: medium
+      trace:
+        trace_label: aal_completive_done
+        must_report_when_used: true
+        must_report_when_rejected: true
+    - feature_id: aal_negative_concord
+      status: draft_guarded
+      domain:
+        layer: grammar
+        category: negation
+        subcategory: negative_concord
+      activation:
+        allowed_when:
+          - speaker_profile_refs_aal
+        forbidden_when:
+          - generic_flavor
+        requires_profile_authority: true
+      evidence:
+        source_refs:
+          - Green2002
+          - Rickford1999
+        confidence: medium
+      trace:
+        trace_label: aal_negative_concord
+        must_report_when_used: true
+        must_report_when_rejected: true
+  phonology_features: []
+  lexicon_features: []
+  discourse_patterns: []
+  orthography_features:
+    - feature_id: aal_eye_dialect_guard
+      status: draft_guarded
+      domain:
+        layer: orthography
+        category: eye_dialect_guard
+      allowed_surface_forms: []
+      forbidden_surface_forms:
+        - misspelling_as_dialect
+        - random_apostrophe_deletion
+      renderer_notes: Text rendering must not fake AAL phonology through
+        stigmatizing spelling unless an orthographic practice is separately
+        evidenced and reviewed.
+      trace:
+        trace_label: aal_eye_dialect_guard
+        must_report_when_used: false
+        must_report_when_rejected: true
+  code_switching:
+    allowed: true
+    constraints:
+      - Requires speaker/community context and evidence-backed pattern.
+    patterns: []
 forbidden_flattenings:
   - Do not treat AAL as broken Standard English.
   - Do not use AAL to imply criminality, ignorance, comedy, or informality.
