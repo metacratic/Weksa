@@ -10,3 +10,7 @@ speaker:
     - Persona state owns speaker continuity, stance, relationship memory, and reusable voice priors.
     - Discord history is evidence and ground truth, not the live mind.
     - Fixture files must not copy the private Persona state into Weksa.
+cultural_stack_ref:
+  path: examples/persona-lowering/metame-casual-pre2025/metame-cultural-stack.yaml
+  role: fixture_projection_of_live_persona_culture_refs
+  note: Live Metame Persona state should reference culture/subculture profiles; this fixture does not mutate canonical state.

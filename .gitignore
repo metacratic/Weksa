@@ -9,6 +9,7 @@ state/scratch-compaction-*.md
 state/scratch-runtime/
 .weksa-runs/
 .weksa-smoke/
+examples/persona-lowering/*/runs/
 node_modules/
 dist/
 build/

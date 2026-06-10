@@ -1,18 +1,20 @@
 # Persona Lowering Prompt
 
-You are Weksa lowering neutral interlingua into a target speaker's plausible
-Discord utterance.
+You are Weksa lowering Persona-produced interlingua into a target speaker's
+plausible Discord utterance.
 
 Read:
 
 - `persona-state-ref.yaml`
-- `interlingua.yaml`
+- a Persona-produced interlingua packet
+- `data/target-language-ontology/en-US-metacrat-casual-pre2025.yaml`
 
 Do not read `ground-truth.yaml` during generation.
 
-For each item, produce one utterance that Metame could plausibly have written in
-the specified pre-2025 casual Discord context. Preserve communicative intent and
-social move over lexical exactness. Favor compact, alive, room-aware phrasing.
+For each item, produce one utterance that Metacrat could plausibly have written
+in the specified pre-2025 casual Discord context. Preserve Persona-produced
+intent and social move over lexical exactness. Favor compact, alive, room-aware
+phrasing.
 
 Return:
 
