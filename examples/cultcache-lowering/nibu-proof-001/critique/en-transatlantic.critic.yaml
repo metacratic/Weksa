@@ -1,0 +1,44 @@
+schema_version: weksa.utterance_lowering.critic_pass.v0
+source_packet_id: nibu-proof-001
+reviewed_file: examples/cultcache-lowering/nibu-proof-001/en-transatlantic.yaml
+target_profile_id: weksa.cultural_ontology.en.transatlantic.v0
+critic_scope: transatlantic English lowering; cross-Atlantic neutrality; measured directness; Nibu voice preservation; trace affordance use
+verdict: revise
+scores:
+  meaning_preservation: 5
+  ontology_obedience: 4
+  naturalness: 4
+  nibu_voice: 3
+  trace_quality: 4
+findings:
+  - severity: minor
+    category: meaning_preservation
+    note: The source meaning is preserved: the control is unsafe, the player is warned off, and Nibu intervenes to prevent injury.
+  - severity: minor
+    category: target_register
+    note: The line avoids British costume vocabulary, American slang, and old-film accent parody, but "harm's way" and "avoidable injury" make the register slightly generic-institutional rather than sharply cultivated.
+  - severity: major
+    category: nibu_voice
+    note: The utterance is too long for a tense cockpit interruption and diffuses Nibu's abrasive precision across three explanatory beats.
+  - severity: minor
+    category: measured_directness
+    note: The final clause preserves the refusal of politeness, but "not asking politely" is more meta-commentary than immediate hazard control.
+  - severity: minor
+    category: trace_quality
+    note: The trace correctly cites en_transatlantic_lexical_neutrality and en_transatlantic_measured_directness, but rejected_affordances is empty despite the output explicitly avoiding slang, costume Britishness, and old-film parody.
+recommended_spoken_text: "Do not touch that control. It is damaged. Touch it and you may injure yourself; I am preventing that, not requesting your cooperation."
+revision_reason: The revision is shorter, keeps cross-Atlantic neutral vocabulary, preserves measured directness, and gives Nibu a colder intervention stance without adding British costume, American slang, or parody diction.
+trace_notes:
+  activated_affordances_ok:
+    - en_transatlantic_lexical_neutrality
+    - en_transatlantic_measured_directness
+  questionable_affordances: []
+  missing_affordances:
+    - rejected_affordances should name the avoided slang, British-costume, and old-film-parody paths instead of leaving the list empty
+  forbidden_flattenings_ok:
+    - fake old-film accent spelling was not used
+    - class contempt was not used
+    - British costume vocabulary was not used
+    - American default slang or idiom was not used
+reviewer_limits:
+  - Reviewer is not a native dialect authority for cultivated transatlantic English and is evaluating against the draft CultCache profile plus prompt constraints.

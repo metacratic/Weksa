@@ -1,0 +1,51 @@
+schema_version: weksa.utterance_lowering.critic_pass.v0
+source_packet_id: nibu-proof-001
+reviewed_file: examples/cultcache-lowering/nibu-proof-001/ja-JP-kanto-contemporary.yaml
+target_profile_id: weksa.cultural_ontology.ja-JP.kanto.contemporary.v0
+critic_scope: contemporary Kanto Japanese hazard-warning realization for Nibu
+verdict: revise
+scores:
+  meaning_preservation: 4
+  ontology_obedience: 4
+  naturalness: 3
+  nibu_voice: 4
+  trace_quality: 4
+findings:
+  - severity: minor
+    category: meaning_preservation
+    note: "The warning preserves the damaged control, unsafe touch, and Nibu's intervention. The added live-current detail is plausible from the projected cockpit context, but it is a specific hazard inference rather than an explicit interlingua fact."
+  - severity: minor
+    category: naturalness
+    note: "触るな is acceptable for urgent, abrasive Nibu speech in a tense cockpit moment. It is blunt, but the profile explicitly allows plain negative imperative warnings."
+  - severity: major
+    category: naturalness
+    note: "指を焼くぞ is understandable, but it sounds more dramatic and written than the most natural contemporary Kanto hazard warning. With 通電してる already active, 感電するぞ is more idiomatic, technical, and immediate."
+  - severity: minor
+    category: caricature_risk
+    note: "The line does not use Kansai markers, historical archaism, catchphrases, or explicit anime stock particles. The only drift risk is the stacked roughness of 触るな plus 焼くぞ, which can lean tough-character if repeated across many lines."
+  - severity: info
+    category: ellipsis
+    note: "Argument ellipsis works well. The addressee and affected body are recoverable from context, and the line avoids English-style pronoun pressure."
+  - severity: info
+    category: orthography
+    note: "Mixed kanji-kana script is normal and readable for contemporary Japanese. 制御盤 and 通電 carry the desired technical register."
+recommended_spoken_text: "その破損した制御盤に触るな。まだ通電してる。感電するぞ。"
+revision_reason: "This keeps the clipped plain imperative and Nibu's abrasive protection while replacing the less idiomatic 指を焼くぞ with the more natural technical warning 感電するぞ. 破損した is also slightly more ordinary for damaged equipment than 損傷した in this spoken cockpit context."
+trace_notes:
+  activated_affordances_ok:
+    - ja_kanto_plain_negative_imperative_warning
+    - ja_kanto_argument_ellipsis
+    - ja_kanto_mixed_script_default
+  questionable_affordances:
+    - feature_id: ja_kanto_plain_negative_imperative_warning
+      note: "Allowed and effective, but should be monitored across dialogue so Nibu stays abrasive-precise rather than generic rough protagonist speech."
+  missing_affordances: []
+  forbidden_flattenings_ok:
+    - "No Kansai particles or morphology."
+    - "No historical archaism."
+    - "No English-style explicit second-person pronoun."
+    - "No mystical explanation for a technical hazard."
+    - "No overt anime catchphrase posture."
+reviewer_limits:
+  - "Reviewer is not a native-speaker authority; native Japanese review is required before treating this as final shipped dialogue."
+  - "CultCache target profile is a draft guarded witness, so the critique evaluates against the current profile shape rather than a settled production ontology."

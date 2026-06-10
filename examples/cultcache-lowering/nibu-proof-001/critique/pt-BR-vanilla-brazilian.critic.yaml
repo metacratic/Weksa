@@ -1,0 +1,45 @@
+schema_version: weksa.utterance_lowering.critic_pass.v0
+source_packet_id: nibu-proof-001
+reviewed_file: examples/cultcache-lowering/nibu-proof-001/pt-BR-vanilla-brazilian.yaml
+target_profile_id: weksa.cultural_ontology.pt-BR.vanilla_brazilian.v0
+critic_scope: broad vanilla Brazilian Portuguese naturalness, target ontology obedience, Nibu voice preservation, trace quality
+verdict: revise
+scores:
+  meaning_preservation: 5
+  ontology_obedience: 4
+  naturalness: 3
+  nibu_voice: 4
+  trace_quality: 3
+findings:
+  - severity: minor
+    category: naturalness
+    note: "Nao encosta nesse controle danificado" is plausible broad spoken pt-BR for an urgent warning under an implicit voce alignment; it is colloquial rather than formal, which fits cockpit speech.
+  - severity: minor
+    category: overreach
+    note: "ignorancia tecnica" preserves Nibu's contempt, but it is nouny and a little essay-like for a clipped spoken warning; it risks sounding like authored insult rather than natural Brazilian speech.
+  - severity: info
+    category: ontology_obedience
+    note: The lowering avoids Rio, Minas, Sao Paulo broadcaster, Umbanda, European Portuguese, class, race, and religious markers, so it stays inside the vanilla Brazilian target instead of smuggling in regional flavor.
+  - severity: minor
+    category: trace_quality
+    note: The trace correctly activates pt_br_voce_treatment and pt_br_brazilian_lexical_default, but the rejected_affordances entry reuses pt_br_voce_treatment when it really means rejected explicit pronoun realization.
+recommended_spoken_text: "Não encosta nesse controle danificado. Quer se colocar em risco por não entender o painel?"
+revision_reason: The revision keeps the acceptable spoken "Nao encosta" imperative and Nibu's abrasive protective stance, while replacing the stiff "ignorancia tecnica" with a more natural, still condescending pt-BR phrasing tied to the actual ship panel.
+trace_notes:
+  activated_affordances_ok:
+    - pt_br_voce_treatment
+    - pt_br_brazilian_lexical_default
+  questionable_affordances:
+    - explicit_rejection_label_for_pt_br_voce_treatment
+  missing_affordances:
+    - pronoun_ellipsis_or_overt_pronoun_suppression
+  forbidden_flattenings_ok:
+    - Rio slang not used
+    - Minas regionalism not used
+    - Sao Paulo regional or broadcaster register not used
+    - Umbanda or religious register not used
+    - class, race, or subcultural markers not inferred
+    - European Portuguese treatment or lexical defaults not used
+reviewer_limits:
+  - Not a native-speaker community review; judgment is a model-assisted linguistic critique.
+  - CultCache profile was treated as draft guarded state through the README and target file trace rather than by decoding the binary .cc store directly.
