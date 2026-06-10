@@ -1,0 +1,12 @@
+schema_version: weksa.persona_state_ref.v0
+speaker:
+  id: metame
+  display_name: Metame
+  persona_state:
+    format: gamecult.persona_state.v0-compatible CultCache .cc
+    path: E:/Projects/VoidBot/.voidbot/private/personas/metame/metame.cc
+    authority: canonical_private_persona_state
+  notes:
+    - Persona state owns speaker continuity, stance, relationship memory, and reusable voice priors.
+    - Discord history is evidence and ground truth, not the live mind.
+    - Fixture files must not copy the private Persona state into Weksa.
