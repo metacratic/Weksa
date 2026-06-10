@@ -186,3 +186,25 @@ Reproduce the aggregate profile:
 ```powershell
 node scripts/profile-metame-finetune-dataset.mjs
 ```
+
+## Swarm Exploration
+
+Use the swarm explorer to chase high-loss moments instead of uniform random
+examples:
+
+```powershell
+node scripts/run-metame-swarm-explorer.mjs --workers 2 --runs-per-worker 4 --seed metame-scout
+node scripts/run-metame-swarm-explorer.mjs --real --workers 2 --runs-per-worker 4 --seed metame-scout
+```
+
+The default mode is a dry run. Real mode runs Codex workers:
+
+1. select one timeline candidate using underexplored strata, feature novelty,
+   prior loss, and seeded jitter
+2. run `workers * runs-per-worker` attempts
+3. run an optimizer pass over high-loss outputs
+4. run another `workers * runs-per-worker` attempts
+
+Artifacts are written under `.weksa-runs/metame-swarm/`, which is ignored by
+git because run packets may include projected Persona memory and raw Discord
+context.

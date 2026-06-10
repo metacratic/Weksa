@@ -1,0 +1,1103 @@
+#!/usr/bin/env node
+import { spawn } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const voidbotRoot = resolve("E:/Projects/VoidBot");
+const fixtureRoot = resolve(repoRoot, "examples/persona-lowering/metame-casual-pre2025");
+const defaultArchivePath = "E:/Projects/VoidBot/.voidbot/rag/messages.json";
+const defaultAuthorId = "113785782975594501";
+const defaultOutputRoot = ".weksa-runs/metame-swarm";
+const cultureProfilePaths = [
+  "data/cultural-ontology/cultures/dutch-american-diaspora.yaml",
+  "data/cultural-ontology/cultures/western-europe-maritime-childhood.yaml",
+  "data/cultural-ontology/cultures/portugal-resident-algarve-lisbon.yaml",
+  "data/cultural-ontology/cultures/texas-houston-us-adolescence.yaml",
+  "data/cultural-ontology/subcultures/online-game-dev-discord-pre2025.yaml",
+  "data/cultural-ontology/subcultures/gamecult-open-source-crypto-anarchist.yaml",
+];
+
+const options = parseArgs(process.argv.slice(2));
+const dryRun = !options.real;
+const workers = Number(options.workers ?? 2);
+const runsPerWorker = Number(options.runsPerWorker ?? 4);
+const seed = options.seed ?? new Date().toISOString().slice(0, 10);
+const runId = options.runId ?? `swarm-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+const outputRoot = resolve(repoRoot, options.outRoot ?? defaultOutputRoot);
+const runRoot = resolve(outputRoot, runId);
+const beforeMs = Date.parse(options.before ?? "2025-01-01T00:00:00Z");
+const authorId = options.authorId ?? defaultAuthorId;
+const archivePath = resolve(options.archive ?? defaultArchivePath);
+const maxCandidates = Number(options.maxCandidates ?? 240);
+const adjacencyMinutes = Number(options.adjacencyMinutes ?? 60);
+const candidateMessageId = options.messageId;
+
+if (!Number.isInteger(workers) || workers < 1) {
+  throw new Error("--workers must be a positive integer.");
+}
+if (!Number.isInteger(runsPerWorker) || runsPerWorker < 1) {
+  throw new Error("--runs-per-worker must be a positive integer.");
+}
+
+await mkdir(runRoot, { recursive: true });
+
+const archive = loadArchive(archivePath);
+const ledger = await loadPriorLedger(outputRoot);
+const candidates = buildCandidates(archive.messages, {
+  authorId,
+  beforeMs,
+  adjacencyMs: adjacencyMinutes * 60_000,
+});
+const candidate = candidateMessageId
+  ? mustFindCandidate(candidates, candidateMessageId)
+  : chooseCandidate(candidates, ledger, { seed, maxCandidates });
+
+const culturePack = await loadCulturePack(candidate.target.content);
+const baseMemorySurface = dryRun
+  ? renderDryBaseMemorySurface()
+  : await renderProjectedBaseMemorySurface(runRoot);
+const promptState = {
+  version: 1,
+  memoryNotes: [
+    "Treat the selected Discord moment as current and unresolved.",
+    "Persona produces interlingua intent only; Weksa owns final surface lowering.",
+    "The target utterance is hidden from generation and appears only in scoring.",
+  ],
+  loweringNotes: [
+    "Preserve Persona-produced social intent over generic assistant helpfulness.",
+    "Use prior context as evidence for selection, not as material to quote back unless explanation is the speech act.",
+    "When interlingua preserves a salient keyword or identity label, do not replace it with a new joke unless the culture stack asks for that.",
+  ],
+};
+
+await writeJson(resolve(runRoot, "candidate.json"), redactedCandidateRecord(candidate));
+await writeFile(resolve(runRoot, "conversation-before.md"), renderConversationBefore(candidate), "utf8");
+await writeFile(resolve(runRoot, "target.answer.txt"), `${candidate.target.content.trim()}\n`, "utf8");
+await writeJson(resolve(runRoot, "initial-prompt-state.json"), promptState);
+
+const phase1 = await runPhase({
+  phase: "phase1",
+  candidate,
+  promptState,
+  baseMemorySurface,
+  culturePack,
+  workers,
+  runsPerWorker,
+  dryRun,
+});
+
+const optimizedPromptState = dryRun
+  ? renderDryOptimization(promptState, phase1)
+  : await runOptimizationPass({ candidate, promptState, phaseSummary: phase1, culturePack });
+await writeJson(resolve(runRoot, "optimized-prompt-state.json"), optimizedPromptState);
+
+const phase2 = await runPhase({
+  phase: "phase2",
+  candidate,
+  promptState: optimizedPromptState,
+  baseMemorySurface,
+  culturePack,
+  workers,
+  runsPerWorker,
+  dryRun,
+});
+
+const summary = {
+  schema_version: "weksa.metame_swarm_explorer_run.v0",
+  run_id: runId,
+  mode: dryRun ? "dry_run" : "real",
+  seed,
+  workers,
+  runs_per_worker: runsPerWorker,
+  candidate: redactedCandidateRecord(candidate),
+  phase1: summarizePhase(phase1),
+  phase2: summarizePhase(phase2),
+  high_loss_signal: pickHighLoss([...phase1.runs, ...phase2.runs]),
+};
+await writeJson(resolve(runRoot, "summary.json"), summary);
+await appendLedger(outputRoot, summary);
+
+process.stdout.write(`${JSON.stringify({ ok: true, runRoot, summary }, null, 2)}\n`);
+
+async function runPhase(input) {
+  const phaseRoot = resolve(runRoot, input.phase);
+  await mkdir(phaseRoot, { recursive: true });
+  const jobs = [];
+  for (let worker = 0; worker < input.workers; worker += 1) {
+    for (let index = 0; index < input.runsPerWorker; index += 1) {
+      jobs.push({
+        worker,
+        attempt: index,
+        id: `${input.phase}-w${worker}-r${index}`,
+      });
+    }
+  }
+
+  const runs = await runPool(jobs, input.workers, async (job) => {
+    const attemptRoot = resolve(phaseRoot, job.id);
+    await mkdir(attemptRoot, { recursive: true });
+    return runAttempt({
+      ...input,
+      job,
+      attemptRoot,
+    });
+  });
+
+  const phase = {
+    phase: input.phase,
+    prompt_state: input.promptState,
+    runs,
+  };
+  await writeJson(resolve(phaseRoot, "summary.json"), phase);
+  return phase;
+}
+
+async function runAttempt(input) {
+  const memorySurface = renderMemorySurface(input.baseMemorySurface, input.candidate, input.promptState, input.job);
+  const conversationSurface = renderConversationSurface(input.candidate);
+  await writeFile(resolve(input.attemptRoot, "memory-surface.md"), memorySurface, "utf8");
+  await writeFile(resolve(input.attemptRoot, "conversation-surface.md"), conversationSurface, "utf8");
+
+  const assembledPrompt = input.dryRun
+    ? renderDryAssembledPrompt(memorySurface, conversationSurface)
+    : await assembleVoidBotPrompt({
+        outDir: input.attemptRoot,
+        memorySurfacePath: resolve(input.attemptRoot, "memory-surface.md"),
+        conversationSurfacePath: resolve(input.attemptRoot, "conversation-surface.md"),
+      });
+  await writeFile(resolve(input.attemptRoot, "voidbot-assembled-prompt.md"), assembledPrompt, "utf8");
+
+  const interlinguaRequest = renderPersonaInterlinguaRequest({
+    assembledPrompt,
+    candidate: input.candidate,
+    promptState: input.promptState,
+  });
+  await writeFile(resolve(input.attemptRoot, "persona-interlingua-request.md"), interlinguaRequest, "utf8");
+  const interlingua = input.dryRun
+    ? renderDryInterlingua(input.candidate)
+    : await runCodex(interlinguaRequest, {
+        job: `${input.job.id}:persona-interlingua`,
+        cwd: repoRoot,
+        logRoot: input.attemptRoot,
+      });
+  await writeFile(resolve(input.attemptRoot, "persona-interlingua.yaml"), `${interlingua.trim()}\n`, "utf8");
+
+  const loweringRequest = renderWeksaLoweringRequest({
+    memorySurface,
+    culturePack: input.culturePack,
+    interlingua,
+    promptState: input.promptState,
+    holdout: input.candidate.target.content,
+  });
+  await writeFile(resolve(input.attemptRoot, "weksa-lowering-request.md"), loweringRequest, "utf8");
+  const lowered = input.dryRun
+    ? renderDryLowering(input.candidate, input.job)
+    : await runCodex(loweringRequest, {
+        job: `${input.job.id}:weksa-lowering`,
+        cwd: repoRoot,
+        logRoot: input.attemptRoot,
+      });
+  await writeFile(resolve(input.attemptRoot, "weksa-lowered-output.yaml"), `${lowered.trim()}\n`, "utf8");
+
+  const spokenText = extractSpokenText(lowered);
+  const score = scoreText(spokenText, input.candidate.target.content);
+  const run = {
+    id: input.job.id,
+    worker: input.job.worker,
+    attempt: input.job.attempt,
+    spoken_text: spokenText,
+    target_text: input.candidate.target.content,
+    score,
+    loss: Number((1 - score.f1).toFixed(3)),
+  };
+  await writeJson(resolve(input.attemptRoot, "evaluation.json"), run);
+  return run;
+}
+
+async function runOptimizationPass({ candidate, promptState, phaseSummary, culturePack }) {
+  const optimizerRoot = resolve(runRoot, "optimizer");
+  await mkdir(optimizerRoot, { recursive: true });
+  const highLoss = pickHighLoss(phaseSummary.runs);
+  const request = [
+    "You are optimizing Weksa Persona-culture lowering prompts and temporary memory surfaces.",
+    "",
+    "Do not change canonical Persona state. Do not reveal or memorize the held-out target as an example to copy.",
+    "Use high-loss runs as signal about missing prompt/memory/culture salience.",
+    "Return JSON only with this shape:",
+    "{",
+    "  \"version\": 2,",
+    "  \"memoryNotes\": [\"...\"],",
+    "  \"loweringNotes\": [\"...\"],",
+    "  \"hypotheses\": [\"...\"],",
+    "  \"doNotDo\": [\"...\"]",
+    "}",
+    "",
+    "Candidate metadata:",
+    JSON.stringify(redactedCandidateRecord(candidate), null, 2),
+    "",
+    "Target answer is withheld from generation. For optimizer scoring only, normalized loss summary:",
+    JSON.stringify(highLoss, null, 2),
+    "",
+    "Current prompt state:",
+    JSON.stringify(promptState, null, 2),
+    "",
+    "Culture profile ids available:",
+    JSON.stringify(culturePack.profileIds, null, 2),
+  ].join("\n");
+  await writeFile(resolve(optimizerRoot, "optimizer-request.md"), request, "utf8");
+  const output = await runCodex(request, {
+    job: "optimizer",
+    cwd: repoRoot,
+    logRoot: optimizerRoot,
+  });
+  await writeFile(resolve(optimizerRoot, "optimizer-output.txt"), `${output.trim()}\n`, "utf8");
+  const parsed = extractJsonObject(output);
+  return normalizePromptState({
+    ...promptState,
+    ...parsed,
+    version: Number(parsed.version ?? 2),
+  });
+}
+
+function renderPersonaInterlinguaRequest({ assembledPrompt, candidate, promptState }) {
+  return [
+    "# Persona Interlingua Worker",
+    "",
+    "You are Metame for one private VoidBot Persona turn, but you are not writing the final Discord message.",
+    "Emit Weksa interlingua intent only. The answer-key utterance is hidden.",
+    "",
+    "Temporary optimization notes:",
+    ...promptState.memoryNotes.map((note) => `- ${note}`),
+    "",
+    "VoidBot assembled prompt:",
+    "```markdown",
+    assembledPrompt,
+    "```",
+    "",
+    "Current candidate moment, target withheld:",
+    "```yaml",
+    renderCandidateScene(candidate),
+    "```",
+    "",
+    "Return one YAML interlingua packet.",
+  ].join("\n");
+}
+
+function renderWeksaLoweringRequest({ memorySurface, culturePack, interlingua, promptState, holdout }) {
+  const redactedProfiles = culturePack.profiles.map((profile) => ({
+    ...profile,
+    text: redactHoldout(profile.text, holdout),
+  }));
+  return [
+    "# Weksa Lowering Worker",
+    "",
+    "Lower Persona-produced interlingua into one Discord utterance.",
+    "Do not copy from target history; the target utterance is not present in this prompt.",
+    "",
+    "Temporary optimization notes:",
+    ...promptState.loweringNotes.map((note) => `- ${note}`),
+    "",
+    "Projected Metame memory/context surface:",
+    "```markdown",
+    memorySurface,
+    "```",
+    "",
+    "Metame cultural stack reference:",
+    "```yaml",
+    culturePack.stack,
+    "```",
+    "",
+    "Referenced Weksa culture/subculture profiles:",
+    ...redactedProfiles.flatMap((profile) => [
+      "",
+      `# ${profile.path}`,
+      "```yaml",
+      profile.text,
+      "```",
+    ]),
+    "",
+    "Target-language surface overlay:",
+    "```yaml",
+    redactHoldout(culturePack.targetOverlay, holdout),
+    "```",
+    "",
+    "Persona-produced interlingua:",
+    "```yaml",
+    interlingua,
+    "```",
+    "",
+    "Return YAML with `spoken_text` and a trace.",
+  ].join("\n");
+}
+
+function buildCandidates(messages, { authorId, beforeMs, adjacencyMs }) {
+  const usable = messages
+    .filter((message) => !message.deletedAt)
+    .filter((message) => typeof message.content === "string" && message.content.trim().length > 0)
+    .filter((message) => message.metadata?.messageKind !== "bot_prompt")
+    .sort(compareByTimestamp);
+  const byChannel = new Map();
+  for (const message of usable) {
+    if (!byChannel.has(message.channelId)) {
+      byChannel.set(message.channelId, []);
+    }
+    byChannel.get(message.channelId).push(message);
+  }
+
+  const candidates = [];
+  for (const [channelId, channelMessages] of byChannel) {
+    for (let index = 0; index < channelMessages.length; index += 1) {
+      const target = channelMessages[index];
+      if (target.authorId !== authorId || timestampMs(target) >= beforeMs) {
+        continue;
+      }
+      const content = target.content.trim();
+      if (!isCandidateTarget(content)) {
+        continue;
+      }
+      const currentMs = timestampMs(target);
+      const before = channelMessages
+        .slice(Math.max(0, index - 10), index)
+        .filter((message) => currentMs - timestampMs(message) <= adjacencyMs);
+      if (before.length < 1) {
+        continue;
+      }
+      const after = channelMessages
+        .slice(index + 1, index + 5)
+        .filter((message) => timestampMs(message) - currentMs <= adjacencyMs);
+      candidates.push({
+        id: target.id,
+        target,
+        before,
+        after,
+        channelId,
+        channelName: target.metadata?.channelName ?? "",
+        year: yearOf(target.timestamp),
+        lengthClass: classifyLength(content.length),
+        features: detectFeatures(content, before, authorId),
+      });
+    }
+  }
+  return candidates;
+}
+
+function chooseCandidate(candidates, ledger, { seed, maxCandidates }) {
+  const rng = createRandom(seed);
+  const scored = candidates.map((candidate) => {
+    const stratum = candidateStratum(candidate);
+    const prior = ledger.strata[stratum] ?? { count: 0, avgLoss: 0.5 };
+    const featureNovelty = candidate.features.reduce((sum, feature) => {
+      const seen = ledger.features[feature] ?? 0;
+      return sum + 1 / Math.sqrt(seen + 1);
+    }, 0);
+    const underexplored = 1 / Math.sqrt(prior.count + 1);
+    const highLossPull = prior.avgLoss;
+    const jitter = rng() * 0.18;
+    const score = underexplored * 1.4 + featureNovelty * 0.45 + highLossPull * 0.9 + jitter;
+    return { candidate, score, stratum };
+  }).sort((left, right) => right.score - left.score);
+  const pool = scored.slice(0, Math.max(1, Math.min(maxCandidates, scored.length)));
+  const total = pool.reduce((sum, entry) => sum + entry.score, 0);
+  let pick = rng() * total;
+  for (const entry of pool) {
+    pick -= entry.score;
+    if (pick <= 0) {
+      return entry.candidate;
+    }
+  }
+  return pool[0].candidate;
+}
+
+function mustFindCandidate(candidates, messageId) {
+  const candidate = candidates.find((entry) => entry.id === messageId);
+  if (!candidate) {
+    throw new Error(`No eligible candidate found for message ${messageId}.`);
+  }
+  return candidate;
+}
+
+function renderConversationSurface(candidate) {
+  return [
+    "Read this as the current timeline moment. The target Metacrat utterance is withheld.",
+    "Messages are ordered oldest to newest.",
+    "",
+    `Channel: ${candidate.channelName || candidate.channelId}`,
+    `Target message id: ${candidate.target.id} (hidden)`,
+    "",
+    "Visible context before the hidden target:",
+    ...candidate.before.map(formatContextLine),
+  ].join("\n");
+}
+
+function renderMemorySurface(baseMemorySurface, candidate, promptState, job) {
+  return [
+    baseMemorySurface,
+    "",
+    "Temporary swarm exploration adjustment:",
+    `- Worker ${job.worker}, run ${job.attempt}.`,
+    `- Treat channel ${candidate.channelName || candidate.channelId} in ${candidate.year} as the live room.`,
+    `- The hidden target is a ${candidate.lengthClass} Metacrat message after the visible context.`,
+    `- Candidate features: ${candidate.features.join(", ") || "none"}.`,
+    ...promptState.memoryNotes.map((note) => `- ${note}`),
+  ].join("\n");
+}
+
+function renderCandidateScene(candidate) {
+  return [
+    `candidate_id: "${candidate.id}"`,
+    `channel: "${escapeYaml(candidate.channelName || candidate.channelId)}"`,
+    `year: ${candidate.year}`,
+    `length_class: ${candidate.lengthClass}`,
+    "features:",
+    ...candidate.features.map((feature) => `  - ${feature}`),
+    "visible_context_before:",
+    ...candidate.before.map((message) => `  - speaker: "${escapeYaml(message.authorName ?? message.authorId)}"\n    content: "${escapeYaml(message.content.trim())}"`),
+  ].join("\n");
+}
+
+function renderConversationBefore(candidate) {
+  return [
+    `# Candidate ${candidate.id}`,
+    "",
+    `Channel: ${candidate.channelName || candidate.channelId}`,
+    `Timestamp: ${candidate.target.timestamp}`,
+    "",
+    "## Before",
+    ...candidate.before.map(formatContextLine),
+    "",
+    "## Target",
+    "[withheld from workers; see target.answer.txt]",
+  ].join("\n");
+}
+
+async function assembleVoidBotPrompt({ outDir, memorySurfacePath, conversationSurfacePath }) {
+  const outPath = resolve(outDir, "assembled.md");
+  const args = [
+    "node_modules/tsx/dist/cli.mjs",
+    "scripts/run-repo-face-heartbeats.ts",
+    "--assemble-prompt",
+    "metame",
+    "--out",
+    outPath,
+    "--memory-surface",
+    memorySurfacePath,
+    "--conversation-surface",
+    conversationSurfacePath,
+  ];
+  const run = await runCommand(process.execPath, args, { cwd: voidbotRoot, timeoutMs: 240_000 });
+  if (run.code !== 0) {
+    throw new Error(`VoidBot prompt assembly failed:\n${run.stderr || run.stdout}`);
+  }
+  return readFile(outPath, "utf8");
+}
+
+async function renderProjectedBaseMemorySurface(outRoot) {
+  const temp = resolve(outRoot, "_base-projection");
+  await mkdir(temp, { recursive: true });
+  const outPath = resolve(temp, "assembled.md");
+  const args = [
+    "node_modules/tsx/dist/cli.mjs",
+    "scripts/run-repo-face-heartbeats.ts",
+    "--assemble-prompt",
+    "metame",
+    "--out",
+    outPath,
+  ];
+  const run = await runCommand(process.execPath, args, { cwd: voidbotRoot, timeoutMs: 240_000 });
+  if (run.code !== 0) {
+    throw new Error(`Base VoidBot prompt assembly failed:\n${run.stderr || run.stdout}`);
+  }
+  const prompt = await readFile(outPath, "utf8");
+  return extractBetween(prompt, "What you remember, feel, and want right now:", "Known human pronoun guidance:").trim();
+}
+
+function renderDryBaseMemorySurface() {
+  return [
+    "Dry-run projected Metame memory surface.",
+    "Metame carries public-history memory, social modeling, technical/game-dev salience, and casual Discord texture.",
+  ].join("\n");
+}
+
+function renderDryAssembledPrompt(memorySurface, conversationSurface) {
+  return [
+    "# Dry VoidBot Metame Prompt",
+    "",
+    "What you remember, feel, and want right now:",
+    memorySurface,
+    "",
+    "Recent conversation transcript:",
+    conversationSurface,
+  ].join("\n");
+}
+
+function renderDryInterlingua(candidate) {
+  return [
+    "interlingua_version: weksa.interlingua.v0",
+    `packet_id: metame-swarm-${candidate.id}`,
+    "kind: persona_discord_turn_intent",
+    "context:",
+    "  medium: Discord",
+    `  channel: "${escapeYaml(candidate.channelName || candidate.channelId)}"`,
+    `  target_message_id: "${candidate.id}"`,
+    "discourse:",
+    `  speech_act: ${guessSpeechAct(candidate)}`,
+    "  intent: respond to the visible room context in Metacrat's pre-2025 Discord register",
+    "constraints:",
+    "  lowering:",
+    "    target_profile: weksa.target_cultural_ontology.en-US.metacrat_casual_pre2025.v0",
+  ].join("\n");
+}
+
+function renderDryLowering(candidate, job) {
+  const variants = [
+    candidate.target.content,
+    candidate.target.content.replace(/\b(lol|lmao)\b/ig, "").replace(/\s+/g, " ").trim(),
+    "yeah that's probably the shape of it",
+    "honestly, that tracks",
+  ].filter(Boolean);
+  const chosen = variants[(job.worker + job.attempt) % variants.length];
+  return [
+    "schema_version: weksa.persona_culture_lowering_output.v0",
+    `candidate_id: "${candidate.id}"`,
+    `spoken_text: ${JSON.stringify(chosen)}`,
+    "trace:",
+    "  activated_affordances:",
+    "    - dry_run_swarm_variant",
+  ].join("\n");
+}
+
+function renderDryOptimization(promptState, phase) {
+  const worst = pickHighLoss(phase.runs).slice(0, 3);
+  return normalizePromptState({
+    version: promptState.version + 1,
+    memoryNotes: [
+      ...promptState.memoryNotes,
+      "Dry optimizer: preserve whether the target is reply-to-other or self-continuation.",
+    ],
+    loweringNotes: [
+      ...promptState.loweringNotes,
+      "Dry optimizer: keep output length class close to the hidden target metadata.",
+    ],
+    hypotheses: worst.map((run) => `High loss on ${run.id} suggests missing local register or length pressure.`),
+    doNotDo: [
+      "Do not copy answer-key text into culture profiles.",
+    ],
+  });
+}
+
+async function loadCulturePack(holdout) {
+  const stack = await readFile(resolve(fixtureRoot, "metame-cultural-stack.yaml"), "utf8");
+  const profiles = await Promise.all(cultureProfilePaths.map(async (path) => ({
+    path,
+    text: await readFile(resolve(repoRoot, path), "utf8"),
+  })));
+  const targetOverlay = await readFile(
+    resolve(repoRoot, "data/target-language-ontology/en-US-metacrat-casual-pre2025.yaml"),
+    "utf8",
+  );
+  return {
+    stack: redactHoldout(stack, holdout),
+    profiles,
+    targetOverlay,
+    profileIds: [
+      "weksa.target_cultural_ontology.en-US.metacrat_casual_pre2025.v0",
+      ...profiles.map((profile) => readProfileId(profile.text)).filter(Boolean),
+    ],
+  };
+}
+
+async function runCodex(prompt, { job, cwd, logRoot }) {
+  const args = [
+    "exec",
+    "-m",
+    process.env.WEKSA_SWARM_MODEL ?? process.env.WEKSA_GOLF_MODEL ?? "gpt-5.4",
+    "-c",
+    'approval_policy="never"',
+    "-c",
+    `model_reasoning_effort=${JSON.stringify(process.env.WEKSA_SWARM_REASONING ?? "low")}`,
+    "--json",
+    "--skip-git-repo-check",
+    "-s",
+    "read-only",
+    "-",
+  ];
+  const command = process.env.WEKSA_CODEX_EXECUTABLE ?? "C:\\Users\\Meta\\AppData\\Roaming\\npm\\codex.cmd";
+  const run = await runCommand(command, args, {
+    cwd,
+    input: prompt,
+    timeoutMs: Number(process.env.WEKSA_SWARM_TIMEOUT_MS ?? 240_000),
+  });
+  await writeFile(resolve(logRoot, `${sanitizeJob(job)}.stdout.jsonl`), run.stdout, "utf8");
+  await writeFile(resolve(logRoot, `${sanitizeJob(job)}.stderr.txt`), run.stderr, "utf8");
+  if (run.code !== 0) {
+    throw new Error(`Codex generation failed for ${job}:\n${run.stderr || run.stdout}`);
+  }
+  const text = extractLastCodexAgentMessage(run.stdout).trim();
+  if (!text) {
+    throw new Error(`Codex generation produced no final text for ${job}.`);
+  }
+  return text;
+}
+
+function runCommand(command, args, { cwd, input = "", timeoutMs = 120_000 }) {
+  return new Promise((resolveRun) => {
+    const isCmdShim = /\.cmd$/i.test(command) || /\.bat$/i.test(command);
+    const spawnCommand = isCmdShim ? (process.env.ComSpec ?? "cmd.exe") : command;
+    const spawnArgs = isCmdShim ? ["/d", "/s", "/c", command, ...args] : args;
+    const child = spawn(spawnCommand, spawnArgs, {
+      cwd,
+      env: process.env,
+      stdio: ["pipe", "pipe", "pipe"],
+      windowsHide: true,
+    });
+    let stdout = "";
+    let stderr = "";
+    const timer = setTimeout(() => child.kill(), timeoutMs);
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
+    child.stdout.on("data", (chunk) => { stdout += chunk; });
+    child.stderr.on("data", (chunk) => { stderr += chunk; });
+    child.on("error", (error) => {
+      clearTimeout(timer);
+      resolveRun({ code: -1, stdout, stderr: `${stderr}\n${error.message}` });
+    });
+    child.on("close", (code, signal) => {
+      clearTimeout(timer);
+      resolveRun({ code, signal, stdout, stderr });
+    });
+    child.stdin.end(input);
+  });
+}
+
+async function runPool(items, concurrency, fn) {
+  const results = new Array(items.length);
+  let next = 0;
+  const runners = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
+    while (next < items.length) {
+      const index = next;
+      next += 1;
+      results[index] = await fn(items[index]);
+    }
+  });
+  await Promise.all(runners);
+  return results;
+}
+
+function loadArchive(path) {
+  const store = JSON.parse(readFileSync(path, "utf8"));
+  if (!Array.isArray(store.messages)) {
+    throw new Error(`Archive has no messages array: ${path}`);
+  }
+  return store;
+}
+
+async function loadPriorLedger(outputRootPath) {
+  const empty = { strata: {}, features: {} };
+  if (!existsSync(outputRootPath)) {
+    return empty;
+  }
+  const entries = await readdir(outputRootPath, { withFileTypes: true }).catch(() => []);
+  const summaries = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory()) {
+      continue;
+    }
+    const summaryPath = resolve(outputRootPath, entry.name, "summary.json");
+    if (!existsSync(summaryPath)) {
+      continue;
+    }
+    try {
+      summaries.push(JSON.parse(await readFile(summaryPath, "utf8")));
+    } catch {
+      // Ignore damaged prior run summaries; exploration should not stop on stale smoke.
+    }
+  }
+  const strata = {};
+  const features = {};
+  for (const summary of summaries) {
+    const candidate = summary.candidate;
+    if (!candidate) {
+      continue;
+    }
+    const stratum = `${candidate.channel_name || candidate.channel_id}:${candidate.length_class}`;
+    const loss = Number(summary.high_loss_signal?.[0]?.loss ?? summary.phase2?.avg_loss ?? summary.phase1?.avg_loss ?? 0.5);
+    const current = strata[stratum] ?? { count: 0, totalLoss: 0, avgLoss: 0.5 };
+    current.count += 1;
+    current.totalLoss += loss;
+    current.avgLoss = current.totalLoss / current.count;
+    strata[stratum] = current;
+    for (const feature of candidate.features ?? []) {
+      features[feature] = (features[feature] ?? 0) + 1;
+    }
+  }
+  return { strata, features };
+}
+
+async function appendLedger(outputRootPath, summary) {
+  await mkdir(outputRootPath, { recursive: true });
+  const ledgerPath = resolve(outputRootPath, "ledger.jsonl");
+  const line = `${JSON.stringify({
+    run_id: summary.run_id,
+    candidate_id: summary.candidate.id,
+    channel_name: summary.candidate.channel_name,
+    length_class: summary.candidate.length_class,
+    phase1_avg_loss: summary.phase1.avg_loss,
+    phase2_avg_loss: summary.phase2.avg_loss,
+    high_loss: summary.high_loss_signal?.[0]?.loss,
+  })}\n`;
+  await writeFile(ledgerPath, line, { flag: "a" });
+}
+
+function summarizePhase(phase) {
+  const losses = phase.runs.map((run) => run.loss);
+  const f1s = phase.runs.map((run) => run.score.f1);
+  return {
+    run_count: phase.runs.length,
+    avg_loss: round(avg(losses)),
+    max_loss: round(Math.max(...losses)),
+    min_loss: round(Math.min(...losses)),
+    avg_f1: round(avg(f1s)),
+    best: [...phase.runs].sort((left, right) => right.score.f1 - left.score.f1).slice(0, 3).map(compactRun),
+    worst: [...phase.runs].sort((left, right) => right.loss - left.loss).slice(0, 3).map(compactRun),
+  };
+}
+
+function pickHighLoss(runs) {
+  return [...runs]
+    .sort((left, right) => right.loss - left.loss)
+    .slice(0, 5)
+    .map(compactRun);
+}
+
+function compactRun(run) {
+  return {
+    id: run.id,
+    worker: run.worker,
+    attempt: run.attempt,
+    spoken_text: run.spoken_text,
+    token_f1: run.score.f1,
+    loss: run.loss,
+  };
+}
+
+function redactedCandidateRecord(candidate) {
+  return {
+    id: candidate.id,
+    timestamp: candidate.target.timestamp,
+    channel_id: candidate.channelId,
+    channel_name: candidate.channelName,
+    year: candidate.year,
+    length: candidate.target.content.trim().length,
+    length_class: candidate.lengthClass,
+    features: candidate.features,
+    visible_context_count: candidate.before.length,
+    after_context_count: candidate.after.length,
+  };
+}
+
+function isCandidateTarget(content) {
+  const trimmed = content.trim();
+  return trimmed.length >= 3 &&
+    trimmed.length <= 220 &&
+    !/^https?:\/\//i.test(trimmed) &&
+    !trimmed.includes("\n```") &&
+    !/^>\s{0,3}\w/.test(trimmed) &&
+    !/^<@&?\d+>\s*$/i.test(trimmed);
+}
+
+function detectFeatures(content, before, targetAuthorId) {
+  const text = content.trim();
+  const lower = text.toLowerCase();
+  const features = [];
+  if (text.length <= 80) features.push("short");
+  else if (text.length <= 220) features.push("medium");
+  else features.push("long");
+  if (/\b(lol|lmao|haha|ahaha)\b/i.test(text)) features.push("laugh_marker");
+  if (/\b(oof|sorry|my bad)\b/i.test(text)) features.push("repair_or_recoil");
+  if (/\b(fuck|shit|damn|ass)\b/i.test(text)) features.push("profanity");
+  if (/[?!]$/.test(text)) features.push("terminal_energy");
+  if (/^(\w+[, ]+)?(yeah|yep|nah|nope|honestly|i mean|anyway|bro|dude)\b/i.test(text)) features.push("casual_opener");
+  if (/<@!?\d+>/.test(text)) features.push("mention");
+  if (/\b(engineer|design|game|sound|code|programming|open source|worker|business|non-profit)\b/i.test(text)) features.push("technical_or_political");
+  if (before.at(-1)?.authorId && before.at(-1).authorId !== targetAuthorId) features.push("reply_to_other");
+  else features.push("self_continuation");
+  if (lower.includes("discord")) features.push("discord_meta");
+  return [...new Set(features)];
+}
+
+function guessSpeechAct(candidate) {
+  const features = candidate.features;
+  if (features.includes("repair_or_recoil")) return "repair_or_playful_recoil";
+  if (features.includes("terminal_energy")) return "question_or_exclamation";
+  if (features.includes("technical_or_political")) return "technical_or_political_comment";
+  if (features.includes("laugh_marker")) return "banter";
+  return "contextual_reply";
+}
+
+function candidateStratum(candidate) {
+  return `${candidate.channelName || candidate.channelId}:${candidate.lengthClass}:${candidate.features.includes("reply_to_other") ? "reply" : "continuation"}`;
+}
+
+function extractSpokenText(text) {
+  const fenced = text.match(/```(?:yaml)?\s*([\s\S]*?)```/i);
+  const body = fenced ? fenced[1] : text;
+  const match = /^spoken_text:\s*(.+)$/m.exec(body);
+  if (!match) {
+    return body.trim().split(/\r?\n/).find((line) => line.trim().length > 0)?.trim() ?? "";
+  }
+  const value = match[1].trim();
+  if (value.startsWith("\"")) {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value.replace(/^"|"$/g, "");
+    }
+  }
+  return value;
+}
+
+function scoreText(generated, truth) {
+  const left = normalizeForScore(generated);
+  const right = normalizeForScore(truth);
+  const leftTokens = left.split(/\s+/).filter(Boolean);
+  const rightTokens = right.split(/\s+/).filter(Boolean);
+  const counts = new Map();
+  for (const token of rightTokens) {
+    counts.set(token, (counts.get(token) ?? 0) + 1);
+  }
+  let overlap = 0;
+  for (const token of leftTokens) {
+    const count = counts.get(token) ?? 0;
+    if (count > 0) {
+      overlap += 1;
+      counts.set(token, count - 1);
+    }
+  }
+  const precision = leftTokens.length ? overlap / leftTokens.length : 0;
+  const recall = rightTokens.length ? overlap / rightTokens.length : 0;
+  const f1 = precision + recall ? (2 * precision * recall) / (precision + recall) : 0;
+  return {
+    exact_normalized: left === right,
+    precision: round(precision),
+    recall: round(recall),
+    f1: round(f1),
+  };
+}
+
+function normalizeForScore(value) {
+  return value
+    .toLowerCase()
+    .replace(/<@!?\d+>/g, "<mention>")
+    .replace(/[*_`~.,!?;:'"()[\]{}]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractLastCodexAgentMessage(stdout) {
+  let last = "";
+  for (const line of stdout.split(/\r?\n/)) {
+    if (!line.trim()) {
+      continue;
+    }
+    try {
+      const event = JSON.parse(line);
+      const message = event?.msg?.message ?? event?.message ?? event?.text;
+      if (typeof message === "string" && message.trim()) {
+        last = message;
+      }
+      const itemText = event?.item?.text;
+      if (typeof itemText === "string" && itemText.trim()) {
+        last = itemText;
+      }
+      const content = event?.item?.content;
+      if (Array.isArray(content)) {
+        const text = content
+          .map((part) => typeof part?.text === "string" ? part.text : "")
+          .join("\n")
+          .trim();
+        if (text) {
+          last = text;
+        }
+      }
+    } catch {
+      if (line.trim()) {
+        last = line.trim();
+      }
+    }
+  }
+  return last;
+}
+
+function extractJsonObject(text) {
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const body = fenced ? fenced[1] : text;
+  const start = body.indexOf("{");
+  const end = body.lastIndexOf("}");
+  if (start < 0 || end <= start) {
+    throw new Error(`Optimizer did not return a JSON object:\n${text}`);
+  }
+  return JSON.parse(body.slice(start, end + 1));
+}
+
+function normalizePromptState(state) {
+  return {
+    version: Number(state.version ?? 1),
+    memoryNotes: normalizeStringArray(state.memoryNotes).slice(0, 12),
+    loweringNotes: normalizeStringArray(state.loweringNotes).slice(0, 16),
+    hypotheses: normalizeStringArray(state.hypotheses).slice(0, 12),
+    doNotDo: normalizeStringArray(state.doNotDo).slice(0, 12),
+  };
+}
+
+function normalizeStringArray(value) {
+  return Array.isArray(value)
+    ? value.map((entry) => String(entry).trim()).filter(Boolean)
+    : [];
+}
+
+function redactHoldout(text, holdout) {
+  let redacted = text;
+  const variants = [
+    holdout,
+    holdout.replace(/\*/g, ""),
+    normalizeForScore(holdout),
+  ].filter(Boolean);
+  for (const variant of variants) {
+    redacted = redacted.split(variant).join("[held-out target redacted]");
+  }
+  return redacted;
+}
+
+function readProfileId(text) {
+  const match = /^profile_id:\s*(.+)$/m.exec(text);
+  return match ? match[1].trim() : undefined;
+}
+
+function formatContextLine(message) {
+  return `[${message.timestamp}] ${message.authorName ?? message.authorId}: ${message.content.trim()}`;
+}
+
+function classifyLength(length) {
+  if (length <= 80) return "short";
+  if (length <= 220) return "medium";
+  return "long";
+}
+
+function timestampMs(message) {
+  return Date.parse(typeof message === "string" ? message : message.timestamp);
+}
+
+function yearOf(timestamp) {
+  const date = new Date(timestamp);
+  return Number.isFinite(date.getTime()) ? String(date.getUTCFullYear()) : "unknown";
+}
+
+function compareByTimestamp(left, right) {
+  return timestampMs(left) - timestampMs(right) || String(left.id ?? "").localeCompare(String(right.id ?? ""));
+}
+
+function createRandom(seedText) {
+  let value = 2166136261;
+  for (const character of seedText) {
+    value ^= character.charCodeAt(0);
+    value = Math.imul(value, 16777619);
+  }
+  return () => {
+    value += 0x6d2b79f5;
+    let next = Math.imul(value ^ (value >>> 15), 1 | value);
+    next ^= next + Math.imul(next ^ (next >>> 7), 61 | next);
+    return ((next ^ (next >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function escapeYaml(value) {
+  return String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\r?\n/g, "\\n");
+}
+
+function sanitizeJob(value) {
+  return value.replace(/[^A-Za-z0-9_.-]+/g, "_");
+}
+
+function extractBetween(text, startMarker, endMarker) {
+  const start = text.indexOf(startMarker);
+  const end = text.indexOf(endMarker, start + startMarker.length);
+  if (start < 0 || end < 0 || end <= start) {
+    throw new Error(`Could not extract section ${startMarker}`);
+  }
+  return text.slice(start + startMarker.length, end);
+}
+
+function avg(values) {
+  return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+}
+
+function round(value) {
+  return Number(value.toFixed(3));
+}
+
+async function writeJson(path, value) {
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+
+function parseArgs(args) {
+  const parsed = {};
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    switch (arg) {
+      case "--real":
+        parsed.real = true;
+        break;
+      case "--workers":
+        parsed.workers = args[index + 1];
+        index += 1;
+        break;
+      case "--runs-per-worker":
+        parsed.runsPerWorker = args[index + 1];
+        index += 1;
+        break;
+      case "--seed":
+        parsed.seed = args[index + 1];
+        index += 1;
+        break;
+      case "--run-id":
+        parsed.runId = args[index + 1];
+        index += 1;
+        break;
+      case "--out-root":
+        parsed.outRoot = args[index + 1];
+        index += 1;
+        break;
+      case "--archive":
+        parsed.archive = args[index + 1];
+        index += 1;
+        break;
+      case "--author-id":
+        parsed.authorId = args[index + 1];
+        index += 1;
+        break;
+      case "--before":
+        parsed.before = args[index + 1];
+        index += 1;
+        break;
+      case "--adjacency-minutes":
+        parsed.adjacencyMinutes = args[index + 1];
+        index += 1;
+        break;
+      case "--message-id":
+        parsed.messageId = args[index + 1];
+        index += 1;
+        break;
+      case "--max-candidates":
+        parsed.maxCandidates = args[index + 1];
+        index += 1;
+        break;
+      default:
+        throw new Error(`Unknown argument: ${arg}`);
+    }
+  }
+  return parsed;
+}
