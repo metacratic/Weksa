@@ -50,9 +50,10 @@ constraints:
     prosody/emphasis hints, and Ghostlight/Epiphany-shaped character-state
     vectors; AquaSynth owns the learned utterance embedding encoder, gradient
     descent, and synth-control decoding.
-  - MiMo V2.5 TTS is an external speech-provider target. Weksa may project an
-    accepted target-language realization plus delivery intent into MiMo style
-    controls, but MiMo owns only provider rendering and audio output.
+  - MiMo V2.5 TTS VoiceDesign is an external speech-provider target. Weksa may
+    project an accepted target-language realization plus the same speaker-local
+    delivery intent used to create it into a MiMo voice design request, but MiMo
+    owns only provider rendering and audio output.
   - Large offline text-embedding jobs should use `bge-m3` on the neighboring
     Ollama inference box documented in `E:\Projects\gamecult-ops` rather than
     running on the local Weksa workspace by default.
@@ -86,8 +87,8 @@ data_flow:
     - optionally encode the line as a learned expression vector for downstream
       synth control
     - optionally project an accepted realization into a provider-specific
-      speech request such as MiMo TTS without making the provider an owner of
-      source meaning
+      speech request such as MiMo VoiceDesign without making the provider an
+      owner of source meaning
     - apply alien ontology and cultural salience
     - select grammatical commitments
     - derive morphology and lexical families
@@ -279,10 +280,12 @@ landed_baseline:
     English text semantics may use `bge-m3`; IPA strings and alien phonetic
     material belong in PanPhon sequence evidence that AquaSynth compresses into
     the phonetic realization embedding.
-  - MiMo V2.5 TTS is accepted as a speech-provider target projection from
-    Weksa utterance realizations. MiMo requests speak the accepted target text
-    and receive Weksa-derived style guidance; backtranslations and provider
-    tags do not become source meaning.
+  - MiMo V2.5 TTS VoiceDesign is accepted as a speech-provider target
+    projection from Weksa utterance realizations. MiMo requests speak the
+    accepted target text and receive Weksa-derived voice/style guidance from the
+    same projected context that produced the utterance; backtranslations,
+    provider tags, and fresh raw Persona interpretation do not become source
+    meaning.
   - First Nibu interlingua-to-English lowering fixture.
   - First Nibu multilingual utterance lowering fixture at
     `examples/multilingual-lowering/nibu-proof-001/`, covering English,

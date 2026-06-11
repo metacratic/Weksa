@@ -2,22 +2,29 @@
 
 Version: `0.1-draft`
 
-MiMo is an expressive spoken-output target for Weksa interlingua lowering. It is
-not the source of meaning, language choice, character state, or delivery truth.
+MiMo VoiceDesign is an expressive spoken-output target for Weksa interlingua
+lowering. It is not the source of meaning, language choice, character state, or
+delivery truth.
 
 ```text
 interlingua packet
   -> projected speaker-local context
   -> target-language utterance realization
-  -> Weksa delivery intent
-  -> MiMo TTS request projection
+  -> Weksa delivery intent from the same projection
+  -> MiMo TTS VoiceDesign request projection
   -> rendered audio artifact
 ```
 
 MiMo sits beside written output and AquaSynth handoffs. Written realizations
 prove that meaning, register, and cultural ontology survived lowering.
-AquaSynth handoffs train or drive GameCult-owned synthesis. MiMo requests let an
-external provider speak a Weksa-authored utterance with expressive style control.
+AquaSynth handoffs train or drive GameCult-owned synthesis. MiMo VoiceDesign
+requests let an external provider speak a Weksa-authored utterance with a
+generated voice derived from the same projected Persona state, delivery controls,
+and trace that produced the utterance.
+
+The MiMo pass is choreography and provider flavor. It is not a second Persona
+projection pass and it does not re-interpret raw Persona state after the line has
+already been lowered.
 
 ## Authority
 
@@ -25,14 +32,15 @@ Weksa owns:
 
 - target-language spoken text selected from interlingua
 - target-language register, script, cultural ontology, and trace
-- speaker-local delivery pressure
+- projected speaker-local context used for the utterance
+- speaker-local delivery pressure derived during utterance lowering
 - provider-neutral prosody and emphasis intent
 - the MiMo request projection as an export artifact
 
 MiMo owns:
 
-- provider voice selection within the requested language and voice constraints
-- interpretation of MiMo natural-language style guidance
+- generation of a provider voice from the requested voice design description
+- interpretation of MiMo natural-language voice/style guidance
 - interpretation of MiMo inline audio/style tags
 - rendered audio bytes or streaming audio chunks
 
@@ -41,19 +49,22 @@ MiMo does not own:
 - source meaning
 - target-language cultural ontology
 - canonical speaker or Persona state
+- fresh Persona-state interpretation
 - Weksa pronunciation plans
 - AquaSynth learned embeddings, synth controls, or audio truth
 
 ## Projection Rule
 
-The MiMo request must be derived from an accepted target-language realization.
-It must not lower directly from English unless English is the selected target
-language for that realization.
+The MiMo request must be derived from an accepted target-language realization and
+the same projected speaker-local context that created it. It must not lower
+directly from English unless English is the selected target language for that
+realization. It must not read raw Persona state to discover a different voice
+after Weksa has already chosen the utterance.
 
-Natural-language style guidance belongs in the MiMo `user` message. The spoken
-target-language text belongs in the MiMo `assistant` message. Inline MiMo tags
-may appear in the assistant content only when they are derived from Weksa
-delivery intent or explicit target-language realization notes.
+Natural-language voice design and style guidance belongs in the MiMo `user`
+message. The spoken target-language text belongs in the MiMo `assistant`
+message. Inline MiMo tags may appear in the assistant content only when they are
+derived from Weksa delivery intent or explicit target-language realization notes.
 
 ## Request Shape
 
@@ -63,21 +74,23 @@ source_realization_ref:
 speaker_agent_id:
 provider:
   id: xiaomi-mimo
-  model: mimo-v2.5-tts
+  model: mimo-v2.5-tts-voicedesign
 target_language:
   code:
   locale:
   script:
   register:
-voice:
-  requested_voice:
-  fallback_voice:
-  selection_reason:
+voice_design:
+  description:
+  source_controls:
+  projected_context_refs:
+  forbidden_traits:
 messages:
-  user_style_instruction:
+  user_voice_design_instruction:
   assistant_spoken_content:
 audio:
   format:
+  optimize_text_preview:
   streaming:
 trace:
   source_fields:
@@ -88,8 +101,8 @@ trace:
 
 ## Delivery Mapping
 
-Weksa should map delivery pressure into provider-neutral labels before emitting
-MiMo-specific instructions:
+Weksa should map the utterance's existing projected Persona pressure into
+provider-neutral delivery labels before emitting MiMo-specific instructions:
 
 - pace, pause pressure, and urgency
 - pitch contour and pitch range
@@ -98,8 +111,20 @@ MiMo-specific instructions:
 - warmth, threat, tenderness, contempt, play, fatigue, secrecy, formality
 - span-level emphasis and pauses
 
-The MiMo projection may turn those labels into director-style guidance or inline
-tags, but the trace must preserve the Weksa-owned source controls.
+The MiMo projection may turn those labels into a concise VoiceDesign prompt or
+inline tags, but the trace must preserve the Weksa-owned source controls.
+
+Persona presentation details such as youth-coded, loli-coded, product-voice, or
+other culturally loaded styling may enter the MiMo request only when they are
+already present in the projected context or accepted delivery intent. They should
+be described as presentation/cultural coding and kept subordinate to agency,
+personality, affect, and scene purpose. They must not become sexualized content
+or a generic anime voice pasted over the line.
+
+For Weksa-authored dialogue, `optimize_text_preview` should normally be `false`
+or omitted. MiMo should speak the accepted target-language realization, not
+rewrite it. Text polishing is only allowed for explicit preview/prototyping
+passes that are marked non-authoritative.
 
 ## Language Rule
 
@@ -118,6 +143,6 @@ lowering:
 
 - emit the accepted English, `pt-BR`, or Japanese realization
 - derive a provider-neutral delivery intent from Nibu's projected context
-- project that into a MiMo `mimo-v2.5-tts` request
+- project that into a MiMo `mimo-v2.5-tts-voicedesign` request
 - verify that the request speaks the target text, not the backtranslation
 - verify that style guidance is traceable to Weksa delivery controls

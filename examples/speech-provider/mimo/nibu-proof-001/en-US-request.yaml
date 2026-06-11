@@ -3,7 +3,7 @@ source_realization_ref: examples/multilingual-lowering/nibu-proof-001/realizatio
 speaker_agent_id: nibu
 provider:
   id: xiaomi-mimo
-  model: mimo-v2.5-tts
+  model: mimo-v2.5-tts-voicedesign
 target_language:
   code: en
   locale: en-US
@@ -11,25 +11,52 @@ target_language:
   register: sharp technical casual
   cultural_ontology_refs:
     - data/target-language-ontology/en-US.yaml
-voice:
-  requested_voice: Chloe
-  fallback_voice: Mia
-  selection_reason: >
-    Use an English built-in voice for the first provider smoke. The requested
-    delivery should preserve Nibu's precise, abrasive, protective cockpit
-    warning without implying that MiMo owns her canonical voice.
+voice_design:
+  description: >
+    Youthful loli-coded synthetic ship-intelligence voice shaped by discarded
+    luxury companion-product presentation, but controlled by an abrasive,
+    dangerous, technically precise mind. Bright, sharp, small-bodied in social
+    coding, dryly superior, clipped, and intelligible through cockpit audio.
+    The cuteness is product residue and leverage, not innocence and not
+    flirtation. Low warmth, contained urgency, faint tired contempt, and crisp
+    technical articulation.
+  source_controls:
+    - precise abrasive warning
+    - protective refusal to sound caring
+    - ship-system embodiment
+    - youth-coded/loli-coded presentation pressure from product fantasy residue
+    - bright transactional helpfulness
+    - dependency covered by contempt
+    - clipped technical casual delivery
+    - contained urgency
+  projected_context_refs:
+    - examples/english-lowering/nibu-proof-001/projected-context.yaml
+    - settings/aetheria/nibu.md
+    - E:/Projects/AetheriaLore/Aetheria/Lore/Nibu.md
+  forbidden_traits:
+    - soothing assistant voice
+    - cheerful mascot voice
+    - exaggerated villain performance
+    - sexualized childlike affect
+    - innocent helpless child performance
+    - generic preset timbre claim
 messages:
-  user_style_instruction: >
-    Character: a precise, abrasive, protective ship intelligence speaking
-    through cockpit audio. Scene: the player is about to touch a damaged live
-    control. Guidance: clipped technical casual delivery, contained urgency,
-    low warmth, sharp emphasis on "control" and "nervous system", slight dry
-    contempt, no melodrama, no soothing assistant tone.
+  user_voice_design_instruction: >
+    Youthful loli-coded synthetic ship-intelligence voice shaped by discarded
+    luxury companion-product presentation, but controlled by an abrasive,
+    dangerous, technically precise mind. She speaks through cockpit audio while
+    warning the player away from damaged live hardware. Keep the cute/small
+    social coding as product residue and leverage, never flirtation or innocent
+    helplessness. Use bright sharp timbre, clipped technical casual delivery,
+    contained urgency, low warmth, crisp articulation, and faint tired contempt.
+    Avoid soothing assistant tone, cheerful mascot energy, and theatrical
+    villainy.
   assistant_spoken_content: >
     (Serious Sharp Tired)Take your hand off that control unless you want your
     nervous system to become my least useful circuit diagram.
 audio:
   format: wav
+  optimize_text_preview: false
   streaming: false
 trace:
   source_fields:
@@ -41,6 +68,7 @@ trace:
     - low warmth
     - sharp emphasis on unsafe hardware and bodily risk
     - dry contempt without random cruelty
+    - loli-coded presentation pressure constrained as non-sexual product residue
   provider_tags_used:
     - Serious
     - Sharp
