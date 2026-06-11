@@ -208,7 +208,26 @@ async function runPhase(input) {
 
 async function runAttempt(input) {
   const candidate = input.job.candidate;
-  const memorySurface = renderMemorySurface(input.baseMemorySurface, candidate, input.promptState, input.job);
+  const temporaryPersonaStateRequest = renderTemporaryPersonaStateRequest({ candidate, promptState: input.promptState });
+  await writeFile(resolve(input.attemptRoot, "temporary-persona-state-request.md"), temporaryPersonaStateRequest, "utf8");
+  const temporaryPersonaState = input.dryRun
+    ? renderDryTemporaryPersonaState(candidate)
+    : await runCodex(temporaryPersonaStateRequest, {
+        job: `${input.job.id}:persona-state-projector`,
+        cwd: repoRoot,
+        logRoot: input.attemptRoot,
+      });
+  const temporaryPersonaStatePath = resolve(input.attemptRoot, "temporary-persona-state.cc");
+  await writeFile(temporaryPersonaStatePath, `${temporaryPersonaState.trim()}\n`, "utf8");
+
+  const memorySurface = renderMemorySurface({
+    baseMemorySurface: input.baseMemorySurface,
+    candidate,
+    promptState: input.promptState,
+    job: input.job,
+    temporaryPersonaState,
+    temporaryPersonaStatePath,
+  });
   const conversationSurface = renderConversationSurface(candidate);
   await writeFile(resolve(input.attemptRoot, "memory-surface.md"), memorySurface, "utf8");
   await writeFile(resolve(input.attemptRoot, "conversation-surface.md"), conversationSurface, "utf8");
@@ -254,6 +273,8 @@ async function runAttempt(input) {
 
   const loweringRequest = renderWeksaLoweringRequest({
     memorySurface,
+    temporaryPersonaState,
+    temporaryPersonaStatePath,
     culturePack: input.culturePack,
     interlingua,
     promptState: input.promptState,
@@ -277,7 +298,9 @@ async function runAttempt(input) {
     worker: input.job.worker,
     attempt: input.job.attempt,
     candidate: redactedCandidateRecord(candidate),
+    temporary_persona_state: summarizeTemporaryPersonaState(temporaryPersonaState),
     spoken_text: spokenText,
+    generated_affect: inferTextAffect(spokenText),
     target_text: candidate.target.content,
     score,
     loss: Number((1 - score.f1).toFixed(3)),
@@ -307,7 +330,7 @@ async function runOptimizationPass({ candidates, promptState, phaseSummary, cult
     "      \"candidate_id\": \"...\",",
     "      \"run_id\": \"...\",",
     "      \"loss\": 0.0,",
-    "      \"failure_labels\": [\"stance_error\", \"referent_loss\"],",
+    "      \"failure_labels\": [\"stance_error\", \"referent_loss\", \"affect_mismatch\"],",
     "      \"evidence\": \"short source-grounded reason, no target wording\",",
     "      \"confidence\": 0.0",
     "    }",
@@ -328,6 +351,8 @@ async function runOptimizationPass({ candidates, promptState, phaseSummary, cult
     "",
     "Allowed prompt delta surfaces:",
     JSON.stringify(promptStateKeys, null, 2),
+    "",
+    "Failure labels should include affect mismatches when the generated line's affect does not match the temporary Persona `.cc` projection.",
     "",
     "Delta acceptance policy in the harness:",
     "- apply add-deltas only",
@@ -394,6 +419,50 @@ function renderFaceTurnRequest({ assembledPrompt, candidate, promptState }) {
   ].join("\n");
 }
 
+function renderTemporaryPersonaStateRequest({ candidate, promptState }) {
+  return [
+    "# Historical Persona-State Projector",
+    "",
+    "Project a temporary Persona state overlay for this held-out historical scenario.",
+    "Use only visible context and candidate metadata. The target utterance is hidden and must not be inferred as text.",
+    "This is not canonical Persona state. It is a run-scoped `.cc` projection for affect, stance, social pressure, and live-room posture.",
+    "",
+    "Return YAML-compatible CultCache text only with this shape:",
+    "schema_version: weksa.temporary_persona_state_projection.v0",
+    "authority: run_scoped_projection_not_canonical",
+    "persona:",
+    "  id: metame",
+    "  canonical_state_ref: E:/Projects/VoidBot/.voidbot/private/personas/metame/metame.cc",
+    "scenario:",
+    "  candidate_id:",
+    "  channel:",
+    "  year:",
+    "affect:",
+    "  valence: -1.0_to_1.0",
+    "  arousal: 0.0_to_1.0",
+    "  dominance: 0.0_to_1.0",
+    "  labels: []",
+    "  evidence: []",
+    "stance:",
+    "  posture:",
+    "  social_move_likelihoods: []",
+    "  register_pressure: []",
+    "lowering_pressure:",
+    "  should_sound:",
+    "  should_not_sound:",
+    "",
+    "Temporary optimizer notes:",
+    ...promptState.memoryNotes.map((note) => `- ${note}`),
+    ...promptState.interpreterNotes.map((note) => `- ${note}`),
+    ...promptState.loweringNotes.map((note) => `- ${note}`),
+    "",
+    "Visible scenario:",
+    "```yaml",
+    renderCandidateScene(candidate),
+    "```",
+  ].join("\n");
+}
+
 function renderInterpreterInterlinguaRequest({ faceTurn, candidate, promptState }) {
   return [
     "# Face Interpreter To Weksa Interlingua",
@@ -419,7 +488,7 @@ function renderInterpreterInterlinguaRequest({ faceTurn, candidate, promptState 
   ].join("\n");
 }
 
-function renderWeksaLoweringRequest({ memorySurface, culturePack, interlingua, promptState, holdouts }) {
+function renderWeksaLoweringRequest({ memorySurface, temporaryPersonaState, temporaryPersonaStatePath, culturePack, interlingua, promptState, holdouts }) {
   const redactedProfiles = culturePack.profiles.map((profile) => ({
     ...profile,
     text: redactHoldouts(profile.text, holdouts),
@@ -439,6 +508,12 @@ function renderWeksaLoweringRequest({ memorySurface, culturePack, interlingua, p
     "Projected Metame memory/context surface:",
     "```markdown",
     memorySurface,
+    "```",
+    "",
+    "Temporary Persona `.cc` projection mounted for this test:",
+    temporaryPersonaStatePath,
+    "```yaml",
+    redactHoldouts(temporaryPersonaState, holdouts),
     "```",
     "",
     "Metame cultural stack reference:",
@@ -597,7 +672,7 @@ function renderConversationSurface(candidate) {
   ].join("\n");
 }
 
-function renderMemorySurface(baseMemorySurface, candidate, promptState, job) {
+function renderMemorySurface({ baseMemorySurface, candidate, promptState, job, temporaryPersonaState, temporaryPersonaStatePath }) {
   return [
     baseMemorySurface,
     "",
@@ -606,6 +681,11 @@ function renderMemorySurface(baseMemorySurface, candidate, promptState, job) {
     `- Treat channel ${candidate.channelName || candidate.channelId} in ${candidate.year} as the live room.`,
     `- The hidden target is a ${candidate.lengthClass} Metacrat message after the visible context.`,
     `- Candidate features: ${candidate.features.join(", ") || "none"}.`,
+    `- Temporary Persona .cc projection path: ${temporaryPersonaStatePath}`,
+    "- Temporary Persona .cc projection body:",
+    "```yaml",
+    temporaryPersonaState.trim(),
+    "```",
     ...promptState.projectorNotes.map((note) => `- Projector pressure: ${note}`),
     ...promptState.personaStateAdjustmentNotes.map((note) => `- Temporary Persona-state adjustment: ${note}`),
     ...promptState.memoryNotes.map((note) => `- ${note}`),
@@ -697,6 +777,38 @@ function renderDryAssembledPrompt(memorySurface, conversationSurface) {
     "",
     "Recent conversation transcript:",
     conversationSurface,
+  ].join("\n");
+}
+
+function renderDryTemporaryPersonaState(candidate) {
+  const generated = inferTextAffect(candidate.before.map((message) => message.content).join("\n"));
+  return [
+    "schema_version: weksa.temporary_persona_state_projection.v0",
+    "authority: run_scoped_projection_not_canonical",
+    "persona:",
+    "  id: metame",
+    "  canonical_state_ref: E:/Projects/VoidBot/.voidbot/private/personas/metame/metame.cc",
+    "scenario:",
+    `  candidate_id: "${candidate.id}"`,
+    `  channel: "${escapeYaml(candidate.channelName || candidate.channelId)}"`,
+    `  year: ${candidate.year}`,
+    "affect:",
+    `  valence: ${generated.valence}`,
+    `  arousal: ${generated.arousal}`,
+    `  dominance: ${generated.dominance}`,
+    "  labels:",
+    ...generated.labels.map((label) => `    - ${label}`),
+    "  evidence:",
+    "    - dry_run_visible_context_proxy",
+    "stance:",
+    "  posture: embedded_participant",
+    "  social_move_likelihoods:",
+    `    - ${guessSpeechAct(candidate)}`,
+    "  register_pressure:",
+    "    - casual_discord",
+    "lowering_pressure:",
+    "  should_sound: situated, local, and persona-owned",
+    "  should_not_sound: generic assistant commentary",
   ].join("\n");
 }
 
@@ -984,6 +1096,8 @@ function compactRun(run) {
     agent: run.agent,
     attempt: run.attempt,
     spoken_text: run.spoken_text,
+    temporary_persona_state: run.temporary_persona_state,
+    generated_affect: run.generated_affect,
     token_f1: run.score.f1,
     loss: run.loss,
   };
@@ -1032,6 +1146,98 @@ function detectFeatures(content, before, targetAuthorId) {
   else features.push("self_continuation");
   if (lower.includes("discord")) features.push("discord_meta");
   return [...new Set(features)];
+}
+
+function inferTextAffect(content) {
+  const text = String(content ?? "");
+  const lower = text.toLowerCase();
+  const labels = [];
+  let valence = 0;
+  let arousal = 0.35;
+  let dominance = 0.5;
+  if (/\b(lol|lmao|haha|ahaha|hehe)\b/i.test(text)) {
+    labels.push("amused");
+    valence += 0.25;
+    arousal += 0.1;
+  }
+  if (/\b(fuck|shit|damn|ass|bullshit)\b/i.test(text)) {
+    labels.push("agitated_or_emphatic");
+    valence -= 0.1;
+    arousal += 0.25;
+    dominance += 0.1;
+  }
+  if (/\b(oof|sorry|my bad|aw)\b/i.test(text)) {
+    labels.push("softened_or_recoiling");
+    valence -= 0.05;
+    dominance -= 0.1;
+  }
+  if (/[!?]{1,}$/.test(text.trim()) || /[A-Z]{4,}/.test(text)) {
+    labels.push("high_energy");
+    arousal += 0.2;
+  }
+  if (/\b(no|nah|wrong|can't|wont|won't|don't|stop)\b/i.test(text)) {
+    labels.push("resistant");
+    valence -= 0.15;
+    dominance += 0.1;
+  }
+  if (/\b(yeah|yep|honestly|i mean)\b/i.test(lower)) {
+    labels.push("conversational");
+  }
+  return {
+    valence: round(clampNumber(valence, -1, 1)),
+    arousal: round(clampNumber(arousal, 0, 1)),
+    dominance: round(clampNumber(dominance, 0, 1)),
+    labels: labels.length ? [...new Set(labels)] : ["neutral_or_unmarked"],
+  };
+}
+
+function summarizeTemporaryPersonaState(text) {
+  const labels = [];
+  const evidence = [];
+  let inLabels = false;
+  let inEvidence = false;
+  for (const line of String(text ?? "").split(/\r?\n/)) {
+    if (/^\s*labels:\s*$/.test(line)) {
+      inLabels = true;
+      inEvidence = false;
+      continue;
+    }
+    if (/^\s*evidence:\s*$/.test(line)) {
+      inLabels = false;
+      inEvidence = true;
+      continue;
+    }
+    if (/^\S/.test(line)) {
+      inLabels = false;
+      inEvidence = false;
+    }
+    const item = /^\s*-\s*(.+?)\s*$/.exec(line)?.[1]?.replace(/^["']|["']$/g, "");
+    if (item && inLabels) {
+      labels.push(item);
+    }
+    if (item && inEvidence) {
+      evidence.push(item);
+    }
+  }
+  return {
+    schema_version: /^schema_version:\s*(.+)$/m.exec(text)?.[1]?.trim(),
+    authority: /^authority:\s*(.+)$/m.exec(text)?.[1]?.trim(),
+    affect: {
+      valence: numberFromField(text, "valence"),
+      arousal: numberFromField(text, "arousal"),
+      dominance: numberFromField(text, "dominance"),
+      labels: labels.slice(0, 8),
+      evidence: evidence.slice(0, 4),
+    },
+    stance: {
+      posture: /^  posture:\s*(.+)$/m.exec(text)?.[1]?.trim(),
+    },
+  };
+}
+
+function numberFromField(text, field) {
+  const value = new RegExp(`^\\s*${field}:\\s*(-?\\d+(?:\\.\\d+)?)`, "m").exec(text)?.[1];
+  return value === undefined ? undefined : Number(value);
 }
 
 function guessSpeechAct(candidate) {
