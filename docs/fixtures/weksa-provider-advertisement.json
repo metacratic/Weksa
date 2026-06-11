@@ -235,6 +235,30 @@
         "Persona canonical state",
         "rendered audio ownership"
       ]
+    },
+    {
+      "id": "weksa.command.speech_provider.mimo.voicedesign",
+      "owner": "Weksa",
+      "acceptedByFixture": true,
+      "compatibilityEndpoint": "POST /speech-provider/mimo/voicedesign",
+      "allowedInputs": [
+        "Persona/agent state file path",
+        "weksa.interlingua_packet.v0-compatible object",
+        "raw thought text for provisional interlingua decomposition",
+        "optional target-language and performance-register controls"
+      ],
+      "emits": [
+        "weksa.interlingua_packet.v0-daemon-provisional",
+        "weksa.mimo_tts_request.v0",
+        "weksa.mimo_voicedesign_receipt.v0",
+        "rendered audio artifact reference"
+      ],
+      "forbiddenTargets": [
+        "Persona canonical state mutation",
+        "source meaning rewrite after accepted interlingua",
+        "MiMo-owned text optimization",
+        "AquaSynth embedding truth"
+      ]
     }
   ],
   "loweringRules": [

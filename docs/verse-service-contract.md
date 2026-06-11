@@ -22,21 +22,40 @@ Outputs:
 - `weksa.pronunciation_plan.v0`
 - `weksa.utterance_handoff.v0`
 - `weksa.utterance_embedding_handoff.v0.1`
+- `weksa.mimo_tts_request.v0`
+- `weksa.mimo_voicedesign_receipt.v0`
 - Eve/CultUI surfaces for intent review, pronunciation inspection, and handoff
   traces
 
 Weksa owns conversational intent and utterance lowering. AquaSynth owns learned
 phonetic realization, packed utterance embeddings, synth-driver controls, Faust
-compilation, live instrument handles, and rendered audio.
+compilation, live instrument handles, and rendered audio. MiMo owns provider
+voice rendering and audio bytes; Weksa owns the VoiceDesign request projection
+and trace.
 
 ## CultCache Witnesses
 
 - `.weksa/provider-advertisement.cc`: read-only provider advertisement witness.
+- `.weksa/provider-advertisement-store.cc`: CultMesh/CultCache provider store
+  containing `gamecult.eve.provider_advertisement.v1`,
+  `gamecult.eve.interface_binding.v1`, and `gamecult.eve.surface_state.v1`
+  records for Odin discovery.
+- `.weksa/operator-state.cc`: daemon health, readiness, and runtime witness
+  index used by Idunn health checks and operator inspection.
+- `.weksa/eve-surfaces.cc`: current Weksa operator Eve surface witness.
+- `.weksa/cultmesh-publications.cc`: publication index naming current Weksa
+  witness surfaces and compatibility routes.
 - `.weksa/intent/{intentId}.cc`: conversational intent documents.
 - `.weksa/pronunciation/{utteranceId}.cc`: pronunciation plans and phonetic
   event sequences.
 - `.weksa/handoff/{utteranceId}.cc`: utterance handoffs and embedding handoff
   requests for AquaSynth.
+- `.weksa/speech-provider/mimo/{requestId}/interlingua.cc`: accepted or
+  provisionally decomposed interlingua used for a MiMo verbalization command.
+- `.weksa/speech-provider/mimo/{requestId}/mimo-request.cc`: Weksa-owned MiMo
+  VoiceDesign request projection.
+- `.weksa/speech-provider/mimo/{requestId}/receipt.cc`: provider response
+  receipt and artifact references.
 - `.weksa/traces/{traceId}.cc`: lowering traces naming the stage that made each
   decision.
 - `.weksa/projects/{projectId}.cc`: language-project and flavor-profile state.
@@ -46,6 +65,13 @@ compilation, live instrument handles, and rendered audio.
 Early exporters may publish fixtures before a daemon loop exists, but the
 witness names are not decorative. These are the state surfaces the daemon must
 commit when the runtime lands.
+
+The local Starfire daemon is launched by `scripts/start-weksa-daemon.ps1`,
+checked by `scripts/health-weksa-daemon.cmd`, and restarted by
+`scripts/restart-weksa-daemon.cmd`. Its compatibility HTTP surface listens on
+`http://127.0.0.1:8813` with `/health`, `/provider-advertisement`,
+`/operator-state`, `/eve/operator`, `/cultmesh/publications`, and
+`POST /speech-provider/mimo/voicedesign`.
 
 ## CultMesh Verses
 
@@ -59,8 +85,15 @@ commit when the runtime lands.
   evidence.
 - `weksa.utterance`: utterance handoff documents, packed embedding requests,
   and AquaSynth binding receipts.
+- `weksa.speech_provider`: provider-specific request projections and receipts
+  for external speech systems such as MiMo VoiceDesign.
 - `weksa.operator`: daemon status, queue pressure, schema drift, and witness
   freshness.
+
+Odin ingests the Starfire Weksa provider through
+`.weksa/provider-advertisement-store.cc`. Idunn tracks the daemon as target
+`weksa` in the `starfire-local` swarm profile and owns restart authority through
+the Weksa restart script.
 
 ## Eve Surfaces
 
@@ -82,6 +115,10 @@ commit when the runtime lands.
 - `utterance.lower`: lower accepted intent and agent state into pronunciation
   and utterance handoff documents.
 - `handoff.export`: emit typed `.cc` witnesses for AquaSynth consumption.
+- `speech_provider.mimo.voicedesign`: accept a Persona/agent state file plus
+  either a Weksa interlingua packet or raw thought text. Raw thought is first
+  decomposed into provisional interlingua, then lowered into a MiMo VoiceDesign
+  request and rendered through MiMo.
 - `provider.advertise`: publish `gamecult.eve.provider_advertisement.v1`.
 
 ## Forbidden Writers
@@ -92,3 +129,5 @@ commit when the runtime lands.
 - Fixture emitters cannot become an alternate runtime truth.
 - Agent transcript memory cannot silently override typed Persona or intent
   documents.
+- MiMo cannot rewrite accepted spoken text or become a second Persona-state
+  interpreter.
