@@ -2,7 +2,7 @@
   "schema": "gamecult.eve.provider_advertisement.v1",
   "providerId": "weksa.intent.service",
   "title": "Weksa Intent Service",
-  "description": "Weksa converts writing, interlingua, and agent state into typed conversational intent, pronunciation plans, and utterance handoff documents for AquaSynth and other consumers.",
+  "description": "Weksa converts writing, interlingua, and agent state into typed conversational intent, target-language realizations, pronunciation plans, speech-provider requests, and utterance handoff documents for AquaSynth and other consumers.",
   "mode": "fixture-read-only",
   "serviceVerse": {
     "id": "verse.weksa.service.v1",
@@ -12,6 +12,7 @@
       "typed conversational intent",
       "pronunciation plans",
       "utterance handoff documents",
+      "speech-provider request projections",
       "lowering traces",
       "language-project and flavor-profile state"
     ],
@@ -19,6 +20,7 @@
       "AquaSynth learned embeddings",
       "Faust compilation",
       "rendered audio",
+      "MiMo provider audio",
       "Persona canonical state"
     ]
   },
@@ -49,6 +51,15 @@
       "schemas": [
         "weksa.utterance_handoff.v0",
         "weksa.utterance_embedding_handoff.v0.1"
+      ]
+    },
+    {
+      "id": "weksa.speech_provider",
+      "kind": "speech_provider",
+      "cultMeshKey": "weksa.speech-provider/requests",
+      "authority": "Weksa speech-provider request projection",
+      "schemas": [
+        "weksa.mimo_tts_request.v0"
       ]
     },
     {
@@ -97,6 +108,14 @@
         "weksa.utterance_embedding_handoff.v0.1"
       ],
       "durableShape": ".weksa/handoff/{utteranceId}.cc"
+    },
+    {
+      "family": "speech_provider",
+      "namespace": "weksa.speech_provider.*",
+      "witnesses": [
+        "weksa.mimo_tts_request.v0"
+      ],
+      "durableShape": ".weksa/speech-provider/{requestId}.cc"
     },
     {
       "family": "trace",
@@ -198,11 +217,31 @@
         "audio rendering",
         "AquaSynth synth driver truth"
       ]
+    },
+    {
+      "id": "weksa.command.speech_provider.project",
+      "owner": "Weksa",
+      "acceptedByFixture": false,
+      "allowedInputs": [
+        "accepted target-language realization",
+        "provider-neutral delivery intent",
+        "speech provider profile"
+      ],
+      "emits": [
+        "weksa.mimo_tts_request.v0"
+      ],
+      "forbiddenTargets": [
+        "source interlingua truth",
+        "Persona canonical state",
+        "rendered audio ownership"
+      ]
     }
   ],
   "loweringRules": [
     "Weksa owns conversational intent and utterance lowering.",
+    "Speech-provider requests are target projections from accepted realizations, not source meaning.",
     "AquaSynth owns learned embeddings, synth controls, Faust compilation, and audio output.",
+    "MiMo owns provider rendering and audio output, not Weksa delivery truth.",
     "Eve surfaces submit commands and inspect witnesses; they do not own intent truth.",
     "Fixture exports are discovery metadata until the daemon loop commits typed witnesses."
   ]

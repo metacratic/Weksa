@@ -11,7 +11,8 @@ CultCache/CultMesh/Eve authority map.
 Build a procedural alien-language engine whose outputs are grounded in
 worldview, semantics, grammar, phonology, morphology, and history. As a daemon,
 Weksa also turns writing plus agent state into typed conversational intent, then
-lowers that intent into pronunciation and utterance handoff documents.
+lowers that intent into written realizations, pronunciation plans, speech-provider
+requests, and utterance handoff documents.
 
 ## Current Mechanism
 
@@ -33,6 +34,7 @@ through its ontology.
 - Diachrony owns plausible irregularity.
 - Renderer owns output, not interpretation.
 - Weksa owns conversational intent and utterance lowering.
+- External speech providers own rendered audio, not meaning or delivery truth.
 - AquaSynth owns learned utterance embeddings, synth controls, Faust
   compilation, and audio output.
 
@@ -41,8 +43,10 @@ through its ontology.
 Future implementation should turn the pipeline in `state/map.yaml` into a small,
 inspectable daemon. The first executable slice should validate a tiny
 interlingua packet, read a tiny language project definition, render glossed
-output, lower an accepted intent into a pronunciation/utterance handoff, and
-produce a trace explaining which stage made each decision.
+output, lower an accepted intent into target-language realizations, optionally
+project the accepted realization into a speech-provider request or
+pronunciation/utterance handoff, and produce a trace explaining which stage made
+each decision.
 
 Runtime should be fast and deterministic. Model-assisted English decomposition
 belongs in authoring tools or offline import flows, not in the required hot path.

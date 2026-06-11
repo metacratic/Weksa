@@ -1,7 +1,8 @@
 # Utterance Lowering Packet Contract
 
 This is the human-facing schema receipt for lowering one Weksa interlingua
-packet into one or more target-language utterance realizations.
+packet into one or more target-language utterance realizations and optional
+downstream target projections.
 
 Executable schema code does not exist yet. When it does, it must reconcile with
 this document and
@@ -30,6 +31,9 @@ It combines:
 - `projected_context_ref`: source reference for the consumed projection.
 - `lowering_controls`: constraints shared by all target lowerers.
 - `realizations`: non-empty list of target-language outputs.
+- `target_projections`: optional downstream projections derived from accepted
+  realizations, such as AquaSynth utterance embedding handoffs or MiMo TTS
+  requests.
 
 ## Target Language
 
@@ -88,3 +92,8 @@ Trace should identify:
 This packet may feed pronunciation planning or AquaSynth handoff work later, but
 it does not contain phoneme-parity, vocal-tract, reference-synth, or realtime
 voice artifacts.
+
+MiMo TTS requests are allowed as derived target projections. They must reference
+an accepted realization, speak that realization's target-language text, and keep
+provider-native style tags out of source meaning. MiMo owns rendered audio;
+Weksa owns the delivery intent and trace used to create the request.

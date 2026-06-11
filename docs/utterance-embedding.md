@@ -3,7 +3,8 @@
 Version: `0.1`
 
 The utterance embedding is the compact learned handoff from Weksa-authored line
-intent to AquaSynth voice control.
+intent to AquaSynth voice control. It is one speech target projection among
+others, not the only way Weksa-authored utterances can become sound.
 
 ```text
 interlingua packet
@@ -43,6 +44,11 @@ AquaSynth owns:
 
 The point is one learned speech handoff, not two little neural courthouses
 arguing about who gets to wear the robe.
+
+External providers such as MiMo may consume a different Weksa target projection:
+accepted target-language `spoken_text` plus provider-neutral delivery intent
+lowered into provider-specific style controls. That path does not replace this
+AquaSynth contract and must not mutate AquaSynth-owned embedding fields.
 
 ## Packet Contract
 

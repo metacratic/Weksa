@@ -12,9 +12,10 @@ objective:
     Create a durable workspace where Weksa can develop from a persistent map
     before runtime architecture decisions are made.
   current: >
-    Emit concrete v0.1 utterance handoff artifacts for AquaSynth's first
-    speech-training curriculum while keeping Weksa's ownership limited to
-    inspected inputs.
+    Treat written output, AquaSynth utterance embeddings, and MiMo expressive
+    speech requests as sibling target projections from accepted interlingua
+    lowerings while keeping Weksa's ownership limited to inspected intent,
+    delivery controls, and trace.
 
 constraints:
   - Runtime implementation language is undecided.
@@ -49,6 +50,9 @@ constraints:
     prosody/emphasis hints, and Ghostlight/Epiphany-shaped character-state
     vectors; AquaSynth owns the learned utterance embedding encoder, gradient
     descent, and synth-control decoding.
+  - MiMo V2.5 TTS is an external speech-provider target. Weksa may project an
+    accepted target-language realization plus delivery intent into MiMo style
+    controls, but MiMo owns only provider rendering and audio output.
   - Large offline text-embedding jobs should use `bge-m3` on the neighboring
     Ollama inference box documented in `E:\Projects\gamecult-ops` rather than
     running on the local Weksa workspace by default.
@@ -81,6 +85,9 @@ data_flow:
       owns the target pronunciation layer
     - optionally encode the line as a learned expression vector for downstream
       synth control
+    - optionally project an accepted realization into a provider-specific
+      speech request such as MiMo TTS without making the provider an owner of
+      source meaning
     - apply alien ontology and cultural salience
     - select grammatical commitments
     - derive morphology and lexical families
@@ -272,6 +279,10 @@ landed_baseline:
     English text semantics may use `bge-m3`; IPA strings and alien phonetic
     material belong in PanPhon sequence evidence that AquaSynth compresses into
     the phonetic realization embedding.
+  - MiMo V2.5 TTS is accepted as a speech-provider target projection from
+    Weksa utterance realizations. MiMo requests speak the accepted target text
+    and receive Weksa-derived style guidance; backtranslations and provider
+    tags do not become source meaning.
   - First Nibu interlingua-to-English lowering fixture.
   - First Nibu multilingual utterance lowering fixture at
     `examples/multilingual-lowering/nibu-proof-001/`, covering English,

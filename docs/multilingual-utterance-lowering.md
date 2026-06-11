@@ -3,13 +3,15 @@
 Version: `0.1-draft`
 
 Weksa can lower one structured utterance intent into multiple human-language
-realizations without making English the hidden source of truth.
+realizations and spoken-provider requests without making English the hidden
+source of truth.
 
 ```text
 interlingua packet
   -> projected speaker-local context
   -> utterance lowering request
   -> target-language realization packets
+  -> optional speech-provider request projections
 ```
 
 The first targets are English, Brazilian Portuguese (`pt-BR`), and Japanese
@@ -53,7 +55,7 @@ The utterance lowerer does not own:
 - new facts
 - raw agent-state internals
 - target-language alien forms
-- speech synthesis
+- rendered audio
 - phoneme parity or synth-control truth
 
 The target-language cultural ontology profile owns:
@@ -170,6 +172,21 @@ targets must not be lowered from them.
 Trace should name the cultural ontology axes that shaped the line, especially
 where the target language requires a social or register choice the source packet
 does not spell out.
+
+## Speech Provider Targets
+
+Speech providers are lowering targets for accepted realizations, not alternate
+meaning sources. A provider request must consume the target-language
+`spoken_text` that Weksa already accepted and must carry a trace back to the
+interlingua packet, projected speaker context, and target-language profile.
+
+MiMo V2.5 TTS is the first external provider target. Its natural-language style
+instruction is a projection of Weksa delivery intent, and its assistant content
+is the selected target-language spoken text. See [MiMo TTS Lowering](./mimo-tts-lowering.md).
+
+AquaSynth remains the GameCult-owned synthesis path for learned utterance
+embeddings and synth-control work. MiMo and AquaSynth are sibling target
+projections from Weksa-authored utterances, not owners of Weksa meaning.
 
 ## First Proof
 
