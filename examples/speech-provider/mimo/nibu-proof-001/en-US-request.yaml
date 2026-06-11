@@ -11,6 +11,10 @@ target_language:
   register: sharp technical casual
   cultural_ontology_refs:
     - data/target-language-ontology/en-US.yaml
+performance_register:
+  label: anime visual-novel heroine warning
+  medium: anime / visual novel / game cockpit voiceover
+  delivery_archetype: youthful abrasive sci-fi heroine protecting the player badly
 voice_design:
   description: >
     Bright young anime heroine voice with loli-coded companion-product
@@ -31,7 +35,7 @@ voice_design:
     - dependency covered by contempt
     - anime protagonist delivery
     - sharp visual-novel heroine timing
-    - clipped technical casual delivery
+    - technical precision inside anime performance
     - contained urgency
   projected_context_refs:
     - examples/english-lowering/nibu-proof-001/projected-context.yaml
@@ -53,9 +57,11 @@ messages:
     from damaged live hardware. Keep the cute/small social coding as product
     residue and leverage, never flirtation or innocent helplessness. Use a
     higher youthful timbre, crisp anime-style emotional attack, clipped
-    technical casual delivery, contained urgency, low warmth, sharp articulation,
-    and faint tired contempt. Avoid realistic adult assistant tone, soothing
-    customer-service voice, cheerful mascot energy, and theatrical villainy.
+    visual-novel timing, contained urgency, low warmth, sharp articulation, and
+    faint tired contempt. Let the technical precision live inside the anime
+    performance; do not turn it into a dry technical-assistant delivery. Avoid
+    realistic adult assistant tone, soothing customer-service voice, cheerful
+    mascot energy, and theatrical villainy.
   assistant_spoken_content: >
     (Serious Sharp Tired)Take your hand off that control unless you want your
     nervous system to become my least useful circuit diagram.
@@ -68,7 +74,8 @@ trace:
     - realizations[realization_id=nibu-proof-001-en].outputs.spoken_text
     - realizations[realization_id=nibu-proof-001-en].outputs.trace.projected_context_used
   delivery_controls_used:
-    - clipped technical casual delivery
+    - anime visual-novel heroine warning delivery
+    - technical precision without technical-assistant delivery
     - contained urgency
     - low warmth
     - sharp emphasis on unsafe hardware and bodily risk

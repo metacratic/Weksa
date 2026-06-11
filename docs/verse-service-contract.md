@@ -32,6 +32,15 @@ compilation, live instrument handles, and rendered audio.
 ## CultCache Witnesses
 
 - `.weksa/provider-advertisement.cc`: read-only provider advertisement witness.
+- `.weksa/provider-advertisement-store.cc`: CultMesh/CultCache provider store
+  containing `gamecult.eve.provider_advertisement.v1`,
+  `gamecult.eve.interface_binding.v1`, and `gamecult.eve.surface_state.v1`
+  records for Odin discovery.
+- `.weksa/operator-state.cc`: daemon health, readiness, and runtime witness
+  index used by Idunn health checks and operator inspection.
+- `.weksa/eve-surfaces.cc`: current Weksa operator Eve surface witness.
+- `.weksa/cultmesh-publications.cc`: publication index naming current Weksa
+  witness surfaces and compatibility routes.
 - `.weksa/intent/{intentId}.cc`: conversational intent documents.
 - `.weksa/pronunciation/{utteranceId}.cc`: pronunciation plans and phonetic
   event sequences.
@@ -47,6 +56,12 @@ Early exporters may publish fixtures before a daemon loop exists, but the
 witness names are not decorative. These are the state surfaces the daemon must
 commit when the runtime lands.
 
+The local Starfire daemon is launched by `scripts/start-weksa-daemon.ps1`,
+checked by `scripts/health-weksa-daemon.cmd`, and restarted by
+`scripts/restart-weksa-daemon.cmd`. Its compatibility HTTP surface listens on
+`http://127.0.0.1:8813` with `/health`, `/provider-advertisement`,
+`/operator-state`, `/eve/operator`, and `/cultmesh/publications`.
+
 ## CultMesh Verses
 
 - `weksa.service`: service identity, schema catalog, version, and health.
@@ -61,6 +76,11 @@ commit when the runtime lands.
   and AquaSynth binding receipts.
 - `weksa.operator`: daemon status, queue pressure, schema drift, and witness
   freshness.
+
+Odin ingests the Starfire Weksa provider through
+`.weksa/provider-advertisement-store.cc`. Idunn tracks the daemon as target
+`weksa` in the `starfire-local` swarm profile and owns restart authority through
+the Weksa restart script.
 
 ## Eve Surfaces
 

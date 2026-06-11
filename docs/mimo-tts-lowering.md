@@ -80,6 +80,10 @@ target_language:
   locale:
   script:
   register:
+performance_register:
+  label:
+  medium:
+  delivery_archetype:
 voice_design:
   description:
   source_controls:
@@ -100,6 +104,12 @@ trace:
 ```
 
 ## Delivery Mapping
+
+`target_language.register` is the linguistic/social register of the accepted
+realization. It is not a provider style knob. For MiMo, Weksa should derive an
+explicit `performance_register` from the same projection so speech choreography
+can say "anime visual-novel heroine warning" without pretending English itself
+has that register.
 
 Weksa should map the utterance's existing projected Persona pressure into
 provider-neutral delivery labels before emitting MiMo-specific instructions:

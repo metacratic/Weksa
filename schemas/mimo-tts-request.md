@@ -17,6 +17,8 @@ an AquaSynth handoff.
   `mimo-v2.5-tts-voicedesign`.
 - `target_language`: code, locale, script, register, and profile refs copied or
   referenced from the accepted realization.
+- `performance_register`: provider-facing performance label, medium, and
+  delivery archetype derived from the same projected context.
 - `voice_design`: voice description, source controls, projected context refs,
   and forbidden traits.
 - `messages.user_voice_design_instruction`: MiMo natural-language voice design
@@ -41,6 +43,12 @@ The request should not perform a fresh raw Persona-state interpretation. It
 should reference the projected speaker context and delivery controls already
 used by utterance lowering, then translate those into MiMo's voice design and
 style-control surface.
+
+`target_language.register` should not be treated as a MiMo style instruction.
+It may say `technical`, `casual`, `plain`, or another linguistic register while
+`performance_register` carries the spoken medium, such as anime protagonist,
+visual-novel heroine, radio drama villain, emergency cockpit warning, or other
+reviewed delivery archetypes.
 
 For authoritative Weksa output, text-preview optimization should normally be
 disabled or omitted. If enabled for exploration, the result must be marked as a
