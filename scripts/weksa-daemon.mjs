@@ -526,7 +526,7 @@ function extractPersonaStrings(bytes) {
   }
   if (current.length >= 8) strings.push(current);
   return strings
-    .filter((text) => /voice|style|presentation|affect|persona|ship|companion|anime|loli|waifu|sharp|abrasive|technical|bright|cute|hostile|cruel|contempt|protect|dependency|leverage/i.test(text))
+    .filter((text) => /voice|style|presentation|affect|persona|pronoun|she\/her|feminine|woman|female|ship|companion|anime|loli|waifu|sharp|abrasive|technical|bright|cute|hostile|cruel|contempt|protect|dependency|leverage/i.test(text))
     .slice(0, 24);
 }
 
@@ -537,6 +537,7 @@ function derivePersonaDeliveryHints(strings, personaId) {
     if (pattern.test(joined) && !hints.includes(hint)) hints.push(hint);
   };
   addIfSeen(/loli|waifu|companion-shaped|companion product|companion shell/, "youth-coded/loli-coded companion-product presentation as non-sexual product residue");
+  addIfSeen(/she\/her|pronoun guidance|feminine|female|woman/, "explicitly feminine she/her voice; do not default masculine");
   addIfSeen(/anime|visual novel/, "anime / visual-novel heroine performance register");
   addIfSeen(/ship mind|ship ai|ship-self|embodied ship|cockpit/, "embodied ship intelligence speaking through ship audio");
   addIfSeen(/abrasive|cutting|bite|cruel|sadistic/, "abrasive, cutting delivery with aim rather than random cruelty");
