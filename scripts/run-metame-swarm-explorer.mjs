@@ -19,6 +19,17 @@ const cultureProfilePaths = [
   "data/cultural-ontology/subcultures/online-game-dev-discord-pre2025.yaml",
   "data/cultural-ontology/subcultures/gamecult-open-source-crypto-anarchist.yaml",
 ];
+const promptStateKeys = [
+  "projectorNotes",
+  "memoryNotes",
+  "faceNotes",
+  "interpreterNotes",
+  "loweringNotes",
+  "cultureNotes",
+  "personaStateAdjustmentNotes",
+  "hypotheses",
+  "doNotDo",
+];
 
 const options = parseArgs(process.argv.slice(2));
 const dryRun = !options.real;
@@ -119,9 +130,12 @@ const phase1 = await runPhase({
   dryRun,
 });
 
-const optimizedPromptState = dryRun
+const optimization = dryRun
   ? renderDryOptimization(promptState, phase1)
   : await runOptimizationPass({ candidates: selectedCandidates, promptState, phaseSummary: phase1, culturePack });
+const optimizedPromptState = optimization.promptState;
+await writeJson(resolve(runRoot, "optimizer-contract.json"), optimization.contract);
+await writeJson(resolve(runRoot, "applied-prompt-deltas.json"), optimization.appliedDeltas);
 await writeJson(resolve(runRoot, "optimized-prompt-state.json"), optimizedPromptState);
 
 const phase2 = await runPhase({
@@ -281,19 +295,45 @@ async function runOptimizationPass({ candidates, promptState, phaseSummary, cult
     "",
     "Do not change canonical Persona state. Do not reveal or memorize the held-out target as an example to copy.",
     "Use high-loss runs as signal about missing prompt/memory/culture salience.",
+    "Your authority is diagnostic and incremental. Do not replace the whole prompt state.",
+    "Emit candidate-scoped failure diagnoses and weighted prompt deltas.",
+    "A global prompt delta should have repeated evidence across candidates unless confidence is extremely high.",
+    "Prefer no delta over laundering one weird held-out moment into policy.",
     "Return JSON only with this shape:",
     "{",
-    "  \"version\": 2,",
-    "  \"projectorNotes\": [\"...\"],",
-    "  \"memoryNotes\": [\"...\"],",
-    "  \"faceNotes\": [\"...\"],",
-    "  \"interpreterNotes\": [\"...\"],",
-    "  \"loweringNotes\": [\"...\"],",
-    "  \"cultureNotes\": [\"...\"],",
-    "  \"personaStateAdjustmentNotes\": [\"...\"],",
-    "  \"hypotheses\": [\"...\"],",
+    "  \"version\": 1,",
+    "  \"candidateDiagnoses\": [",
+    "    {",
+    "      \"candidate_id\": \"...\",",
+    "      \"run_id\": \"...\",",
+    "      \"loss\": 0.0,",
+    "      \"failure_labels\": [\"stance_error\", \"referent_loss\"],",
+    "      \"evidence\": \"short source-grounded reason, no target wording\",",
+    "      \"confidence\": 0.0",
+    "    }",
+    "  ],",
+    "  \"promptDeltas\": [",
+    "    {",
+    "      \"surface\": \"interpreterNotes\",",
+    "      \"operation\": \"add\",",
+    "      \"note\": \"one durable steering note\",",
+    "      \"weight\": 0.0,",
+    "      \"evidence_candidate_ids\": [\"...\"],",
+    "      \"failure_labels\": [\"...\"]",
+    "    }",
+    "  ],",
+    "  \"globalHypotheses\": [\"...\"],",
     "  \"doNotDo\": [\"...\"]",
     "}",
+    "",
+    "Allowed prompt delta surfaces:",
+    JSON.stringify(promptStateKeys, null, 2),
+    "",
+    "Delta acceptance policy in the harness:",
+    "- apply add-deltas only",
+    "- accept weight >= 0.85 with at least one candidate",
+    "- accept weight >= 0.65 only when backed by at least two candidate ids",
+    "- dedupe notes and keep prompt-state arrays bounded",
     "",
     "Candidate metadata:",
     JSON.stringify(candidates.map(redactedCandidateRecord), null, 2),
@@ -315,11 +355,15 @@ async function runOptimizationPass({ candidates, promptState, phaseSummary, cult
   });
   await writeFile(resolve(optimizerRoot, "optimizer-output.txt"), `${output.trim()}\n`, "utf8");
   const parsed = extractJsonObject(output);
-  return normalizePromptState({
-    ...promptState,
-    ...parsed,
-    version: Number(parsed.version ?? 2),
-  });
+  const contract = normalizeOptimizerContract(parsed, phaseSummary);
+  await writeJson(resolve(optimizerRoot, "optimizer-contract.json"), contract);
+  const applied = applyPromptDeltas(promptState, contract);
+  await writeJson(resolve(optimizerRoot, "applied-prompt-deltas.json"), applied.appliedDeltas);
+  return {
+    promptState: applied.promptState,
+    contract,
+    appliedDeltas: applied.appliedDeltas,
+  };
 }
 
 function renderFaceTurnRequest({ assembledPrompt, candidate, promptState }) {
@@ -702,38 +746,46 @@ function renderDryLowering(candidate, job) {
 
 function renderDryOptimization(promptState, phase) {
   const worst = pickHighLoss(phase.runs).slice(0, 3);
-  return normalizePromptState({
-    version: promptState.version + 1,
-    projectorNotes: [
-      ...promptState.projectorNotes,
+  const candidateIds = worst.map((run) => run.candidate_id).filter(Boolean);
+  const contract = normalizeOptimizerContract({
+    version: 1,
+    candidateDiagnoses: worst.map((run) => ({
+      candidate_id: run.candidate_id,
+      run_id: run.id,
+      loss: run.loss,
+      failure_labels: ["dry_run_signal"],
+      evidence: "Dry optimizer placeholder diagnosis.",
+      confidence: 0.7,
+    })),
+    promptDeltas: [
+      {
+        surface: "memoryNotes",
+        operation: "add",
+        note: "Dry optimizer: preserve whether the target is reply-to-other or self-continuation.",
+        weight: 0.7,
+        evidence_candidate_ids: candidateIds,
+        failure_labels: ["dry_run_signal"],
+      },
+      {
+        surface: "interpreterNotes",
+        operation: "add",
+        note: "Dry optimizer: keep length/register constraints visible when deriving interlingua.",
+        weight: 0.7,
+        evidence_candidate_ids: candidateIds,
+        failure_labels: ["dry_run_signal"],
+      },
     ],
-    memoryNotes: [
-      ...promptState.memoryNotes,
-      "Dry optimizer: preserve whether the target is reply-to-other or self-continuation.",
-    ],
-    faceNotes: [
-      ...promptState.faceNotes,
-      "Dry optimizer: keep Face thought natural; do not emit interlingua from the Face.",
-    ],
-    interpreterNotes: [
-      ...promptState.interpreterNotes,
-      "Dry optimizer: keep length/register constraints visible when deriving interlingua.",
-    ],
-    loweringNotes: [
-      ...promptState.loweringNotes,
-      "Dry optimizer: keep output length class close to the hidden target metadata.",
-    ],
-    cultureNotes: [
-      ...promptState.cultureNotes,
-    ],
-    personaStateAdjustmentNotes: [
-      ...promptState.personaStateAdjustmentNotes,
-    ],
-    hypotheses: worst.map((run) => `High loss on ${run.id} suggests missing local register or length pressure.`),
+    globalHypotheses: worst.map((run) => `High loss on ${run.id} suggests missing local register or length pressure.`),
     doNotDo: [
       "Do not copy answer-key text into culture profiles.",
     ],
-  });
+  }, phase);
+  const applied = applyPromptDeltas(promptState, contract);
+  return {
+    promptState: applied.promptState,
+    contract,
+    appliedDeltas: applied.appliedDeltas,
+  };
 }
 
 async function loadCulturePack(holdouts) {
@@ -1096,6 +1148,116 @@ function extractJsonObject(text) {
   return JSON.parse(body.slice(start, end + 1));
 }
 
+function normalizeOptimizerContract(value, phaseSummary) {
+  const runById = new Map((phaseSummary.runs ?? []).map((run) => [run.id, run]));
+  const candidateIds = new Set((phaseSummary.runs ?? [])
+    .map((run) => run.candidate?.id ?? run.candidate_id)
+    .filter(Boolean));
+  const candidateDiagnoses = Array.isArray(value.candidateDiagnoses)
+    ? value.candidateDiagnoses.map((entry) => normalizeCandidateDiagnosis(entry, { runById, candidateIds })).filter(Boolean)
+    : [];
+  const promptDeltas = Array.isArray(value.promptDeltas)
+    ? value.promptDeltas.map((entry) => normalizePromptDelta(entry, candidateIds)).filter(Boolean)
+    : [];
+  return {
+    schema_version: "weksa.metame_swarm_optimizer_contract.v0",
+    version: Number(value.version ?? 1),
+    candidateDiagnoses: candidateDiagnoses.slice(0, 12),
+    promptDeltas: promptDeltas.slice(0, 16),
+    globalHypotheses: normalizeStringArray(value.globalHypotheses).slice(0, 12),
+    doNotDo: normalizeStringArray(value.doNotDo).slice(0, 12),
+  };
+}
+
+function normalizeCandidateDiagnosis(entry, { runById, candidateIds }) {
+  if (!entry || typeof entry !== "object") {
+    return undefined;
+  }
+  const runId = stringOrEmpty(entry.run_id ?? entry.runId);
+  const run = runById.get(runId);
+  const candidateId = stringOrEmpty(entry.candidate_id ?? entry.candidateId ?? run?.candidate_id ?? run?.candidate?.id);
+  if (!candidateId || !candidateIds.has(candidateId)) {
+    return undefined;
+  }
+  return {
+    candidate_id: candidateId,
+    run_id: runId || run?.id,
+    loss: clampNumber(entry.loss ?? run?.loss ?? 0, 0, 1),
+    failure_labels: normalizeStringArray(entry.failure_labels ?? entry.failureLabels).slice(0, 8),
+    evidence: stringOrEmpty(entry.evidence).slice(0, 500),
+    confidence: clampNumber(entry.confidence ?? 0, 0, 1),
+  };
+}
+
+function normalizePromptDelta(entry, candidateIds) {
+  if (!entry || typeof entry !== "object") {
+    return undefined;
+  }
+  const surface = stringOrEmpty(entry.surface);
+  if (!promptStateKeys.includes(surface)) {
+    return undefined;
+  }
+  const operation = stringOrEmpty(entry.operation || "add").toLowerCase();
+  const note = stringOrEmpty(entry.note).slice(0, 500);
+  if (!note) {
+    return undefined;
+  }
+  const evidenceCandidateIds = normalizeStringArray(entry.evidence_candidate_ids ?? entry.evidenceCandidateIds)
+    .filter((id) => candidateIds.has(id))
+    .slice(0, 8);
+  return {
+    surface,
+    operation,
+    note,
+    weight: clampNumber(entry.weight ?? 0, 0, 1),
+    evidence_candidate_ids: evidenceCandidateIds,
+    failure_labels: normalizeStringArray(entry.failure_labels ?? entry.failureLabels).slice(0, 8),
+  };
+}
+
+function applyPromptDeltas(promptState, contract) {
+  const next = normalizePromptState(promptState);
+  const decisions = [];
+  let appliedCount = 0;
+  for (const delta of contract.promptDeltas) {
+    const decision = {
+      ...delta,
+      accepted: false,
+      reason: "",
+    };
+    if (delta.operation !== "add") {
+      decision.reason = "unsupported_operation";
+      decisions.push(decision);
+      continue;
+    }
+    const evidenceCount = new Set(delta.evidence_candidate_ids).size;
+    const strongSingle = delta.weight >= 0.85 && evidenceCount >= 1;
+    const repeatedSignal = delta.weight >= 0.65 && evidenceCount >= 2;
+    if (!strongSingle && !repeatedSignal) {
+      decision.reason = "insufficient_weight_or_repeated_evidence";
+      decisions.push(decision);
+      continue;
+    }
+    if (next[delta.surface].includes(delta.note)) {
+      decision.reason = "duplicate_note";
+      decisions.push(decision);
+      continue;
+    }
+    next[delta.surface] = [delta.note, ...next[delta.surface]];
+    decision.accepted = true;
+    decision.reason = repeatedSignal ? "accepted_repeated_signal" : "accepted_strong_single_candidate";
+    appliedCount += 1;
+    decisions.push(decision);
+  }
+  return {
+    promptState: normalizePromptState({
+      ...next,
+      version: appliedCount > 0 ? next.version + 1 : next.version,
+    }),
+    appliedDeltas: decisions,
+  };
+}
+
 function normalizePromptState(state) {
   return {
     version: Number(state.version ?? 1),
@@ -1115,6 +1277,18 @@ function normalizeStringArray(value) {
   return Array.isArray(value)
     ? value.map((entry) => String(entry).trim()).filter(Boolean)
     : [];
+}
+
+function stringOrEmpty(value) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function clampNumber(value, min, max) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) {
+    return min;
+  }
+  return Math.min(max, Math.max(min, number));
 }
 
 function redactHoldout(text, holdout) {
