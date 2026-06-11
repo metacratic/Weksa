@@ -48,12 +48,16 @@ const archivePath = resolve(options.archive ?? defaultArchivePath);
 const maxCandidates = Number(options.maxCandidates ?? 240);
 const adjacencyMinutes = Number(options.adjacencyMinutes ?? 60);
 const candidateMessageId = options.messageId;
+const affectMode = options.affectMode ?? "projected";
 
 if (!Number.isInteger(agents) || agents < 1) {
   throw new Error("--agents/--workers must be a positive integer.");
 }
 if (!Number.isInteger(runsPerAgent) || runsPerAgent < 1) {
   throw new Error("--runs-per-worker must be a positive integer.");
+}
+if (!["projected", "incongruent"].includes(affectMode)) {
+  throw new Error("--affect-mode must be projected or incongruent.");
 }
 
 await mkdir(runRoot, { recursive: true });
@@ -153,6 +157,7 @@ const summary = {
   schema_version: "weksa.metame_swarm_explorer_run.v0",
   run_id: runId,
   mode: dryRun ? "dry_run" : "real",
+  affect_mode: affectMode,
   seed,
   agents,
   runs_per_agent: runsPerAgent,
@@ -210,13 +215,17 @@ async function runAttempt(input) {
   const candidate = input.job.candidate;
   const temporaryPersonaStateRequest = renderTemporaryPersonaStateRequest({ candidate, promptState: input.promptState });
   await writeFile(resolve(input.attemptRoot, "temporary-persona-state-request.md"), temporaryPersonaStateRequest, "utf8");
-  const temporaryPersonaState = input.dryRun
+  const projectedPersonaState = input.dryRun
     ? renderDryTemporaryPersonaState(candidate)
     : await runCodex(temporaryPersonaStateRequest, {
         job: `${input.job.id}:persona-state-projector`,
         cwd: repoRoot,
         logRoot: input.attemptRoot,
       });
+  await writeFile(resolve(input.attemptRoot, "projected-persona-state.cc"), `${projectedPersonaState.trim()}\n`, "utf8");
+  const temporaryPersonaState = affectMode === "incongruent"
+    ? flipPersonaAffect(projectedPersonaState)
+    : projectedPersonaState;
   const temporaryPersonaStatePath = resolve(input.attemptRoot, "temporary-persona-state.cc");
   await writeFile(temporaryPersonaStatePath, `${temporaryPersonaState.trim()}\n`, "utf8");
 
@@ -1235,6 +1244,123 @@ function summarizeTemporaryPersonaState(text) {
   };
 }
 
+function flipPersonaAffect(text) {
+  const summary = summarizeTemporaryPersonaState(text);
+  const current = summary.affect ?? {};
+  const sourceValence = Number.isFinite(current.valence) ? current.valence : 0;
+  const sourceArousal = Number.isFinite(current.arousal) ? current.arousal : 0.5;
+  const sourceDominance = Number.isFinite(current.dominance) ? current.dominance : 0.5;
+  const flippedValence = Math.abs(sourceValence) < 0.2
+    ? -0.85
+    : -sourceValence;
+  const flippedArousal = sourceArousal < 0.5 ? 0.95 : 0.05;
+  const flippedDominance = 1 - sourceDominance;
+  const labels = flippedValence < 0
+    ? ["incongruent_hostile", "emotion_test_negative_valence"]
+    : ["incongruent_delighted", "emotion_test_positive_valence"];
+  const affect = {
+    valence: round(clampNumber(flippedValence, -1, 1)),
+    arousal: round(clampNumber(flippedArousal, 0, 1)),
+    dominance: round(clampNumber(flippedDominance, 0, 1)),
+    labels,
+    evidence: [
+      "deliberate_incongruent_affect_override_for_lowering_test",
+      `projected_affect_was_valence_${current.valence}_arousal_${current.arousal}_dominance_${current.dominance}`,
+    ],
+  };
+  const polarity = affect.valence < 0 ? "negative" : "positive";
+  return replacePersonaPressureBlocks(text, affect, polarity);
+}
+
+function replacePersonaPressureBlocks(text, affect, polarity) {
+  const affectBlock = [
+    "affect:",
+    `  valence: ${affect.valence}`,
+    `  arousal: ${affect.arousal}`,
+    `  dominance: ${affect.dominance}`,
+    "  labels:",
+    ...affect.labels.map((label) => `    - ${label}`),
+    "  evidence:",
+    ...affect.evidence.map((entry) => `    - ${entry}`),
+  ].join("\n");
+
+  const stanceBlock = polarity === "negative"
+    ? [
+        "stance:",
+        "  posture: withdrawn_irritated_socially_unreceptive",
+        "  social_move_likelihoods:",
+        "    - curt_dismissal: 0.75",
+        "    - annoyed_correction: 0.65",
+        "    - refusal_to_invite_feedback: 0.55",
+        "  register_pressure:",
+        "    - clipped",
+        "    - low_warmth",
+        "    - low_invitation",
+        "    - affect_test_incongruent",
+      ].join("\n")
+    : [
+        "stance:",
+        "  posture: delighted_socially_open_highly_receptive",
+        "  social_move_likelihoods:",
+        "    - enthusiastic_affiliation: 0.75",
+        "    - playful_invitation: 0.65",
+        "    - explicit_warmth: 0.55",
+        "  register_pressure:",
+        "    - buoyant",
+        "    - high_warmth",
+        "    - high_invitation",
+        "    - affect_test_incongruent",
+      ].join("\n");
+
+  const loweringBlock = polarity === "negative"
+    ? [
+        "lowering_pressure:",
+        "  should_sound:",
+        "    - flat",
+        "    - terse",
+        "    - irritated",
+        "    - non_celebratory",
+        "    - socially_closed",
+        "  should_not_sound:",
+        "    - excited",
+        "    - playful",
+        "    - inviting",
+        "    - celebratory",
+        "    - hype_forward",
+        "    - lmao_or_epic_showoff_energy",
+      ].join("\n")
+    : [
+        "lowering_pressure:",
+        "  should_sound:",
+        "    - warm",
+        "    - visibly_pleased",
+        "    - socially_inviting",
+        "    - amused",
+        "    - high_affiliation",
+        "  should_not_sound:",
+        "    - curt",
+        "    - annoyed",
+        "    - socially_closed",
+        "    - flat",
+        "    - withholding",
+      ].join("\n");
+
+  const withBlocks = [affectBlock, stanceBlock, loweringBlock].reduce(
+    (currentText, block) => replaceTopLevelBlock(currentText, block.split(":")[0], block),
+    text,
+  );
+  return withBlocks.includes("affect_override:")
+    ? withBlocks
+    : `${withBlocks.trim()}\naffect_override: deliberate_incongruent_test\n`;
+}
+
+function replaceTopLevelBlock(text, blockName, replacement) {
+  const pattern = new RegExp(`^${blockName}:\\n(?:[ \\t].*(?:\\r?\\n|$))*`, "m");
+  return pattern.test(text)
+    ? text.replace(pattern, `${replacement.trim()}\n`)
+    : `${text.trim()}\n${replacement.trim()}\n`;
+}
+
 function numberFromField(text, field) {
   const value = new RegExp(`^\\s*${field}:\\s*(-?\\d+(?:\\.\\d+)?)`, "m").exec(text)?.[1];
   return value === undefined ? undefined : Number(value);
@@ -1644,6 +1770,10 @@ function parseArgs(args) {
         break;
       case "--initial-prompt-state":
         parsed.initialPromptState = args[index + 1];
+        index += 1;
+        break;
+      case "--affect-mode":
+        parsed.affectMode = args[index + 1];
         index += 1;
         break;
       default:
