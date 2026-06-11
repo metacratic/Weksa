@@ -28,6 +28,9 @@ const seed = options.seed ?? new Date().toISOString().slice(0, 10);
 const runId = options.runId ?? `swarm-${new Date().toISOString().replace(/[:.]/g, "-")}`;
 const outputRoot = resolve(repoRoot, options.outRoot ?? defaultOutputRoot);
 const runRoot = resolve(outputRoot, runId);
+const initialPromptStatePath = options.initialPromptState
+  ? resolve(repoRoot, options.initialPromptState)
+  : undefined;
 const beforeMs = Date.parse(options.before ?? "2025-01-01T00:00:00Z");
 const authorId = options.authorId ?? defaultAuthorId;
 const archivePath = resolve(options.archive ?? defaultArchivePath);
@@ -60,7 +63,7 @@ const culturePack = await loadCulturePack(holdouts);
 const baseMemorySurface = dryRun
   ? renderDryBaseMemorySurface()
   : await renderProjectedBaseMemorySurface(runRoot);
-const promptState = {
+const defaultPromptState = {
   version: 1,
   projectorNotes: [
     "Surface current scenario pressure as lived context, not as schema mechanics.",
@@ -89,6 +92,12 @@ const promptState = {
     "Temporary run memory may be adjusted to make the scenario current; canonical Persona state is not mutated by the swarm.",
   ],
 };
+const promptState = initialPromptStatePath
+  ? normalizePromptState({
+      ...defaultPromptState,
+      ...JSON.parse(readFileSync(initialPromptStatePath, "utf8")),
+    })
+  : defaultPromptState;
 
 await writeJson(resolve(runRoot, "candidates.json"), selectedCandidates.map(redactedCandidateRecord));
 await Promise.all(selectedCandidates.map(async (candidate, index) => {
@@ -138,6 +147,10 @@ const summary = {
   phase2: summarizePhase(phase2),
   high_loss_signal: pickHighLoss([...phase1.runs, ...phase2.runs]),
 };
+const bestPromptState = summary.phase2.avg_loss <= summary.phase1.avg_loss
+  ? optimizedPromptState
+  : promptState;
+await writeJson(resolve(runRoot, "best-prompt-state.json"), bestPromptState);
 await writeJson(resolve(runRoot, "summary.json"), summary);
 await appendLedger(outputRoot, summary);
 
@@ -1247,6 +1260,10 @@ function parseArgs(args) {
         break;
       case "--max-candidates":
         parsed.maxCandidates = args[index + 1];
+        index += 1;
+        break;
+      case "--initial-prompt-state":
+        parsed.initialPromptState = args[index + 1];
         index += 1;
         break;
       default:
