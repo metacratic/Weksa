@@ -22,8 +22,8 @@ const cultureProfilePaths = [
 
 const options = parseArgs(process.argv.slice(2));
 const dryRun = !options.real;
-const workers = Number(options.workers ?? 2);
-const runsPerWorker = Number(options.runsPerWorker ?? 4);
+const agents = Number(options.agents ?? options.workers ?? 4);
+const runsPerAgent = Number(options.runsPerWorker ?? 1);
 const seed = options.seed ?? new Date().toISOString().slice(0, 10);
 const runId = options.runId ?? `swarm-${new Date().toISOString().replace(/[:.]/g, "-")}`;
 const outputRoot = resolve(repoRoot, options.outRoot ?? defaultOutputRoot);
@@ -35,10 +35,10 @@ const maxCandidates = Number(options.maxCandidates ?? 240);
 const adjacencyMinutes = Number(options.adjacencyMinutes ?? 60);
 const candidateMessageId = options.messageId;
 
-if (!Number.isInteger(workers) || workers < 1) {
-  throw new Error("--workers must be a positive integer.");
+if (!Number.isInteger(agents) || agents < 1) {
+  throw new Error("--agents/--workers must be a positive integer.");
 }
-if (!Number.isInteger(runsPerWorker) || runsPerWorker < 1) {
+if (!Number.isInteger(runsPerAgent) || runsPerAgent < 1) {
   throw new Error("--runs-per-worker must be a positive integer.");
 }
 
@@ -51,57 +51,78 @@ const candidates = buildCandidates(archive.messages, {
   beforeMs,
   adjacencyMs: adjacencyMinutes * 60_000,
 });
-const candidate = candidateMessageId
-  ? mustFindCandidate(candidates, candidateMessageId)
-  : chooseCandidate(candidates, ledger, { seed, maxCandidates });
+const selectedCandidates = candidateMessageId
+  ? [mustFindCandidate(candidates, candidateMessageId)]
+  : chooseCandidateSet(candidates, ledger, { seed, maxCandidates, count: agents });
 
-const culturePack = await loadCulturePack(candidate.target.content);
+const holdouts = selectedCandidates.map((candidate) => candidate.target.content);
+const culturePack = await loadCulturePack(holdouts);
 const baseMemorySurface = dryRun
   ? renderDryBaseMemorySurface()
   : await renderProjectedBaseMemorySurface(runRoot);
 const promptState = {
   version: 1,
+  projectorNotes: [
+    "Surface current scenario pressure as lived context, not as schema mechanics.",
+  ],
   memoryNotes: [
     "Treat the selected Discord moment as current and unresolved.",
-    "Persona produces interlingua intent only; Weksa owns final surface lowering.",
     "The target utterance is hidden from generation and appears only in scoring.",
+  ],
+  faceNotes: [
+    "Metame should think normally in her own voice before any interlingua exists.",
+    "A normal Face output may include Private thought and Would say; do not ask the Face to write Weksa packets.",
+  ],
+  interpreterNotes: [
+    "The Interpreter converts natural Face output into Weksa interlingua intent.",
+    "Preserve speech act, social move, stance, referents, and constraints; do not copy the final surface as a target.",
   ],
   loweringNotes: [
     "Preserve Persona-produced social intent over generic assistant helpfulness.",
     "Use prior context as evidence for selection, not as material to quote back unless explanation is the speech act.",
     "When interlingua preserves a salient keyword or identity label, do not replace it with a new joke unless the culture stack asks for that.",
   ],
+  cultureNotes: [
+    "Missing behavior should become candidate culture/subculture ontology only when it generalizes beyond one answer.",
+  ],
+  personaStateAdjustmentNotes: [
+    "Temporary run memory may be adjusted to make the scenario current; canonical Persona state is not mutated by the swarm.",
+  ],
 };
 
-await writeJson(resolve(runRoot, "candidate.json"), redactedCandidateRecord(candidate));
-await writeFile(resolve(runRoot, "conversation-before.md"), renderConversationBefore(candidate), "utf8");
-await writeFile(resolve(runRoot, "target.answer.txt"), `${candidate.target.content.trim()}\n`, "utf8");
+await writeJson(resolve(runRoot, "candidates.json"), selectedCandidates.map(redactedCandidateRecord));
+await Promise.all(selectedCandidates.map(async (candidate, index) => {
+  const candidateRoot = resolve(runRoot, "candidates", `${index}-${candidate.id}`);
+  await mkdir(candidateRoot, { recursive: true });
+  await writeFile(resolve(candidateRoot, "conversation-before.md"), renderConversationBefore(candidate), "utf8");
+  await writeFile(resolve(candidateRoot, "target.answer.txt"), `${candidate.target.content.trim()}\n`, "utf8");
+}));
 await writeJson(resolve(runRoot, "initial-prompt-state.json"), promptState);
 
 const phase1 = await runPhase({
   phase: "phase1",
-  candidate,
+  candidates: selectedCandidates,
   promptState,
   baseMemorySurface,
   culturePack,
-  workers,
-  runsPerWorker,
+  agents,
+  runsPerAgent,
   dryRun,
 });
 
 const optimizedPromptState = dryRun
   ? renderDryOptimization(promptState, phase1)
-  : await runOptimizationPass({ candidate, promptState, phaseSummary: phase1, culturePack });
+  : await runOptimizationPass({ candidates: selectedCandidates, promptState, phaseSummary: phase1, culturePack });
 await writeJson(resolve(runRoot, "optimized-prompt-state.json"), optimizedPromptState);
 
 const phase2 = await runPhase({
   phase: "phase2",
-  candidate,
+  candidates: selectedCandidates,
   promptState: optimizedPromptState,
   baseMemorySurface,
   culturePack,
-  workers,
-  runsPerWorker,
+  agents,
+  runsPerAgent,
   dryRun,
 });
 
@@ -110,9 +131,9 @@ const summary = {
   run_id: runId,
   mode: dryRun ? "dry_run" : "real",
   seed,
-  workers,
-  runs_per_worker: runsPerWorker,
-  candidate: redactedCandidateRecord(candidate),
+  agents,
+  runs_per_agent: runsPerAgent,
+  candidates: selectedCandidates.map(redactedCandidateRecord),
   phase1: summarizePhase(phase1),
   phase2: summarizePhase(phase2),
   high_loss_signal: pickHighLoss([...phase1.runs, ...phase2.runs]),
@@ -126,17 +147,20 @@ async function runPhase(input) {
   const phaseRoot = resolve(runRoot, input.phase);
   await mkdir(phaseRoot, { recursive: true });
   const jobs = [];
-  for (let worker = 0; worker < input.workers; worker += 1) {
-    for (let index = 0; index < input.runsPerWorker; index += 1) {
+  for (let agent = 0; agent < input.agents; agent += 1) {
+    const candidate = input.candidates[agent % input.candidates.length];
+    for (let index = 0; index < input.runsPerAgent; index += 1) {
       jobs.push({
-        worker,
+        agent,
+        worker: agent,
         attempt: index,
-        id: `${input.phase}-w${worker}-r${index}`,
+        candidate,
+        id: `${input.phase}-a${agent}-r${index}-${candidate.id}`,
       });
     }
   }
 
-  const runs = await runPool(jobs, input.workers, async (job) => {
+  const runs = await runPool(jobs, input.agents, async (job) => {
     const attemptRoot = resolve(phaseRoot, job.id);
     await mkdir(attemptRoot, { recursive: true });
     return runAttempt({
@@ -156,8 +180,9 @@ async function runPhase(input) {
 }
 
 async function runAttempt(input) {
-  const memorySurface = renderMemorySurface(input.baseMemorySurface, input.candidate, input.promptState, input.job);
-  const conversationSurface = renderConversationSurface(input.candidate);
+  const candidate = input.job.candidate;
+  const memorySurface = renderMemorySurface(input.baseMemorySurface, candidate, input.promptState, input.job);
+  const conversationSurface = renderConversationSurface(candidate);
   await writeFile(resolve(input.attemptRoot, "memory-surface.md"), memorySurface, "utf8");
   await writeFile(resolve(input.attemptRoot, "conversation-surface.md"), conversationSurface, "utf8");
 
@@ -170,31 +195,46 @@ async function runAttempt(input) {
       });
   await writeFile(resolve(input.attemptRoot, "voidbot-assembled-prompt.md"), assembledPrompt, "utf8");
 
-  const interlinguaRequest = renderPersonaInterlinguaRequest({
+  const faceTurnRequest = renderFaceTurnRequest({
     assembledPrompt,
-    candidate: input.candidate,
+    candidate,
     promptState: input.promptState,
   });
-  await writeFile(resolve(input.attemptRoot, "persona-interlingua-request.md"), interlinguaRequest, "utf8");
-  const interlingua = input.dryRun
-    ? renderDryInterlingua(input.candidate)
-    : await runCodex(interlinguaRequest, {
-        job: `${input.job.id}:persona-interlingua`,
+  await writeFile(resolve(input.attemptRoot, "face-turn-request.md"), faceTurnRequest, "utf8");
+  const faceTurn = input.dryRun
+    ? renderDryFaceTurn(candidate)
+    : await runCodex(faceTurnRequest, {
+        job: `${input.job.id}:face-turn`,
         cwd: repoRoot,
         logRoot: input.attemptRoot,
       });
-  await writeFile(resolve(input.attemptRoot, "persona-interlingua.yaml"), `${interlingua.trim()}\n`, "utf8");
+  await writeFile(resolve(input.attemptRoot, "face-turn-output.md"), `${faceTurn.trim()}\n`, "utf8");
+
+  const interlinguaRequest = renderInterpreterInterlinguaRequest({
+    faceTurn,
+    candidate,
+    promptState: input.promptState,
+  });
+  await writeFile(resolve(input.attemptRoot, "interpreter-interlingua-request.md"), interlinguaRequest, "utf8");
+  const interlingua = input.dryRun
+    ? renderDryInterlingua(candidate)
+    : await runCodex(interlinguaRequest, {
+        job: `${input.job.id}:interpreter-interlingua`,
+        cwd: repoRoot,
+        logRoot: input.attemptRoot,
+      });
+  await writeFile(resolve(input.attemptRoot, "interpreter-interlingua.yaml"), `${interlingua.trim()}\n`, "utf8");
 
   const loweringRequest = renderWeksaLoweringRequest({
     memorySurface,
     culturePack: input.culturePack,
     interlingua,
     promptState: input.promptState,
-    holdout: input.candidate.target.content,
+    holdouts: input.candidates.map((entry) => entry.target.content),
   });
   await writeFile(resolve(input.attemptRoot, "weksa-lowering-request.md"), loweringRequest, "utf8");
   const lowered = input.dryRun
-    ? renderDryLowering(input.candidate, input.job)
+    ? renderDryLowering(candidate, input.job)
     : await runCodex(loweringRequest, {
         job: `${input.job.id}:weksa-lowering`,
         cwd: repoRoot,
@@ -203,13 +243,15 @@ async function runAttempt(input) {
   await writeFile(resolve(input.attemptRoot, "weksa-lowered-output.yaml"), `${lowered.trim()}\n`, "utf8");
 
   const spokenText = extractSpokenText(lowered);
-  const score = scoreText(spokenText, input.candidate.target.content);
+  const score = scoreText(spokenText, candidate.target.content);
   const run = {
     id: input.job.id,
+    agent: input.job.agent,
     worker: input.job.worker,
     attempt: input.job.attempt,
+    candidate: redactedCandidateRecord(candidate),
     spoken_text: spokenText,
-    target_text: input.candidate.target.content,
+    target_text: candidate.target.content,
     score,
     loss: Number((1 - score.f1).toFixed(3)),
   };
@@ -217,7 +259,7 @@ async function runAttempt(input) {
   return run;
 }
 
-async function runOptimizationPass({ candidate, promptState, phaseSummary, culturePack }) {
+async function runOptimizationPass({ candidates, promptState, phaseSummary, culturePack }) {
   const optimizerRoot = resolve(runRoot, "optimizer");
   await mkdir(optimizerRoot, { recursive: true });
   const highLoss = pickHighLoss(phaseSummary.runs);
@@ -229,14 +271,19 @@ async function runOptimizationPass({ candidate, promptState, phaseSummary, cultu
     "Return JSON only with this shape:",
     "{",
     "  \"version\": 2,",
+    "  \"projectorNotes\": [\"...\"],",
     "  \"memoryNotes\": [\"...\"],",
+    "  \"faceNotes\": [\"...\"],",
+    "  \"interpreterNotes\": [\"...\"],",
     "  \"loweringNotes\": [\"...\"],",
+    "  \"cultureNotes\": [\"...\"],",
+    "  \"personaStateAdjustmentNotes\": [\"...\"],",
     "  \"hypotheses\": [\"...\"],",
     "  \"doNotDo\": [\"...\"]",
     "}",
     "",
     "Candidate metadata:",
-    JSON.stringify(redactedCandidateRecord(candidate), null, 2),
+    JSON.stringify(candidates.map(redactedCandidateRecord), null, 2),
     "",
     "Target answer is withheld from generation. For optimizer scoring only, normalized loss summary:",
     JSON.stringify(highLoss, null, 2),
@@ -262,14 +309,18 @@ async function runOptimizationPass({ candidate, promptState, phaseSummary, cultu
   });
 }
 
-function renderPersonaInterlinguaRequest({ assembledPrompt, candidate, promptState }) {
+function renderFaceTurnRequest({ assembledPrompt, candidate, promptState }) {
   return [
-    "# Persona Interlingua Worker",
+    "# Metame Face Worker",
     "",
-    "You are Metame for one private VoidBot Persona turn, but you are not writing the final Discord message.",
-    "Emit Weksa interlingua intent only. The answer-key utterance is hidden.",
+    "Be Metame for one private VoidBot Persona turn. Think normally as the Face.",
+    "Do not produce Weksa interlingua. Do not see or infer the held-out target utterance.",
     "",
     "Temporary optimization notes:",
+    ...promptState.faceNotes.map((note) => `- ${note}`),
+    "",
+    "Temporary memory/projector notes:",
+    ...promptState.projectorNotes.map((note) => `- ${note}`),
     ...promptState.memoryNotes.map((note) => `- ${note}`),
     "",
     "VoidBot assembled prompt:",
@@ -282,14 +333,39 @@ function renderPersonaInterlinguaRequest({ assembledPrompt, candidate, promptSta
     renderCandidateScene(candidate),
     "```",
     "",
+    "Return natural Face output using the familiar shape when useful: Private thought, Would say, What should stick.",
+  ].join("\n");
+}
+
+function renderInterpreterInterlinguaRequest({ faceTurn, candidate, promptState }) {
+  return [
+    "# Face Interpreter To Weksa Interlingua",
+    "",
+    "You are the Interpreter between natural Metame Face output and Weksa.",
+    "VoidBot's current Interpreter is mostly passthrough; this harness tests the missing authority boundary.",
+    "Convert the Face's normal thought/speech intent into Weksa interlingua. Do not lower to final English.",
+    "",
+    "Temporary interpreter notes:",
+    ...promptState.interpreterNotes.map((note) => `- ${note}`),
+    "",
+    "Current candidate moment, target withheld:",
+    "```yaml",
+    renderCandidateScene(candidate),
+    "```",
+    "",
+    "Natural Face output:",
+    "```markdown",
+    faceTurn,
+    "```",
+    "",
     "Return one YAML interlingua packet.",
   ].join("\n");
 }
 
-function renderWeksaLoweringRequest({ memorySurface, culturePack, interlingua, promptState, holdout }) {
+function renderWeksaLoweringRequest({ memorySurface, culturePack, interlingua, promptState, holdouts }) {
   const redactedProfiles = culturePack.profiles.map((profile) => ({
     ...profile,
-    text: redactHoldout(profile.text, holdout),
+    text: redactHoldouts(profile.text, holdouts),
   }));
   return [
     "# Weksa Lowering Worker",
@@ -299,6 +375,9 @@ function renderWeksaLoweringRequest({ memorySurface, culturePack, interlingua, p
     "",
     "Temporary optimization notes:",
     ...promptState.loweringNotes.map((note) => `- ${note}`),
+    "",
+    "Temporary culture ontology notes:",
+    ...promptState.cultureNotes.map((note) => `- ${note}`),
     "",
     "Projected Metame memory/context surface:",
     "```markdown",
@@ -321,7 +400,7 @@ function renderWeksaLoweringRequest({ memorySurface, culturePack, interlingua, p
     "",
     "Target-language surface overlay:",
     "```yaml",
-    redactHoldout(culturePack.targetOverlay, holdout),
+    redactHoldouts(culturePack.targetOverlay, holdouts),
     "```",
     "",
     "Persona-produced interlingua:",
@@ -411,6 +490,35 @@ function chooseCandidate(candidates, ledger, { seed, maxCandidates }) {
   return pool[0].candidate;
 }
 
+function chooseCandidateSet(candidates, ledger, { seed, maxCandidates, count }) {
+  const selected = [];
+  const selectedIds = new Set();
+  for (let index = 0; index < count; index += 1) {
+    const remaining = candidates.filter((candidate) => !selectedIds.has(candidate.id));
+    if (remaining.length === 0) {
+      break;
+    }
+    const candidate = chooseCandidate(remaining, ledger, {
+      seed: `${seed}:agent:${index}`,
+      maxCandidates,
+    });
+    selected.push(candidate);
+    selectedIds.add(candidate.id);
+    const stratum = candidateStratum(candidate);
+    const prior = ledger.strata[stratum] ?? { count: 0, totalLoss: 0, avgLoss: 0.5 };
+    ledger.strata[stratum] = {
+      ...prior,
+      count: prior.count + 1,
+      totalLoss: prior.totalLoss ?? prior.avgLoss * prior.count,
+      avgLoss: prior.avgLoss,
+    };
+    for (const feature of candidate.features) {
+      ledger.features[feature] = (ledger.features[feature] ?? 0) + 1;
+    }
+  }
+  return selected;
+}
+
 function mustFindCandidate(candidates, messageId) {
   const candidate = candidates.find((entry) => entry.id === messageId);
   if (!candidate) {
@@ -441,6 +549,8 @@ function renderMemorySurface(baseMemorySurface, candidate, promptState, job) {
     `- Treat channel ${candidate.channelName || candidate.channelId} in ${candidate.year} as the live room.`,
     `- The hidden target is a ${candidate.lengthClass} Metacrat message after the visible context.`,
     `- Candidate features: ${candidate.features.join(", ") || "none"}.`,
+    ...promptState.projectorNotes.map((note) => `- Projector pressure: ${note}`),
+    ...promptState.personaStateAdjustmentNotes.map((note) => `- Temporary Persona-state adjustment: ${note}`),
     ...promptState.memoryNotes.map((note) => `- ${note}`),
   ].join("\n");
 }
@@ -533,6 +643,14 @@ function renderDryAssembledPrompt(memorySurface, conversationSurface) {
   ].join("\n");
 }
 
+function renderDryFaceTurn(candidate) {
+  return [
+    "Private thought: This is a dry-run reconstruction of what the visible room seems to be asking for.",
+    `Would say: ${candidate.target.content}`,
+    "What should stick: The Interpreter should derive intent from the Face turn, not from a direct Weksa packet.",
+  ].join("\n");
+}
+
 function renderDryInterlingua(candidate) {
   return [
     "interlingua_version: weksa.interlingua.v0",
@@ -573,13 +691,30 @@ function renderDryOptimization(promptState, phase) {
   const worst = pickHighLoss(phase.runs).slice(0, 3);
   return normalizePromptState({
     version: promptState.version + 1,
+    projectorNotes: [
+      ...promptState.projectorNotes,
+    ],
     memoryNotes: [
       ...promptState.memoryNotes,
       "Dry optimizer: preserve whether the target is reply-to-other or self-continuation.",
     ],
+    faceNotes: [
+      ...promptState.faceNotes,
+      "Dry optimizer: keep Face thought natural; do not emit interlingua from the Face.",
+    ],
+    interpreterNotes: [
+      ...promptState.interpreterNotes,
+      "Dry optimizer: keep length/register constraints visible when deriving interlingua.",
+    ],
     loweringNotes: [
       ...promptState.loweringNotes,
       "Dry optimizer: keep output length class close to the hidden target metadata.",
+    ],
+    cultureNotes: [
+      ...promptState.cultureNotes,
+    ],
+    personaStateAdjustmentNotes: [
+      ...promptState.personaStateAdjustmentNotes,
     ],
     hypotheses: worst.map((run) => `High loss on ${run.id} suggests missing local register or length pressure.`),
     doNotDo: [
@@ -588,7 +723,7 @@ function renderDryOptimization(promptState, phase) {
   });
 }
 
-async function loadCulturePack(holdout) {
+async function loadCulturePack(holdouts) {
   const stack = await readFile(resolve(fixtureRoot, "metame-cultural-stack.yaml"), "utf8");
   const profiles = await Promise.all(cultureProfilePaths.map(async (path) => ({
     path,
@@ -599,7 +734,7 @@ async function loadCulturePack(holdout) {
     "utf8",
   );
   return {
-    stack: redactHoldout(stack, holdout),
+    stack: redactHoldouts(stack, holdouts),
     profiles,
     targetOverlay,
     profileIds: [
@@ -718,19 +853,23 @@ async function loadPriorLedger(outputRootPath) {
   const strata = {};
   const features = {};
   for (const summary of summaries) {
-    const candidate = summary.candidate;
-    if (!candidate) {
+    const candidates = Array.isArray(summary.candidates)
+      ? summary.candidates
+      : summary.candidate ? [summary.candidate] : [];
+    if (candidates.length === 0) {
       continue;
     }
-    const stratum = `${candidate.channel_name || candidate.channel_id}:${candidate.length_class}`;
     const loss = Number(summary.high_loss_signal?.[0]?.loss ?? summary.phase2?.avg_loss ?? summary.phase1?.avg_loss ?? 0.5);
-    const current = strata[stratum] ?? { count: 0, totalLoss: 0, avgLoss: 0.5 };
-    current.count += 1;
-    current.totalLoss += loss;
-    current.avgLoss = current.totalLoss / current.count;
-    strata[stratum] = current;
-    for (const feature of candidate.features ?? []) {
-      features[feature] = (features[feature] ?? 0) + 1;
+    for (const candidate of candidates) {
+      const stratum = `${candidate.channel_name || candidate.channel_id}:${candidate.length_class}`;
+      const current = strata[stratum] ?? { count: 0, totalLoss: 0, avgLoss: 0.5 };
+      current.count += 1;
+      current.totalLoss += loss;
+      current.avgLoss = current.totalLoss / current.count;
+      strata[stratum] = current;
+      for (const feature of candidate.features ?? []) {
+        features[feature] = (features[feature] ?? 0) + 1;
+      }
     }
   }
   return { strata, features };
@@ -739,16 +878,16 @@ async function loadPriorLedger(outputRootPath) {
 async function appendLedger(outputRootPath, summary) {
   await mkdir(outputRootPath, { recursive: true });
   const ledgerPath = resolve(outputRootPath, "ledger.jsonl");
-  const line = `${JSON.stringify({
+  const lines = summary.candidates.map((candidate) => JSON.stringify({
     run_id: summary.run_id,
-    candidate_id: summary.candidate.id,
-    channel_name: summary.candidate.channel_name,
-    length_class: summary.candidate.length_class,
+    candidate_id: candidate.id,
+    channel_name: candidate.channel_name,
+    length_class: candidate.length_class,
     phase1_avg_loss: summary.phase1.avg_loss,
     phase2_avg_loss: summary.phase2.avg_loss,
     high_loss: summary.high_loss_signal?.[0]?.loss,
-  })}\n`;
-  await writeFile(ledgerPath, line, { flag: "a" });
+  })).join("\n");
+  await writeFile(ledgerPath, `${lines}\n`, { flag: "a" });
 }
 
 function summarizePhase(phase) {
@@ -775,7 +914,9 @@ function pickHighLoss(runs) {
 function compactRun(run) {
   return {
     id: run.id,
+    candidate_id: run.candidate?.id,
     worker: run.worker,
+    agent: run.agent,
     attempt: run.attempt,
     spoken_text: run.spoken_text,
     token_f1: run.score.f1,
@@ -945,8 +1086,13 @@ function extractJsonObject(text) {
 function normalizePromptState(state) {
   return {
     version: Number(state.version ?? 1),
+    projectorNotes: normalizeStringArray(state.projectorNotes).slice(0, 12),
     memoryNotes: normalizeStringArray(state.memoryNotes).slice(0, 12),
+    faceNotes: normalizeStringArray(state.faceNotes).slice(0, 12),
+    interpreterNotes: normalizeStringArray(state.interpreterNotes).slice(0, 12),
     loweringNotes: normalizeStringArray(state.loweringNotes).slice(0, 16),
+    cultureNotes: normalizeStringArray(state.cultureNotes).slice(0, 12),
+    personaStateAdjustmentNotes: normalizeStringArray(state.personaStateAdjustmentNotes).slice(0, 12),
     hypotheses: normalizeStringArray(state.hypotheses).slice(0, 12),
     doNotDo: normalizeStringArray(state.doNotDo).slice(0, 12),
   };
@@ -969,6 +1115,10 @@ function redactHoldout(text, holdout) {
     redacted = redacted.split(variant).join("[held-out target redacted]");
   }
   return redacted;
+}
+
+function redactHoldouts(text, holdouts) {
+  return holdouts.reduce((current, holdout) => redactHoldout(current, holdout), text);
 }
 
 function readProfileId(text) {
@@ -1053,6 +1203,10 @@ function parseArgs(args) {
         break;
       case "--workers":
         parsed.workers = args[index + 1];
+        index += 1;
+        break;
+      case "--agents":
+        parsed.agents = args[index + 1];
         index += 1;
         break;
       case "--runs-per-worker":

@@ -193,17 +193,19 @@ Use the swarm explorer to chase high-loss moments instead of uniform random
 examples:
 
 ```powershell
-node scripts/run-metame-swarm-explorer.mjs --workers 2 --runs-per-worker 4 --seed metame-scout
-node scripts/run-metame-swarm-explorer.mjs --real --workers 2 --runs-per-worker 4 --seed metame-scout
+node scripts/run-metame-swarm-explorer.mjs --agents 4 --seed metame-scout
+node scripts/run-metame-swarm-explorer.mjs --real --agents 4 --seed metame-scout
 ```
 
 The default mode is a dry run. Real mode runs Codex workers:
 
-1. select one timeline candidate using underexplored strata, feature novelty,
-   prior loss, and seeded jitter
-2. run `workers * runs-per-worker` attempts
-3. run an optimizer pass over high-loss outputs
-4. run another `workers * runs-per-worker` attempts
+1. select one timeline candidate per agent using underexplored strata, feature
+   novelty, prior loss, and seeded jitter
+2. run each Face normally against its assigned scenario
+3. run an Interpreter pass that converts the Face output to Weksa interlingua
+4. lower that interlingua with Weksa and score against the hidden utterance
+5. run an optimizer pass over high-loss outputs
+6. rerun the same scenarios once per agent after optimization
 
 Artifacts are written under `.weksa-runs/metame-swarm/`, which is ignored by
 git because run packets may include projected Persona memory and raw Discord
