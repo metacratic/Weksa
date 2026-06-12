@@ -26,3 +26,7 @@ profiles:
     path: data/cultural-ontology/subcultures/online-game-dev-discord-pre2025.yaml
   - profile_id: weksa.subculture.gamecult_open_source_crypto_anarchist.v0
     path: data/cultural-ontology/subcultures/gamecult-open-source-crypto-anarchist.yaml
+  - profile_id: weksa.cultural_referent.old_norse_edda_source_tradition.v0
+    path: data/cultural-ontology/referents/old-norse-edda-source-tradition.yaml
+  - profile_id: weksa.cultural_referent.old_norse_edda_brokkr_skaldskaparmal.v0
+    path: data/cultural-ontology/referents/old-norse-edda-brokkr-skaldskaparmal.yaml
