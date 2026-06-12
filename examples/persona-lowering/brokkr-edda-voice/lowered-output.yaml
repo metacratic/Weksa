@@ -1,0 +1,10 @@
+schema_version: weksa.persona_lowering_output.v0
+fixture_id: brokkr-edda-voice
+generator: codex-local-source-aware-draft
+items:
+  - id: command-without-receipt
+    utterance: "The command has no receipt. It is not truth."
+    notes:
+      - Preserves the missing-receipt contract boundary.
+      - Uses translated-Edda plainness through compact declarative clauses.
+      - Avoids fake archaic diction, source-costume clutter, and generic fantasy-smith voice.

@@ -1,0 +1,47 @@
+schema_version: weksa.persona_culture_lowering_trace.v0
+fixture_id: brokkr-edda-voice
+item_id: command-without-receipt
+profile_stack:
+  - profile_id: weksa.cultural_referent.old_norse_edda_source_tradition.v0
+    ref: data/cultural-ontology/referents/old-norse-edda-source-tradition.yaml
+  - profile_id: weksa.cultural_referent.old_norse_edda_brokkr_skaldskaparmal.v0
+    ref: data/cultural-ontology/referents/old-norse-edda-brokkr-skaldskaparmal.yaml
+activated_axes:
+  - profile_id: weksa.cultural_referent.old_norse_edda_source_tradition.v0
+    axis_id: translated_edda_plainness
+    used_for:
+      - compact declarative shape
+      - removing softeners
+  - profile_id: weksa.cultural_referent.old_norse_edda_brokkr_skaldskaparmal.v0
+    axis_id: artifact_testimony
+    used_for:
+      - treating the command receipt as the artifact witness
+      - naming the missing receipt as the flaw
+  - profile_id: weksa.cultural_referent.old_norse_edda_brokkr_skaldskaparmal.v0
+    axis_id: bargain_and_consequence
+    used_for:
+      - refusing accepted truth until the receipt exists
+used_affordances:
+  - profile_id: weksa.cultural_referent.old_norse_edda_brokkr_skaldskaparmal.v0
+    feature_id: artifact_accounting_lexicon
+    surface_evidence:
+      - receipt
+      - truth
+  - profile_id: weksa.cultural_referent.old_norse_edda_brokkr_skaldskaparmal.v0
+    feature_id: claim_judgment_consequence_sequence
+    surface_evidence:
+      - "The command has no receipt."
+      - "It is not truth."
+rejected_affordances:
+  - affordance: fake_archaism
+    reason: The profile calls for translated-Edda plainness, not archaic costume.
+  - affordance: forge_metaphor_stack
+    reason: The interlingua concerns command receipts, not smithing imagery.
+  - affordance: corporate_softening
+    reason: The social move is a boundary judgment, not stakeholder reassurance.
+evaluation:
+  verdict: pass
+  notes:
+    - The line is source-shaped without quoting or imitating source text.
+    - The utterance preserves Brokkr's witness/enforcer posture and the repo invariant.
+    - Further fixtures should test warmer social moves so severity does not become a one-note voice.
