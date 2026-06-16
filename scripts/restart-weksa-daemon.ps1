@@ -2,7 +2,10 @@ param(
   [int] $Port = 8813,
   [string] $HostName = "127.0.0.1",
   [string] $StateRoot = "E:\Projects\weksa\.weksa",
-  [string] $MiMoApiKeyPath = "E:\Projects\gamecult-ops\mimo-api-Weksa.txt"
+  [string] $MiMoApiKeyPath = "E:\Projects\gamecult-ops\mimo-api-Weksa.txt",
+  [string] $IdunnRudpHealth = "127.0.0.1:17870",
+  [string] $IdunnDaemon = "weksa",
+  [string] $IdunnHealthContract = "weksa.cultnet-rudp-provider-health"
 )
 
 $ErrorActionPreference = "Stop"
@@ -18,5 +21,5 @@ if (Test-Path -LiteralPath $pidPath) {
   Remove-Item -LiteralPath $pidPath -Force -ErrorAction SilentlyContinue
 }
 
-& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $repoRoot "scripts\start-weksa-daemon.ps1") -Port $Port -HostName $HostName -StateRoot $StateRoot -MiMoApiKeyPath $MiMoApiKeyPath
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $repoRoot "scripts\start-weksa-daemon.ps1") -Port $Port -HostName $HostName -StateRoot $StateRoot -MiMoApiKeyPath $MiMoApiKeyPath -IdunnRudpHealth $IdunnRudpHealth -IdunnDaemon $IdunnDaemon -IdunnHealthContract $IdunnHealthContract
 exit $LASTEXITCODE

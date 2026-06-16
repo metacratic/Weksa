@@ -68,10 +68,13 @@ commit when the runtime lands.
 
 The local Starfire daemon is launched by `scripts/start-weksa-daemon.ps1`,
 checked by `scripts/health-weksa-daemon.cmd`, and restarted by
-`scripts/restart-weksa-daemon.cmd`. Its compatibility HTTP surface listens on
-`http://127.0.0.1:8813` with `/health`, `/provider-advertisement`,
-`/operator-state`, `/eve/operator`, `/cultmesh/publications`, and
-`POST /speech-provider/mimo/voicedesign`.
+`scripts/restart-weksa-daemon.cmd`. Its daemon-owned health path publishes
+`weksa.cultnet-rudp-provider-health` to Idunn over
+`cultnet.transport.rudp.v0` after each serialized witness refresh. Its
+compatibility HTTP surface still listens on `http://127.0.0.1:8813` with
+`/health`, `/provider-advertisement`, `/operator-state`, `/eve/operator`,
+`/cultmesh/publications`, and `POST /speech-provider/mimo/voicedesign`, but
+those endpoints are operator/debug projections, not daemon liveness owners.
 
 ## CultMesh Verses
 

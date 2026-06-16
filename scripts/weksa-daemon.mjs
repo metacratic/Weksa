@@ -7,6 +7,13 @@ import { basename, delimiter, dirname, extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+configureCultLibModulePath();
+const require = Module.createRequire(import.meta.url);
+const {
+  CULTNET_RUDP_PROTOCOL_ID,
+  createIdunnRudpHealthPublisher,
+  publishIdunnRudpHealth,
+} = require("./idunn-rudp-health.cjs");
 const options = parseArgs(process.argv.slice(2));
 const port = Number(options.port ?? process.env.WEKSA_DAEMON_PORT ?? 8813);
 const host = options.host ?? process.env.WEKSA_DAEMON_HOST ?? "127.0.0.1";
@@ -15,11 +22,18 @@ const cultMeshStorePath = resolve(stateRoot, "provider-advertisement-store.cc");
 const pidPath = resolve(stateRoot, "weksa-daemon.pid");
 const logPath = resolve(stateRoot, "weksa-daemon.log");
 const mimoApiKeyPath = options.mimoApiKeyPath ?? process.env.WEKSA_MIMO_API_KEY_FILE ?? "E:/Projects/gamecult-ops/mimo-api-Weksa.txt";
+const idunnHealthPublisher = createIdunnRudpHealthPublisher({
+  endpoint: options.idunnRudpHealth ?? process.env.WEKSA_IDUNN_RUDP_HEALTH,
+  daemonId: options.idunnDaemon ?? process.env.WEKSA_IDUNN_DAEMON ?? "weksa",
+  healthContract: options.idunnHealthContract ?? process.env.WEKSA_IDUNN_HEALTH_CONTRACT ?? "weksa.cultnet-rudp-provider-health",
+});
 const startedAt = new Date().toISOString();
 let tick = 0;
 let lastPublishedAt = "";
 let lastError = undefined;
 let cachedSnapshot = undefined;
+let witnessRefreshRunning = false;
+let lastRudpHealthSuccessMs = 0;
 
 if (options.health) {
   await runHealthCheck();
@@ -29,7 +43,7 @@ if (options.health) {
 await mkdir(stateRoot, { recursive: true });
 await writeFile(pidPath, `${process.pid}\n`, "ascii");
 await appendLog(`started pid=${process.pid} host=${host} port=${port}`);
-await publishWitnesses();
+await refreshWitnesses("startup");
 
 const server = http.createServer(async (request, response) => {
   try {
@@ -61,7 +75,7 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === "/speech-provider/mimo/voicedesign" && request.method === "POST") {
       const body = await readJsonBody(request);
       const result = await handleMimoVoiceDesign(body);
-      await publishWitnesses();
+      await refreshWitnesses("mimo-voicedesign-command");
       return sendJson(response, 200, result);
     }
     sendJson(response, 404, { ok: false, error: "unknown endpoint" });
@@ -77,9 +91,10 @@ server.listen(port, host, () => {
 });
 
 const interval = setInterval(() => {
-  publishWitnesses().catch(async (error) => {
+  refreshWitnesses("interval").catch(async (error) => {
     lastError = String(error?.stack ?? error);
     await appendLog(`publish error: ${lastError}`);
+    await publishWeksaRudpHealth("failed", `Weksa witness refresh failed: ${String(error?.message ?? error)}`);
   });
 }, 30_000);
 
@@ -131,13 +146,46 @@ async function publishWitnesses() {
   cachedSnapshot = snapshot;
   lastPublishedAt = snapshot.operatorState.updated_at;
   tick += 1;
+  return snapshot;
 }
 
 async function currentSnapshot() {
   if (!cachedSnapshot) {
-    await publishWitnesses();
+    await refreshWitnesses("snapshot-demand");
   }
   return cachedSnapshot;
+}
+
+async function refreshWitnesses(reason) {
+  if (witnessRefreshRunning) {
+    await appendLog(`skipped overlapping witness refresh reason=${reason}`);
+    return cachedSnapshot;
+  }
+  witnessRefreshRunning = true;
+  try {
+    const snapshot = await publishWitnesses();
+    await publishWeksaRudpHealth(
+      "healthy",
+      `Weksa refreshed witnesses reason=${reason} tick=${tick} provider=${snapshot.providerAdvertisement.providerId}`,
+      snapshot.operatorState.updated_at,
+    );
+    return snapshot;
+  } finally {
+    witnessRefreshRunning = false;
+  }
+}
+
+async function publishWeksaRudpHealth(state, detail, observedAt = new Date().toISOString()) {
+  if (!idunnHealthPublisher) return;
+  try {
+    await publishIdunnRudpHealth(idunnHealthPublisher, { state, detail, observedAt });
+    lastRudpHealthSuccessMs = Date.now();
+  } catch (error) {
+    const hasRecentSuccess = lastRudpHealthSuccessMs > 0 && Date.now() - lastRudpHealthSuccessMs < 300_000;
+    if (!hasRecentSuccess) {
+      await appendLog(`Idunn RUDP health publish failed: ${String(error?.message ?? error)}`);
+    }
+  }
 }
 
 async function buildSnapshot() {
@@ -182,7 +230,8 @@ async function buildSnapshot() {
     updated_at: updatedAt,
     transport: {
       cultmesh_store: ".weksa/provider-advertisement-store.cc",
-      native_cultnet_peer: "pending",
+      native_cultnet_peer: idunnHealthPublisher ? `${CULTNET_RUDP_PROTOCOL_ID}:idunn-health` : "pending",
+      idunn_rudp_health: idunnHealthPublisher ? `${idunnHealthPublisher.endpoint.host}:${idunnHealthPublisher.endpoint.port}` : "unconfigured",
       compatibility_http: `http://${host}:${port}`,
     },
     publications: [
@@ -251,18 +300,21 @@ async function createCultMeshNodeWithOwnedStoreReset(CultMesh, storePath, docume
 
 function loadCultRuntime() {
   try {
-    process.env.NODE_PATH = [
-      resolve(repoRoot, "..", "CultLib", "packages"),
-      process.env.NODE_PATH || "",
-    ].filter(Boolean).join(delimiter);
-    Module._initPaths();
-    const require = Module.createRequire(import.meta.url);
+    configureCultLibModulePath();
     const { CultMesh } = require("cultmesh-ts");
     const { defineDocumentType } = require("cultcache-ts");
     return { CultMesh, defineDocumentType, error: null };
   } catch (error) {
     return { CultMesh: null, defineDocumentType: null, error };
   }
+}
+
+function configureCultLibModulePath() {
+  process.env.NODE_PATH = [
+    resolve(repoRoot, "..", "CultLib", "packages"),
+    process.env.NODE_PATH || "",
+  ].filter(Boolean).join(delimiter);
+  Module._initPaths();
 }
 
 function defineCultMeshDocuments(defineDocumentType) {
@@ -926,6 +978,18 @@ function parseArgs(args) {
         break;
       case "--mimo-api-key-path":
         parsed.mimoApiKeyPath = args[index + 1];
+        index += 1;
+        break;
+      case "--idunn-rudp-health":
+        parsed.idunnRudpHealth = args[index + 1];
+        index += 1;
+        break;
+      case "--idunn-daemon":
+        parsed.idunnDaemon = args[index + 1];
+        index += 1;
+        break;
+      case "--idunn-health-contract":
+        parsed.idunnHealthContract = args[index + 1];
         index += 1;
         break;
       case "--health":
