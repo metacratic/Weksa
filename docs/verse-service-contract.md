@@ -38,11 +38,19 @@ and trace.
 - `.weksa/provider-advertisement.cc`: read-only provider advertisement witness.
 - `.weksa/provider-advertisement-store.cc`: CultMesh/CultCache provider store
   containing `gamecult.eve.provider_advertisement.v1`,
-  `gamecult.eve.interface_binding.v1`, and `gamecult.eve.surface_state.v1`
-  records for Odin discovery.
+  `gamecult.eve.interface_binding.v1`, `gamecult.eve.surface_state.v1`,
+  `weksa.operator_state.v0`, `weksa.command_boundary.v1`, and
+  `weksa.transport_profile.v1` records for Odin discovery.
 - `.weksa/operator-state.cc`: daemon health, readiness, and runtime witness
   index used by Idunn health checks and operator inspection.
 - `.weksa/eve-surfaces.cc`: current Weksa operator Eve surface witness.
+- `.weksa/command-boundary.cc`: provider-owned command and lifecycle boundary
+  naming Weksa as owner, Idunn as lifecycle requester, and the remaining MiMo
+  VoiceDesign HTTP route as compatibility command ingress.
+- `.weksa/transport-profile.cc`: target/current transport profile. Health is
+  published through `cultnet.transport.rudp.v0`; provider state is carried by
+  the CultMesh store; the MiMo VoiceDesign command route remains compatibility
+  HTTP debt until a CultNet/RUDP command document ingress replaces it.
 - `.weksa/cultmesh-publications.cc`: publication index naming current Weksa
   witness surfaces and compatibility routes.
 - `.weksa/intent/{intentId}.cc`: conversational intent documents.
@@ -96,7 +104,10 @@ those endpoints are operator/debug projections, not daemon liveness owners.
 Odin ingests the Starfire Weksa provider through
 `.weksa/provider-advertisement-store.cc`. Idunn tracks the daemon as target
 `weksa` in the `starfire-local` swarm profile and owns restart authority through
-the Weksa restart script.
+the Weksa restart script. Odin should read Weksa's provider advertisement,
+operator state, command boundary, transport profile, and Eve surface from the
+typed provider store; HTTP endpoints are debug/operator lowerings and do not own
+provider truth.
 
 ## Eve Surfaces
 

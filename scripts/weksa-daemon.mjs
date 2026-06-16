@@ -137,11 +137,15 @@ async function publishWitnesses() {
   await writeWitness("provider-advertisement.cc", snapshot.providerAdvertisement);
   await writeWitness("operator-state.cc", snapshot.operatorState);
   await writeWitness("eve-surfaces.cc", snapshot.operatorSurface);
+  await writeWitness("command-boundary.cc", snapshot.commandBoundary);
+  await writeWitness("transport-profile.cc", snapshot.transportProfile);
   await writeWitness("cultmesh-publications.cc", snapshot.cultMeshPublications);
   await writeCultMeshStore(snapshot);
   await writeJson(resolve(stateRoot, "provider-advertisement.json"), snapshot.providerAdvertisement);
   await writeJson(resolve(stateRoot, "operator-state.json"), snapshot.operatorState);
   await writeJson(resolve(stateRoot, "eve-operator-surface.json"), snapshot.operatorSurface);
+  await writeJson(resolve(stateRoot, "command-boundary.json"), snapshot.commandBoundary);
+  await writeJson(resolve(stateRoot, "transport-profile.json"), snapshot.transportProfile);
   await writeJson(resolve(stateRoot, "cultmesh-publications.json"), snapshot.cultMeshPublications);
   cachedSnapshot = snapshot;
   lastPublishedAt = snapshot.operatorState.updated_at;
@@ -223,7 +227,9 @@ async function buildSnapshot() {
     },
     latest_affect_tuning: tuning,
   };
-  const operatorSurface = buildOperatorSurface({ providerAdvertisement, operatorState, cultureCatalog, tuning });
+  const commandBoundary = buildCommandBoundary(updatedAt);
+  const transportProfile = buildTransportProfile(updatedAt);
+  const operatorSurface = buildOperatorSurface({ providerAdvertisement, operatorState, commandBoundary, cultureCatalog, tuning });
   const cultMeshPublications = {
     schema: "weksa.cultmesh_publications.v0",
     service_id: "weksa.intent.service",
@@ -238,11 +244,13 @@ async function buildSnapshot() {
       publication("weksa.service/provider-advertisement", "gamecult.eve.provider_advertisement.v1", ".weksa/provider-advertisement-store.cc", "/provider-advertisement"),
       publication("weksa.operator/status", "weksa.operator_state.v0", ".weksa/operator-state.cc", "/operator-state"),
       publication("weksa.eve.surface.operator", "gamecult.eve.surface.v1", ".weksa/eve-surfaces.cc", "/eve/operator"),
+      publication("weksa.command-boundary", "weksa.command_boundary.v1", ".weksa/command-boundary.cc", null),
+      publication("weksa.transport-profile", "weksa.transport_profile.v1", ".weksa/transport-profile.cc", null),
       publication("weksa.cultmesh/publications", "weksa.cultmesh_publications.v0", ".weksa/cultmesh-publications.cc", "/cultmesh/publications"),
       publication("weksa.speech-provider/mimo/voicedesign", "weksa.mimo_tts_request.v0", ".weksa/speech-provider/mimo/{requestId}.cc", "/speech-provider/mimo/voicedesign"),
     ],
   };
-  return { providerAdvertisement, operatorState, operatorSurface, cultMeshPublications };
+  return { providerAdvertisement, operatorState, operatorSurface, commandBoundary, transportProfile, cultMeshPublications };
 }
 
 async function writeCultMeshStore(snapshot) {
@@ -251,8 +259,22 @@ async function writeCultMeshStore(snapshot) {
     await appendLog(`CultMesh store write skipped: ${runtime.error.message}`);
     return;
   }
-  const { providerAdvertisementDefinition, interfaceBindingDefinition, surfaceDefinition } = defineCultMeshDocuments(runtime.defineDocumentType);
-  const documents = [providerAdvertisementDefinition, interfaceBindingDefinition, surfaceDefinition];
+  const {
+    providerAdvertisementDefinition,
+    interfaceBindingDefinition,
+    surfaceDefinition,
+    operatorStateDefinition,
+    commandBoundaryDefinition,
+    transportProfileDefinition,
+  } = defineCultMeshDocuments(runtime.defineDocumentType);
+  const documents = [
+    providerAdvertisementDefinition,
+    interfaceBindingDefinition,
+    surfaceDefinition,
+    operatorStateDefinition,
+    commandBoundaryDefinition,
+    transportProfileDefinition,
+  ];
   await rm(cultMeshStorePath, { force: true });
   const node = await createCultMeshNodeWithOwnedStoreReset(runtime.CultMesh, cultMeshStorePath, documents);
   await node.put(providerAdvertisementDefinition, snapshot.providerAdvertisement.providerId, snapshot.providerAdvertisement);
@@ -285,6 +307,9 @@ async function writeCultMeshStore(snapshot) {
     updatedAt: snapshot.operatorState.updated_at,
     surface: snapshot.operatorSurface,
   });
+  await node.put(operatorStateDefinition, "weksa", snapshot.operatorState);
+  await node.put(commandBoundaryDefinition, "weksa", snapshot.commandBoundary);
+  await node.put(transportProfileDefinition, "weksa", snapshot.transportProfile);
   await node.flush?.(true);
 }
 
@@ -352,7 +377,41 @@ function defineCultMeshDocuments(defineDocumentType) {
     name: (value) => value?.providerId || "provider",
     schema: { parse: (value) => value },
   });
-  return { providerAdvertisementDefinition, interfaceBindingDefinition, surfaceDefinition };
+  const operatorStateDefinition = defineDocumentType({
+    type: "weksa.operator_state",
+    schemaName: "weksa.operator_state",
+    schemaId: "weksa.operator_state.v0",
+    schemaVersion: "weksa.operator_state.v0",
+    global: false,
+    name: (value) => value?.daemon_id || value?.provider_id || "weksa",
+    schema: { parse: (value) => value },
+  });
+  const commandBoundaryDefinition = defineDocumentType({
+    type: "weksa.command_boundary",
+    schemaName: "weksa.command_boundary",
+    schemaId: "weksa.command_boundary.v1",
+    schemaVersion: "weksa.command_boundary.v1",
+    global: false,
+    name: (value) => value?.boundary_id || value?.daemon_id || "weksa",
+    schema: { parse: (value) => value },
+  });
+  const transportProfileDefinition = defineDocumentType({
+    type: "weksa.transport_profile",
+    schemaName: "weksa.transport_profile",
+    schemaId: "weksa.transport_profile.v1",
+    schemaVersion: "weksa.transport_profile.v1",
+    global: false,
+    name: (value) => value?.profile_id || value?.daemon_id || "weksa",
+    schema: { parse: (value) => value },
+  });
+  return {
+    providerAdvertisementDefinition,
+    interfaceBindingDefinition,
+    surfaceDefinition,
+    operatorStateDefinition,
+    commandBoundaryDefinition,
+    transportProfileDefinition,
+  };
 }
 
 function loadProviderAdvertisement(updatedAt) {
@@ -362,6 +421,7 @@ function loadProviderAdvertisement(updatedAt) {
     ...fixture,
     mode: "daemon-live",
     status: "active",
+    daemonId: "weksa",
     updatedAt,
     canonicalService: "asgard.weksa",
     locatedService: "asgard.starfire.weksa",
@@ -384,10 +444,71 @@ function loadProviderAdvertisement(updatedAt) {
     ],
     health: {
       state: "healthy",
-      endpoint: `http://${host}:${port}/health`,
+      endpoint: idunnHealthPublisher ? `${CULTNET_RUDP_PROTOCOL_ID}:idunn-health` : `http://${host}:${port}/health`,
       witness: ".weksa/operator-state.cc",
       checkedBy: "idunn.desired_daemon.v1",
     },
+  };
+}
+
+function buildCommandBoundary(updatedAt) {
+  return {
+    schema: "weksa.command_boundary.v1",
+    boundary_id: "weksa",
+    daemon_id: "weksa",
+    provider_id: "weksa.intent.service",
+    service_id: "weksa.intent.service",
+    updated_at: updatedAt,
+    owner: "Weksa daemon",
+    lifecycle_authority: "idunn.local-command",
+    health_publication: {
+      contract: "weksa.cultnet-rudp-provider-health",
+      transport: CULTNET_RUDP_PROTOCOL_ID,
+      publication_source: "daemon-published",
+      state_owner: "Weksa daemon",
+    },
+    commands: [
+      {
+        command: "speech_provider.mimo.voicedesign",
+        ingress: "compatibility-http",
+        endpoint: `http://${host}:${port}/speech-provider/mimo/voicedesign`,
+        owner: "Weksa daemon",
+        input_schema: "weksa.mimo_tts_request.v0",
+        output_schema: "weksa.mimo_voicedesign_receipt.v0",
+        authority: "Weksa accepts the request, commits typed witnesses, and treats MiMo as an external renderer.",
+      },
+    ],
+    forbidden_writers: [
+      "HTTP clients may request commands but do not own Weksa intent state.",
+      "Odin, Eve, and renderers may lower Weksa surfaces but do not mutate command authority.",
+    ],
+    compatibility: {
+      http: `http://${host}:${port}`,
+      status: "debug-and-command-lowering-only",
+      cut_line: "Replace speech_provider.mimo.voicedesign compatibility HTTP with a CultNet/RUDP command document ingress before deleting the HTTP command route.",
+    },
+  };
+}
+
+function buildTransportProfile(updatedAt) {
+  return {
+    schema: "weksa.transport_profile.v1",
+    profile_id: "weksa",
+    daemon_id: "weksa",
+    provider_id: "weksa.intent.service",
+    updated_at: updatedAt,
+    target_transport: CULTNET_RUDP_PROTOCOL_ID,
+    current_transport: idunnHealthPublisher
+      ? "rudp-health-and-cultmesh-store + compatibility-http-command"
+      : "cultmesh-store + compatibility-http",
+    health_transport: idunnHealthPublisher ? CULTNET_RUDP_PROTOCOL_ID : "compatibility-http",
+    state_transport: "cultmesh-store",
+    command_transport: "compatibility-http",
+    compatibility: {
+      http: `http://${host}:${port}`,
+      endpoints_are_lowerings: true,
+    },
+    cut_line: "Weksa health and provider state are daemon-owned typed records; the remaining command ingress debt is the MiMo VoiceDesign HTTP route.",
   };
 }
 
@@ -440,7 +561,7 @@ async function inspectCultureCatalog() {
   };
 }
 
-function buildOperatorSurface({ providerAdvertisement, operatorState, cultureCatalog, tuning }) {
+function buildOperatorSurface({ providerAdvertisement, operatorState, commandBoundary, cultureCatalog, tuning }) {
   return {
     schema: "gamecult.eve.surface.v1",
     providerId: providerAdvertisement.providerId,
@@ -463,6 +584,7 @@ function buildOperatorSurface({ providerAdvertisement, operatorState, cultureCat
         fact("culture profiles", String(cultureCatalog.profile_count)),
         fact("target profiles", String(cultureCatalog.target_language_profile_count)),
         fact("commands", operatorState.readiness.command_ingress),
+        fact("command boundary", commandBoundary.boundary_id),
         fact("mimo voicedesign", operatorState.readiness.mimo_voicedesign),
       ],
     },
