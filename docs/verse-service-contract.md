@@ -22,6 +22,7 @@ Outputs:
 - `weksa.pronunciation_plan.v0`
 - `weksa.utterance_handoff.v0`
 - `weksa.utterance_embedding_handoff.v0.1`
+- `weksa.mimo_voicedesign_command.v0`
 - `weksa.mimo_tts_request.v0`
 - `weksa.mimo_voicedesign_receipt.v0`
 - Eve/CultUI surfaces for intent review, pronunciation inspection, and handoff
@@ -45,19 +46,21 @@ and trace.
   index used by Idunn health checks and operator inspection.
 - `.weksa/eve-surfaces.cc`: current Weksa operator Eve surface witness.
 - `.weksa/command-boundary.cc`: provider-owned command and lifecycle boundary
-  naming Weksa as owner, Idunn as lifecycle requester, and the remaining MiMo
-  VoiceDesign HTTP route as compatibility command ingress.
+  naming Weksa as owner, Idunn as lifecycle requester, and the MiMo
+  VoiceDesign RUDP command ingress as daemon-owned transport authority.
 - `.weksa/transport-profile.cc`: target/current transport profile. Health is
   published through `cultnet.transport.rudp.v0`; provider state is carried by
-  the CultMesh store; the MiMo VoiceDesign command route remains compatibility
-  HTTP debt until a CultNet/RUDP command document ingress replaces it.
+  the CultMesh store; MiMo VoiceDesign command ingress now arrives through
+  `cultnet.transport.rudp.v0` instead of an HTTP route.
 - `.weksa/cultmesh-publications.cc`: publication index naming current Weksa
-  witness surfaces and compatibility routes.
+  witness surfaces and RUDP/CultMesh routes.
 - `.weksa/intent/{intentId}.cc`: conversational intent documents.
 - `.weksa/pronunciation/{utteranceId}.cc`: pronunciation plans and phonetic
   event sequences.
 - `.weksa/handoff/{utteranceId}.cc`: utterance handoffs and embedding handoff
   requests for AquaSynth.
+- `.weksa/speech-provider/mimo/{requestId}/command.cc`: daemon-owned RUDP
+  command witness for MiMo VoiceDesign ingress.
 - `.weksa/speech-provider/mimo/{requestId}/interlingua.cc`: accepted or
   provisionally decomposed interlingua used for a MiMo verbalization command.
 - `.weksa/speech-provider/mimo/{requestId}/mimo-request.cc`: Weksa-owned MiMo
@@ -78,11 +81,10 @@ The local Starfire daemon is launched by `scripts/start-weksa-daemon.ps1`,
 checked by `scripts/health-weksa-daemon.cmd`, and restarted by
 `scripts/restart-weksa-daemon.cmd`. Its daemon-owned health path publishes
 `weksa.cultnet-rudp-provider-health` to Idunn over
-`cultnet.transport.rudp.v0` after each serialized witness refresh. Its
-compatibility HTTP surface still listens on `http://127.0.0.1:8813` with
-`/health`, `/provider-advertisement`, `/operator-state`, `/eve/operator`,
-`/cultmesh/publications`, and `POST /speech-provider/mimo/voicedesign`, but
-those endpoints are operator/debug projections, not daemon liveness owners.
+`cultnet.transport.rudp.v0` after each serialized witness refresh, and MiMo
+VoiceDesign commands arrive on `rudp://127.0.0.1:8813` as
+`weksa.mimo_voicedesign_command.v0` documents. Health and operator truth live
+in `.weksa/*.cc` witnesses; the HTTP daemon surface is deleted.
 
 ## CultMesh Verses
 
@@ -106,8 +108,8 @@ Odin ingests the Starfire Weksa provider through
 `weksa` in the `starfire-local` swarm profile and owns restart authority through
 the Weksa restart script. Odin should read Weksa's provider advertisement,
 operator state, command boundary, transport profile, and Eve surface from the
-typed provider store; HTTP endpoints are debug/operator lowerings and do not own
-provider truth.
+typed provider store and RUDP command boundary; no HTTP endpoint owns provider
+truth.
 
 ## Eve Surfaces
 
@@ -132,7 +134,8 @@ provider truth.
 - `speech_provider.mimo.voicedesign`: accept a Persona/agent state file plus
   either a Weksa interlingua packet or raw thought text. Raw thought is first
   decomposed into provisional interlingua, then lowered into a MiMo VoiceDesign
-  request and rendered through MiMo.
+  request and rendered through MiMo. The daemon accepts this command as a
+  `weksa.mimo_voicedesign_command.v0` document over `cultnet.transport.rudp.v0`.
 - `provider.advertise`: publish `gamecult.eve.provider_advertisement.v1`.
 
 ## Forbidden Writers

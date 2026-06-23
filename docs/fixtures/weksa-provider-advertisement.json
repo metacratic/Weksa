@@ -240,7 +240,8 @@
       "id": "weksa.command.speech_provider.mimo.voicedesign",
       "owner": "Weksa",
       "acceptedByFixture": true,
-      "compatibilityEndpoint": "POST /speech-provider/mimo/voicedesign",
+      "commandIngress": "cultnet.transport.rudp.v0",
+      "inputSchema": "weksa.mimo_voicedesign_command.v0",
       "allowedInputs": [
         "Persona/agent state file path",
         "weksa.interlingua_packet.v0-compatible object",

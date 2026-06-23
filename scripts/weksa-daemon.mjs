@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-import http from "node:http";
 import Module from "node:module";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import { basename, delimiter, dirname, extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,10 +9,16 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 configureCultLibModulePath();
 const require = Module.createRequire(import.meta.url);
 const {
-  CULTNET_RUDP_PROTOCOL_ID,
   createIdunnRudpHealthPublisher,
   publishIdunnRudpHealth,
 } = require("./idunn-rudp-health.cjs");
+const {
+  CULTNET_RUDP_PROTOCOL_ID,
+  WEKSA_MIMO_VOICEDESIGN_COMMAND_SCHEMA_ID,
+  createWeksaRudpCommandServer,
+  sendWeksaMimoVoiceDesignCommand,
+  formatRudpEndpoint,
+} = require("./weksa-rudp-command.cjs");
 const options = parseArgs(process.argv.slice(2));
 const port = Number(options.port ?? process.env.WEKSA_DAEMON_PORT ?? 8813);
 const host = options.host ?? process.env.WEKSA_DAEMON_HOST ?? "127.0.0.1";
@@ -27,6 +32,7 @@ const idunnHealthPublisher = createIdunnRudpHealthPublisher({
   daemonId: options.idunnDaemon ?? process.env.WEKSA_IDUNN_DAEMON ?? "weksa",
   healthContract: options.idunnHealthContract ?? process.env.WEKSA_IDUNN_HEALTH_CONTRACT ?? "weksa.cultnet-rudp-provider-health",
 });
+const odinCultMeshRudp = options.odinCultMeshRudp ?? process.env.WEKSA_ODIN_CULTMESH_RUDP;
 const startedAt = new Date().toISOString();
 let tick = 0;
 let lastPublishedAt = "";
@@ -39,56 +45,38 @@ if (options.health) {
   await runHealthCheck();
   process.exit(0);
 }
+if (options.mimoCommandJson) {
+  const command = JSON.parse(readFileSync(resolve(repoRoot, options.mimoCommandJson), "utf8"));
+  const receipt = await sendWeksaMimoVoiceDesignCommand({
+    endpoint: formatRudpEndpoint(host, port),
+    command,
+    runtimeId: "weksa-cli",
+    localHost: host.includes(":") ? "::" : "0.0.0.0",
+  });
+  process.stdout.write(`${JSON.stringify(receipt, null, 2)}\n`);
+  process.exit(0);
+}
 
 await mkdir(stateRoot, { recursive: true });
 await writeFile(pidPath, `${process.pid}\n`, "ascii");
 await appendLog(`started pid=${process.pid} host=${host} port=${port}`);
-await refreshWitnesses("startup");
-
-const server = http.createServer(async (request, response) => {
-  try {
-    const url = new URL(request.url ?? "/", `http://${request.headers.host ?? `${host}:${port}`}`);
-    const snapshot = await currentSnapshot();
-    if (url.pathname === "/health") {
-      return sendJson(response, 200, {
-        ok: true,
-        service: "weksa.intent.service",
-        providerId: "weksa.intent.service",
-        state: "healthy",
-        startedAt,
-        lastPublishedAt,
-        tick,
-      });
-    }
-    if (url.pathname === "/provider-advertisement") {
-      return sendJson(response, 200, snapshot.providerAdvertisement);
-    }
-    if (url.pathname === "/operator-state") {
-      return sendJson(response, 200, snapshot.operatorState);
-    }
-    if (url.pathname === "/eve/operator") {
-      return sendJson(response, 200, snapshot.operatorSurface);
-    }
-    if (url.pathname === "/cultmesh/publications") {
-      return sendJson(response, 200, snapshot.cultMeshPublications);
-    }
-    if (url.pathname === "/speech-provider/mimo/voicedesign" && request.method === "POST") {
-      const body = await readJsonBody(request);
-      const result = await handleMimoVoiceDesign(body);
-      await refreshWitnesses("mimo-voicedesign-command");
-      return sendJson(response, 200, result);
-    }
-    sendJson(response, 404, { ok: false, error: "unknown endpoint" });
-  } catch (error) {
+const startupSnapshot = await refreshWitnesses("startup");
+await publishOdinStartupRespect(startupSnapshot);
+const commandServer = await createWeksaRudpCommandServer({
+  host,
+  port,
+  runtimeId: "weksa-daemon",
+  onCommand: async (command) => {
+    const receipt = await handleMimoVoiceDesign(command);
+    await refreshWitnesses("mimo-voicedesign-command");
+    return receipt;
+  },
+  onError: async (error) => {
     lastError = String(error?.stack ?? error);
-    await appendLog(`request error: ${lastError}`);
-    sendJson(response, error?.statusCode ?? 500, { ok: false, error: String(error?.message ?? error) });
-  }
+    await appendLog(`rudp command error: ${lastError}`);
+  },
 });
-
-server.listen(port, host, () => {
-  appendLog(`listening http://${host}:${port}`).catch(() => {});
-});
+await appendLog(`listening ${commandServer.uri}`);
 
 const interval = setInterval(() => {
   refreshWitnesses("interval").catch(async (error) => {
@@ -104,32 +92,65 @@ process.on("SIGTERM", () => shutdown(0));
 async function shutdown(code) {
   clearInterval(interval);
   await appendLog(`stopping pid=${process.pid}`);
-  server.close(() => process.exit(code));
+  commandServer.close();
+  process.exit(code);
 }
 
 async function runHealthCheck() {
-  const healthUrl = `http://${host}:${port}/health`;
-  await new Promise((resolvePromise, rejectPromise) => {
-    const request = http.get(healthUrl, (response) => {
-      let body = "";
-      response.setEncoding("utf8");
-      response.on("data", (chunk) => {
-        body += chunk;
-      });
-      response.on("end", () => {
-        if (response.statusCode === 200) {
-          process.stdout.write(body);
-          resolvePromise();
-        } else {
-          rejectPromise(new Error(`health returned ${response.statusCode}: ${body}`));
-        }
-      });
-    });
-    request.on("error", rejectPromise);
-    request.setTimeout(5_000, () => {
-      request.destroy(new Error(`health timed out: ${healthUrl}`));
-    });
-  });
+  const operatorStatePath = resolve(stateRoot, "operator-state.cc");
+  const commandBoundaryPath = resolve(stateRoot, "command-boundary.cc");
+  const transportProfilePath = resolve(stateRoot, "transport-profile.cc");
+  if (!existsSync(pidPath)) {
+    throw new Error(`Weksa daemon PID file is missing: ${pidPath}`);
+  }
+  if (!existsSync(operatorStatePath)) {
+    throw new Error(`Weksa operator-state witness is missing: ${operatorStatePath}`);
+  }
+  if (!existsSync(commandBoundaryPath)) {
+    throw new Error(`Weksa command-boundary witness is missing: ${commandBoundaryPath}`);
+  }
+  if (!existsSync(transportProfilePath)) {
+    throw new Error(`Weksa transport-profile witness is missing: ${transportProfilePath}`);
+  }
+  const pidText = readFileSync(pidPath, "utf8").trim();
+  if (!/^\d+$/.test(pidText)) {
+    throw new Error(`Weksa daemon PID file is invalid: ${pidText}`);
+  }
+  const pid = Number(pidText);
+  try {
+    process.kill(pid, 0);
+  } catch {
+    throw new Error(`Weksa daemon PID ${pid} is not running.`);
+  }
+  const operatorStateText = readFileSync(operatorStatePath, "utf8");
+  const commandBoundaryText = readFileSync(commandBoundaryPath, "utf8");
+  const transportProfileText = readFileSync(transportProfilePath, "utf8");
+  const ages = [operatorStatePath, commandBoundaryPath, transportProfilePath]
+    .map((path) => Math.floor((Date.now() - statSync(path).mtimeMs) / 1000));
+  const ageSeconds = Math.max(...ages);
+  if (ageSeconds > 180) {
+    throw new Error(`Weksa daemon witnesses are stale (${ageSeconds}s old at oldest required path).`);
+  }
+  if (!operatorStateText.includes("command_ingress: cultnet_rudp_document_mimo_voicedesign")) {
+    throw new Error("Weksa operator-state witness does not report RUDP command ingress.");
+  }
+  if (!commandBoundaryText.includes(`ingress: ${CULTNET_RUDP_PROTOCOL_ID}`)) {
+    throw new Error("Weksa command-boundary witness does not report CultNet/RUDP ingress.");
+  }
+  if (!commandBoundaryText.includes(`input_schema: ${WEKSA_MIMO_VOICEDESIGN_COMMAND_SCHEMA_ID}`)) {
+    throw new Error("Weksa command-boundary witness does not report the MiMo command document schema.");
+  }
+  if (!transportProfileText.includes(`command_transport: ${CULTNET_RUDP_PROTOCOL_ID}`)) {
+    throw new Error("Weksa transport-profile witness does not report CultNet/RUDP command transport.");
+  }
+  process.stdout.write(`${JSON.stringify({
+    ok: true,
+    service: "weksa.intent.service",
+    state: "healthy",
+    pid,
+    ageSeconds,
+    commandEndpoint: formatRudpEndpoint(host, port),
+  }, null, 2)}\n`);
 }
 
 async function publishWitnesses() {
@@ -192,6 +213,33 @@ async function publishWeksaRudpHealth(state, detail, observedAt = new Date().toI
   }
 }
 
+async function publishOdinStartupRespect(snapshot) {
+  if (!odinCultMeshRudp || !snapshot?.providerAdvertisement) return;
+  const runtime = loadCultRuntime();
+  if (runtime.error) {
+    await appendLog(`Odin startup respect skipped: ${runtime.error.message}`);
+    return;
+  }
+  try {
+    const { providerAdvertisementDefinition } = defineCultMeshDocuments(runtime.defineDocumentType);
+    await runtime.CultMesh.publishRudpDocumentOnce(
+      idunnHealthPublisher?.daemonId ?? "weksa",
+      0x0d1d0002,
+      normalizeRudpEndpoint(odinCultMeshRudp),
+      runtime.defineCultNetDocumentBinding({ definition: providerAdvertisementDefinition }),
+      snapshot.providerAdvertisement.providerId,
+      snapshot.providerAdvertisement,
+      {
+        sourceRole: "weksa.provider",
+        tags: ["startup-respect", "odin-verse-discovery"],
+      },
+    );
+    await appendLog(`Odin startup respect published to ${odinCultMeshRudp}`);
+  } catch (error) {
+    await appendLog(`Odin startup respect failed: ${String(error?.message ?? error)}`);
+  }
+}
+
 async function buildSnapshot() {
   const updatedAt = new Date().toISOString();
   const providerAdvertisement = loadProviderAdvertisement(updatedAt);
@@ -222,7 +270,7 @@ async function buildSnapshot() {
       cultural_ontology_profiles: cultureCatalog.profile_count,
       target_language_profiles: cultureCatalog.target_language_profile_count,
       accepts_commands: true,
-      command_ingress: "compatibility_http_mimo_voicedesign_only",
+      command_ingress: "cultnet_rudp_document_mimo_voicedesign",
       mimo_voicedesign: existsSync(mimoApiKeyPath) ? "api_key_file_seen" : "missing_api_key_file",
     },
     latest_affect_tuning: tuning,
@@ -236,18 +284,17 @@ async function buildSnapshot() {
     updated_at: updatedAt,
     transport: {
       cultmesh_store: ".weksa/provider-advertisement-store.cc",
-      native_cultnet_peer: idunnHealthPublisher ? `${CULTNET_RUDP_PROTOCOL_ID}:idunn-health` : "pending",
+      native_cultnet_peer: formatRudpEndpoint(host, port),
       idunn_rudp_health: idunnHealthPublisher ? `${idunnHealthPublisher.endpoint.host}:${idunnHealthPublisher.endpoint.port}` : "unconfigured",
-      compatibility_http: `http://${host}:${port}`,
     },
     publications: [
-      publication("weksa.service/provider-advertisement", "gamecult.eve.provider_advertisement.v1", ".weksa/provider-advertisement-store.cc", "/provider-advertisement"),
-      publication("weksa.operator/status", "weksa.operator_state.v0", ".weksa/operator-state.cc", "/operator-state"),
-      publication("weksa.eve.surface.operator", "gamecult.eve.surface.v1", ".weksa/eve-surfaces.cc", "/eve/operator"),
+      publication("weksa.service/provider-advertisement", "gamecult.eve.provider_advertisement.v1", ".weksa/provider-advertisement-store.cc", ".weksa/provider-advertisement-store.cc"),
+      publication("weksa.operator/status", "weksa.operator_state.v0", ".weksa/operator-state.cc", ".weksa/operator-state.cc"),
+      publication("weksa.eve.surface.operator", "gamecult.eve.surface.v1", ".weksa/eve-surfaces.cc", ".weksa/eve-surfaces.cc"),
       publication("weksa.command-boundary", "weksa.command_boundary.v1", ".weksa/command-boundary.cc", null),
       publication("weksa.transport-profile", "weksa.transport_profile.v1", ".weksa/transport-profile.cc", null),
-      publication("weksa.cultmesh/publications", "weksa.cultmesh_publications.v0", ".weksa/cultmesh-publications.cc", "/cultmesh/publications"),
-      publication("weksa.speech-provider/mimo/voicedesign", "weksa.mimo_tts_request.v0", ".weksa/speech-provider/mimo/{requestId}.cc", "/speech-provider/mimo/voicedesign"),
+      publication("weksa.cultmesh/publications", "weksa.cultmesh_publications.v0", ".weksa/cultmesh-publications.cc", ".weksa/cultmesh-publications.cc"),
+      publication("weksa.speech-provider/mimo/voicedesign", WEKSA_MIMO_VOICEDESIGN_COMMAND_SCHEMA_ID, ".weksa/speech-provider/mimo/{requestId}/command.cc", formatRudpEndpoint(host, port)),
     ],
   };
   return { providerAdvertisement, operatorState, operatorSurface, commandBoundary, transportProfile, cultMeshPublications };
@@ -291,11 +338,11 @@ async function writeCultMeshStore(snapshot) {
       cultMeshAddress: "asgard.starfire.weksa/eve/operator",
       endpoints: [
         { transport: "cultmesh-store", address: ".weksa/provider-advertisement-store.cc" },
-        { transport: "http", address: `http://${host}:${port}/eve/operator` },
+        { transport: CULTNET_RUDP_PROTOCOL_ID, address: formatRudpEndpoint(host, port) },
       ],
       routes: [
         { transport: "cultmesh-store", address: ".weksa/provider-advertisement-store.cc" },
-        { transport: "compatibility-http", address: `http://${host}:${port}` },
+        { transport: CULTNET_RUDP_PROTOCOL_ID, address: formatRudpEndpoint(host, port) },
       ],
     },
     surface: snapshot.operatorSurface,
@@ -328,10 +375,19 @@ function loadCultRuntime() {
     configureCultLibModulePath();
     const { CultMesh } = require("cultmesh-ts");
     const { defineDocumentType } = require("cultcache-ts");
-    return { CultMesh, defineDocumentType, error: null };
+    const { defineCultNetDocumentBinding } = require("cultnet-ts");
+    return { CultMesh, defineDocumentType, defineCultNetDocumentBinding, error: null };
   } catch (error) {
-    return { CultMesh: null, defineDocumentType: null, error };
+    return { CultMesh: null, defineDocumentType: null, defineCultNetDocumentBinding: null, error };
   }
+}
+
+function normalizeRudpEndpoint(endpoint) {
+  const text = String(endpoint || "").trim();
+  if (!text) {
+    throw new Error("Odin CultMesh/RUDP endpoint must be non-empty.");
+  }
+  return text.toLowerCase().startsWith("rudp://") ? text : `rudp://${text}`;
 }
 
 function configureCultLibModulePath() {
@@ -433,18 +489,15 @@ function loadProviderAdvertisement(updatedAt) {
     },
     endpoints: [
       { transport: "cultmesh-store", address: ".weksa/provider-advertisement-store.cc" },
-      { transport: "http", address: `http://${host}:${port}` },
+      { transport: CULTNET_RUDP_PROTOCOL_ID, address: formatRudpEndpoint(host, port) },
     ],
     routes: [
       { transport: "cultmesh-store", address: ".weksa/provider-advertisement-store.cc" },
-      { transport: "compatibility-http", address: `http://${host}:${port}` },
-    ],
-    compatibilityRoutes: [
-      { kind: "http", url: `http://${host}:${port}`, lossy: true },
+      { transport: CULTNET_RUDP_PROTOCOL_ID, address: formatRudpEndpoint(host, port) },
     ],
     health: {
       state: "healthy",
-      endpoint: idunnHealthPublisher ? `${CULTNET_RUDP_PROTOCOL_ID}:idunn-health` : `http://${host}:${port}/health`,
+      endpoint: idunnHealthPublisher ? `${CULTNET_RUDP_PROTOCOL_ID}:idunn-health` : "unconfigured",
       witness: ".weksa/operator-state.cc",
       checkedBy: "idunn.desired_daemon.v1",
     },
@@ -470,22 +523,22 @@ function buildCommandBoundary(updatedAt) {
     commands: [
       {
         command: "speech_provider.mimo.voicedesign",
-        ingress: "compatibility-http",
-        endpoint: `http://${host}:${port}/speech-provider/mimo/voicedesign`,
+        ingress: CULTNET_RUDP_PROTOCOL_ID,
+        endpoint: formatRudpEndpoint(host, port),
         owner: "Weksa daemon",
-        input_schema: "weksa.mimo_tts_request.v0",
+        input_schema: WEKSA_MIMO_VOICEDESIGN_COMMAND_SCHEMA_ID,
         output_schema: "weksa.mimo_voicedesign_receipt.v0",
         authority: "Weksa accepts the request, commits typed witnesses, and treats MiMo as an external renderer.",
       },
     ],
     forbidden_writers: [
-      "HTTP clients may request commands but do not own Weksa intent state.",
+      "RUDP command senders may request commands but do not own Weksa intent state.",
       "Odin, Eve, and renderers may lower Weksa surfaces but do not mutate command authority.",
     ],
     compatibility: {
-      http: `http://${host}:${port}`,
-      status: "debug-and-command-lowering-only",
-      cut_line: "Replace speech_provider.mimo.voicedesign compatibility HTTP with a CultNet/RUDP command document ingress before deleting the HTTP command route.",
+      http: null,
+      status: "no-http-command-lane",
+      cut_line: "The HTTP command route is deleted; Weksa accepts speech_provider.mimo.voicedesign over CultNet/RUDP command documents and keeps typed witnesses as truth.",
     },
   };
 }
@@ -499,16 +552,16 @@ function buildTransportProfile(updatedAt) {
     updated_at: updatedAt,
     target_transport: CULTNET_RUDP_PROTOCOL_ID,
     current_transport: idunnHealthPublisher
-      ? "rudp-health-and-cultmesh-store + compatibility-http-command"
-      : "cultmesh-store + compatibility-http",
-    health_transport: idunnHealthPublisher ? CULTNET_RUDP_PROTOCOL_ID : "compatibility-http",
+      ? "rudp-health-and-cultmesh-store-and-rudp-command"
+      : "cultmesh-store-and-rudp-command",
+    health_transport: idunnHealthPublisher ? CULTNET_RUDP_PROTOCOL_ID : "unconfigured",
     state_transport: "cultmesh-store",
-    command_transport: "compatibility-http",
+    command_transport: CULTNET_RUDP_PROTOCOL_ID,
     compatibility: {
-      http: `http://${host}:${port}`,
-      endpoints_are_lowerings: true,
+      http: null,
+      endpoints_are_lowerings: false,
     },
-    cut_line: "Weksa health and provider state are daemon-owned typed records; the remaining command ingress debt is the MiMo VoiceDesign HTTP route.",
+    cut_line: "Weksa health, provider state, and MiMo VoiceDesign command ingress are daemon-owned typed records over CultNet/RUDP plus CultMesh store; HTTP is no longer in the daemon stack.",
   };
 }
 
@@ -596,13 +649,18 @@ async function handleMimoVoiceDesign(body) {
   const requestId = command.request_id || `mimo-${new Date().toISOString().replace(/[-:.TZ]/g, "")}-${Math.random().toString(36).slice(2, 8)}`;
   const outputRoot = resolve(stateRoot, "speech-provider", "mimo", requestId);
   await mkdir(outputRoot, { recursive: true });
+  const commandDocument = {
+    ...command,
+    schema_version: WEKSA_MIMO_VOICEDESIGN_COMMAND_SCHEMA_ID,
+    request_id: requestId,
+  };
 
-  const personaEvidence = inspectPersonaState(command.persona_state_path);
-  const interlinguaPacket = command.interlingua_packet
-    ? normalizeInterlinguaPacket(command.interlingua_packet, requestId)
-    : decomposeThoughtIntoInterlingua(command.thought_text, requestId, personaEvidence, command);
-  const targetRealization = lowerInterlinguaToSpeechText(interlinguaPacket, personaEvidence, command);
-  const mimoRequest = buildMimoVoiceDesignRequest({ requestId, command, personaEvidence, interlinguaPacket, targetRealization });
+  const personaEvidence = inspectPersonaState(commandDocument.persona_state_path);
+  const interlinguaPacket = commandDocument.interlingua_packet
+    ? normalizeInterlinguaPacket(commandDocument.interlingua_packet, requestId)
+    : decomposeThoughtIntoInterlingua(commandDocument.thought_text, requestId, personaEvidence, commandDocument);
+  const targetRealization = lowerInterlinguaToSpeechText(interlinguaPacket, personaEvidence, commandDocument);
+  const mimoRequest = buildMimoVoiceDesignRequest({ requestId, command: commandDocument, personaEvidence, interlinguaPacket, targetRealization });
   const providerResponse = await callMimoVoiceDesign(mimoRequest);
   const audioPath = resolve(outputRoot, `${requestId}.wav`);
   await writeFile(audioPath, providerResponse.audioBytes);
@@ -610,14 +668,16 @@ async function handleMimoVoiceDesign(body) {
   const receipt = {
     schema_version: "weksa.mimo_voicedesign_receipt.v0",
     request_id: requestId,
+    generated_at: new Date().toISOString(),
     ok: true,
     provider: "xiaomi-mimo",
     model: "mimo-v2.5-tts-voicedesign",
     persona_state_ref: personaEvidence.path,
-    source_kind: command.interlingua_packet ? "interlingua_packet" : "thought_text_decomposed_to_interlingua",
+    source_kind: commandDocument.interlingua_packet ? "interlingua_packet" : "thought_text_decomposed_to_interlingua",
     target_language: targetRealization.target_language,
     performance_register: targetRealization.performance_register,
     artifacts: {
+      command: `.weksa/speech-provider/mimo/${requestId}/command.cc`,
       interlingua_packet: `.weksa/speech-provider/mimo/${requestId}/interlingua.cc`,
       mimo_request: `.weksa/speech-provider/mimo/${requestId}/mimo-request.cc`,
       receipt: `.weksa/speech-provider/mimo/${requestId}/receipt.cc`,
@@ -637,9 +697,11 @@ async function handleMimoVoiceDesign(body) {
     },
   };
 
+  await writeWitness(`speech-provider/mimo/${requestId}/command.cc`, commandDocument);
   await writeWitness(`speech-provider/mimo/${requestId}/interlingua.cc`, interlinguaPacket);
   await writeWitness(`speech-provider/mimo/${requestId}/mimo-request.cc`, mimoRequest);
   await writeWitness(`speech-provider/mimo/${requestId}/receipt.cc`, receipt);
+  await writeJson(resolve(outputRoot, "command.json"), commandDocument);
   await writeJson(resolve(outputRoot, "interlingua.json"), interlinguaPacket);
   await writeJson(resolve(outputRoot, "mimo-request.json"), mimoRequest);
   await writeJson(resolve(outputRoot, "receipt.json"), receipt);
@@ -907,6 +969,13 @@ function buildVoiceDesignPrompt({ command, personaEvidence, targetRealization })
 }
 
 async function callMimoVoiceDesign(mimoRequest) {
+  if (options.mimoDryRun) {
+    return {
+      id: "weksa-mimo-dry-run",
+      created: new Date().toISOString(),
+      audioBytes: Buffer.from("RIFF0000WAVEfmt ", "ascii"),
+    };
+  }
   if (!existsSync(mimoApiKeyPath)) {
     throw httpError(500, `MiMo API key file is missing: ${mimoApiKeyPath}`);
   }
@@ -959,7 +1028,7 @@ function publication(key, schema, witness, endpoint) {
     key,
     schema,
     witness,
-    compatibility_endpoint: endpoint,
+    endpoint,
     authority: "Weksa daemon",
   };
 }
@@ -1114,8 +1183,19 @@ function parseArgs(args) {
         parsed.idunnHealthContract = args[index + 1];
         index += 1;
         break;
+      case "--odin-cultmesh-rudp":
+        parsed.odinCultMeshRudp = args[index + 1];
+        index += 1;
+        break;
       case "--health":
         parsed.health = true;
+        break;
+      case "--mimo-command-json":
+        parsed.mimoCommandJson = args[index + 1];
+        index += 1;
+        break;
+      case "--mimo-dry-run":
+        parsed.mimoDryRun = true;
         break;
       default:
         throw new Error(`Unknown argument: ${arg}`);

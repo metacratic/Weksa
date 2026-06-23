@@ -5,7 +5,8 @@ param(
   [string] $MiMoApiKeyPath = "E:\Projects\gamecult-ops\mimo-api-Weksa.txt",
   [string] $IdunnRudpHealth = "127.0.0.1:17870",
   [string] $IdunnDaemon = "weksa",
-  [string] $IdunnHealthContract = "weksa.cultnet-rudp-provider-health"
+  [string] $IdunnHealthContract = "weksa.cultnet-rudp-provider-health",
+  [string] $OdinCultMeshRudp = "127.0.0.1:17871"
 )
 
 $ErrorActionPreference = "Stop"
@@ -49,6 +50,10 @@ $arguments = @(
   "--idunn-health-contract", $IdunnHealthContract
 )
 
+if (-not [string]::IsNullOrWhiteSpace($OdinCultMeshRudp)) {
+  $arguments += @("--odin-cultmesh-rudp", $OdinCultMeshRudp)
+}
+
 $process = Start-Process -FilePath "node" `
   -ArgumentList $arguments `
   -WorkingDirectory $repoRoot `
@@ -73,5 +78,6 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host "Started Weksa daemon as PID $($process.Id)."
-Write-Host "  health: http://$HostName`:$Port/health"
+Write-Host "  command: rudp://$HostName`:$Port"
+Write-Host "  Odin CultMesh/RUDP: $OdinCultMeshRudp"
 Write-Host "  state: $StateRoot"
